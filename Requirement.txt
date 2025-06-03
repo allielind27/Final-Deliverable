@@ -8,3 +8,4 @@ fredapi
 vaderSentiment
 requests
 plotly
+pandas_datareader
