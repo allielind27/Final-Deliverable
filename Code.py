@@ -64,6 +64,19 @@ rev_per_store_forecast = forecast_mean / latest_store_count.values
 historical_ratio = (train_revenue / train_exog['store_count']).mean()
 risk_flag = any(rev_per_store_forecast > 1.25 * historical_ratio)
 
+# --- New Insight: Avg Ticket Analysis ---
+st.subheader("New Insight: Average Ticket Size")
+avg_ticket_recent = df['avg_ticket'].iloc[-4:]
+avg_ticket_mean = df['avg_ticket'].mean()
+st.line_chart(df['avg_ticket'], use_container_width=True)
+
+if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
+    st.warning("⚠️ Recent average ticket size is significantly higher than historical average. This may reflect price increases or shifts in customer behavior.")
+elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
+    st.info("ℹ️ Recent average ticket size is below the long-term average, which may signal discounting or reduced spending per transaction.")
+else:
+    st.success("✅ Average ticket size appears consistent with historical levels.")
+
 # --- Plot ---
 st.title("Starbucks Revenue Forecasting App")
 st.write("""
@@ -98,5 +111,5 @@ st.markdown("""
 Based on the ARIMAX forecast using CPI and store count, Starbucks' revenue is projected to remain stable over the next four quarters. 
 However, revenue per store shows a potential increase above historical norms. 
 This could indicate aggressive revenue projections not matched by store expansion, suggesting a moderate risk of revenue overstatement. 
-Continued monitoring of store growth and macroeconomic conditions is advised.
+The average ticket size also appears to be a meaningful signal and should be monitored to better understand consumer behavior trends.
 """)
