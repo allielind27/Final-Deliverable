@@ -6,7 +6,6 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 from pandas_datareader import data as pdr 
 from datetime import datetime 
 import warnings 
-from textblob import TextBlob
 
 warnings.filterwarnings("ignore")
 
@@ -78,23 +77,31 @@ elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
 else:
     st.success("✅ Average ticket size appears consistent with historical levels.")
 
-# --- Sentiment Analysis of Headlines ---
+# --- Sentiment Analysis of Headlines (keyword-based) ---
 st.subheader("Sentiment Analysis of Recent Earnings Headlines")
 headlines = [
     "Starbucks beats expectations with strong Q1 sales",
     "Concerns arise over Starbucks' China performance",
     "Starbucks forecasts modest growth despite inflation"
 ]
-sentiments = [TextBlob(h).sentiment.polarity for h in headlines]
+positive_keywords = ["beats", "strong", "growth", "record", "positive"]
+negative_keywords = ["concerns", "misses", "slowdown", "decline", "drop"]
+
+def score_sentiment(text):
+    text = text.lower()
+    score = sum(word in text for word in positive_keywords) - sum(word in text for word in negative_keywords)
+    return score
+
+sentiments = [score_sentiment(h) for h in headlines]
 sentiment_score = np.mean(sentiments)
 
 for h, s in zip(headlines, sentiments):
-    sentiment_type = "🟢 Positive" if s > 0.1 else "🔴 Negative" if s < -0.1 else "🟡 Neutral"
+    sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
     st.write(f"{sentiment_type}: {h}")
 
-if sentiment_score < -0.1:
+if sentiment_score < -1:
     st.error("⚠️ Negative sentiment detected in recent earnings headlines.")
-elif sentiment_score > 0.1:
+elif sentiment_score > 1:
     st.success("✅ Headlines suggest positive market sentiment.")
 else:
     st.info("ℹ️ Sentiment appears mixed or neutral.")
