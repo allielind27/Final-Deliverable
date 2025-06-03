@@ -46,6 +46,13 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4] 
 test_exog = exog[-4:]
 
+# Combine and drop any remaining rows with NaNs
+train_data = pd.concat([train_revenue, train_exog], axis=1).dropna()
+
+# Redefine clean inputs
+train_revenue = train_data['revenue']
+train_exog = train_data[['CPI', 'store_count']]
+
 model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4)) 
 results = model.fit(disp=False) 
 
