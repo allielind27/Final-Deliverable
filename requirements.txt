@@ -9,3 +9,4 @@ vaderSentiment
 requests
 plotly
 pandas_datareader
+setuptools
