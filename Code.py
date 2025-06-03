@@ -8,6 +8,7 @@ from datetime import datetime
 import warnings 
 
 warnings.filterwarnings("ignore")
+st.title("Starbucks Revenue Forecasting")
 
 # --- Load Data ---
 df = pd.read_csv("starbucks_financials_expanded.csv") 
