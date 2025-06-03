@@ -18,9 +18,9 @@ df = df.asfreq('Q')
 # --- Sidebar Inputs ---
 st.sidebar.header("CPI Input Options") 
 use_live_cpi = st.sidebar.checkbox("Use Live CPI from FRED", value=True)
-expected_growth_pct = st.sidebar.number_input(
-    "Enter your expected revenue growth (%) for next year:",
-    min_value=-100.0, max_value=500.0, value=5.0, step=0.5
+cpi_input = st.sidebar.number_input(
+    "Enter your expected CPI for the next quarter:",
+    min_value=0.0, max_value=500.0, value=300.0, step=0.5
 )
 
 # --- CPI Handling ---
@@ -35,11 +35,7 @@ if use_live_cpi:
         use_live_cpi = False
 
 if not use_live_cpi: 
-    cpi_manual = st.sidebar.number_input(
-        "Enter CPI value for forecast period", 
-        min_value=0.0, max_value=500.0, value=300.0
-    )
-    df['CPI'].iloc[-4:] = cpi_manual  # Override last 4 quarters
+    df['CPI'].iloc[-4:] = cpi_input  # Override last 4 quarters
 
 # --- Forecast revenue using ARIMAX ---
 revenue = df['revenue'] 
@@ -62,22 +58,6 @@ forecast = results.get_forecast(steps=4, exog=test_exog)
 forecast_mean = forecast.predicted_mean 
 forecast_ci = forecast.conf_int()
 
-# --- User input comparison ---
-actual_last = train_revenue.iloc[-1]
-forecast_last = forecast_mean.iloc[-1]
-model_growth_pct = ((forecast_last - actual_last) / actual_last) * 100
-
-st.subheader("Your Input vs Model Forecast")
-st.write(f"📈 **Model's forecasted revenue growth:** {model_growth_pct:.2f}%")
-st.write(f"🧠 **Your expected revenue growth:** {expected_growth_pct:.2f}%")
-
-if model_growth_pct > expected_growth_pct + 5:
-    st.warning("⚠️ Model's forecast exceeds your expectation by more than 5%. This may signal aggressive assumptions.")
-elif model_growth_pct < expected_growth_pct - 5:
-    st.info("ℹ️ Model's forecast is more conservative than your expectation.")
-else:
-    st.success("✅ Model forecast is in line with your expectation.")
-
 # --- Revenue per store analysis ---
 latest_store_count = df['store_count'].iloc[-4:] 
 rev_per_store_forecast = forecast_mean / latest_store_count.values 
@@ -88,7 +68,7 @@ risk_flag = any(rev_per_store_forecast > 1.25 * historical_ratio)
 st.title("Starbucks Revenue Forecasting App")
 st.write("""
 This app forecasts Starbucks quarterly revenue using ARIMAX. 
-It incorporates store count and CPI as predictors. Users can choose to use live CPI data from FRED or enter manual CPI values.
+It incorporates store count and CPI as predictors. Users can choose to use live CPI data from FRED or enter a manual CPI value.
 """)
 
 fig, ax = plt.subplots(figsize=(10, 5)) 
