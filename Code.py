@@ -23,7 +23,6 @@ expected_growth_pct = st.sidebar.number_input(
     "Enter your expected revenue growth (%) for next year:",
     min_value=-100.0, max_value=500.0, value=5.0, step=0.5
 )
-forecast_mean = forecast.predicted_mean
 actual_last = train_revenue.iloc[-1]
 forecast_last = forecast_mean.iloc[-1]
 model_growth_pct = ((forecast_last - actual_last) / actual_last) * 100
