@@ -9,35 +9,21 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-
+# --- Load Data ---
 df = pd.read_csv("starbucks_financials_expanded.csv") 
 df['date'] = pd.to_datetime(df['date']) 
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
 
-
-# --- Sidebar: CPI input toggle ---
+# --- Sidebar Inputs ---
 st.sidebar.header("CPI Input Options") 
 use_live_cpi = st.sidebar.checkbox("Use Live CPI from FRED", value=True)
 expected_growth_pct = st.sidebar.number_input(
     "Enter your expected revenue growth (%) for next year:",
     min_value=-100.0, max_value=500.0, value=5.0, step=0.5
 )
-actual_last = train_revenue.iloc[-1]
-forecast_last = forecast_mean.iloc[-1]
-model_growth_pct = ((forecast_last - actual_last) / actual_last) * 100
-st.subheader("Your Input vs Model Forecast")
-st.write(f"📈 **Model's forecasted revenue growth:** {model_growth_pct:.2f}%")
-st.write(f"🧠 **Your expected revenue growth:** {expected_growth_pct:.2f}%")
 
-if model_growth_pct > expected_growth_pct + 5:
-    st.warning("⚠️ Model's forecast exceeds your expectation by more than 5%. This may signal aggressive assumptions.")
-elif model_growth_pct < expected_growth_pct - 5:
-    st.info("ℹ️ Model's forecast is more conservative than your expectation.")
-else:
-    st.success("✅ Model forecast is in line with your expectation.")
-
-
+# --- CPI Handling ---
 if use_live_cpi: 
     try:
         live_cpi = pdr.get_data_fred('CPIAUCSL', start=df.index.min(), end=datetime.today()) 
@@ -64,19 +50,33 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4] 
 test_exog = exog[-4:]
 
-# Combine and drop any remaining rows with NaNs
+# Combine and clean training data
 train_data = pd.concat([train_revenue, train_exog], axis=1).dropna()
-
-# Redefine clean inputs
 train_revenue = train_data['revenue']
 train_exog = train_data[['CPI', 'store_count']]
 
+# Fit the model and forecast
 model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4)) 
 results = model.fit(disp=False) 
-
 forecast = results.get_forecast(steps=4, exog=test_exog) 
 forecast_mean = forecast.predicted_mean 
 forecast_ci = forecast.conf_int()
+
+# --- User input comparison ---
+actual_last = train_revenue.iloc[-1]
+forecast_last = forecast_mean.iloc[-1]
+model_growth_pct = ((forecast_last - actual_last) / actual_last) * 100
+
+st.subheader("Your Input vs Model Forecast")
+st.write(f"📈 **Model's forecasted revenue growth:** {model_growth_pct:.2f}%")
+st.write(f"🧠 **Your expected revenue growth:** {expected_growth_pct:.2f}%")
+
+if model_growth_pct > expected_growth_pct + 5:
+    st.warning("⚠️ Model's forecast exceeds your expectation by more than 5%. This may signal aggressive assumptions.")
+elif model_growth_pct < expected_growth_pct - 5:
+    st.info("ℹ️ Model's forecast is more conservative than your expectation.")
+else:
+    st.success("✅ Model forecast is in line with your expectation.")
 
 # --- Revenue per store analysis ---
 latest_store_count = df['store_count'].iloc[-4:] 
