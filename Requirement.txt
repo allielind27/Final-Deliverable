@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+matplotlib
+statsmodels
+openai
+fredapi
+vaderSentiment
+requests
+plotly
