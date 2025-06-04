@@ -1,3 +1,7 @@
+# --- Streamlit Setup ---
+import streamlit as st
+st.set_page_config(page_title="Starbucks Forecasting", layout="wide")
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,20 +10,17 @@ from datetime import datetime
 import warnings
 import requests
 from bs4 import BeautifulSoup
-import streamlit as st
 
 warnings.filterwarnings("ignore")
-# --- Title ---
-st.markdown("<h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>", unsafe_allow_html=True)
 
-# --- Load Excel Data ---
+# --- Load CSV ---
 df = pd.read_csv("starbucks_financials_expanded.csv")
-df.columns = df.columns.str.strip()  # Clean column names
-df['date'] = pd.to_datetime(df['date']) 
-df.set_index('date', inplace=True) 
+df.columns = df.columns.str.strip()
+df['date'] = pd.to_datetime(df['date'])
+df.set_index('date', inplace=True)
 df = df.asfreq('Q')
 
-# --- Web Scraper for CPI ---
+# --- Scrape CPI from FRED ---
 def fetch_latest_cpi_scraper():
     try:
         url = "https://fred.stlouisfed.org/series/CPIAUCSL"
@@ -32,58 +33,59 @@ def fetch_latest_cpi_scraper():
             raise ValueError("CPI value element not found.")
         return float(cpi_elem.text.strip())
     except Exception as e:
-        st.error(f"❌ Web scraping CPI failed: {e}")
+        st.error(f"❌ Failed to scrape CPI: {e}")
         return None
 
-# --- Apply CPI to DataFrame ---
 if 'CPI' not in df.columns:
     df['CPI'] = float('nan')
 
 latest_cpi = fetch_latest_cpi_scraper()
 cpi_to_use = latest_cpi if latest_cpi else 320.321
 df['CPI'].iloc[-4:] = cpi_to_use
-st.markdown(f"**Latest CPI Value Used:** {cpi_to_use}")
+st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
-# --- Forecasting with ARIMAX ---
-revenue = df['revenue'] 
+# --- Clean Inputs for Model ---
+revenue = df['revenue']
 exog = df[['CPI', 'store_count']]
 
-train_revenue = revenue[:-4] 
-test_revenue = revenue[-4:] 
-train_exog = exog[:-4] 
+train_revenue = revenue[:-4]
+test_revenue = revenue[-4:]
+train_exog = exog[:-4]
 test_exog = exog[-4:]
 
-train_data = pd.concat([train_revenue, train_exog], axis=1).dropna()
-train_revenue = train_data['revenue']
-train_exog = train_data[['CPI', 'store_count']]
+# Coerce and align
+train_exog = train_exog.apply(pd.to_numeric, errors='coerce').dropna()
+train_revenue = train_revenue.loc[train_exog.index]
+test_exog = test_exog.apply(pd.to_numeric, errors='coerce')
 
-model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4)) 
-results = model.fit(disp=False) 
-forecast = results.get_forecast(steps=4, exog=test_exog) 
-forecast_mean = forecast.predicted_mean 
+# --- Fit Model ---
+model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
+results = model.fit(disp=False)
+forecast = results.get_forecast(steps=4, exog=test_exog)
+forecast_mean = forecast.predicted_mean
 forecast_ci = forecast.conf_int()
 
-# --- Revenue per store analysis ---
-latest_store_count = df['store_count'].iloc[-4:] 
-rev_per_store_forecast = forecast_mean / latest_store_count.values 
+# --- Revenue per Store Check ---
+latest_store_count = df['store_count'].iloc[-4:]
+rev_per_store_forecast = forecast_mean / latest_store_count.values
 historical_ratio = (train_revenue / train_exog['store_count']).mean()
 risk_flag = any(rev_per_store_forecast > 1.25 * historical_ratio)
 
 # --- Average Ticket Insight ---
-st.subheader("New Insight: Average Ticket Size")
+st.subheader("Average Ticket Size Insight")
 avg_ticket_recent = df['avg_ticket'].iloc[-4:]
 avg_ticket_mean = df['avg_ticket'].mean()
 st.line_chart(df['avg_ticket'], use_container_width=True)
 
 if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
-    st.warning("⚠️ Average ticket size is significantly above historical average.")
+    st.warning("⚠️ Average ticket size is significantly above average.")
 elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
-    st.info("ℹ️ Average ticket size is significantly below historical average.")
+    st.info("ℹ️ Average ticket size is below long-term average.")
 else:
-    st.success("✅ Average ticket size is within normal range.")
+    st.success("✅ Ticket size is stable.")
 
 # --- Sentiment Analysis ---
-st.subheader("Sentiment Analysis of Recent Earnings Headlines")
+st.subheader("Earnings Headline Sentiment")
 headlines = [
     "Starbucks beats expectations with strong Q1 sales",
     "Concerns arise over Starbucks' China performance",
@@ -97,21 +99,12 @@ def score_sentiment(text):
     return sum(word in text for word in positive_keywords) - sum(word in text for word in negative_keywords)
 
 sentiments = [score_sentiment(h) for h in headlines]
-sentiment_score = np.mean(sentiments)
-
 for h, s in zip(headlines, sentiments):
     sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
     st.write(f"{sentiment_type}: {h}")
 
-if sentiment_score < -1:
-    st.error("⚠️ Negative sentiment detected.")
-elif sentiment_score > 1:
-    st.success("✅ Headlines suggest positive sentiment.")
-else:
-    st.info("ℹ️ Sentiment appears mixed or neutral.")
-
-# --- Peer Benchmarking ---
-st.subheader("Benchmark: Starbucks vs Industry Peers")
+# --- Benchmarking ---
+st.subheader("Industry Peer Comparison")
 peer_data = pd.DataFrame({
     'Company': ['Starbucks', 'Dunkin', 'Dutch Bros'],
     'Revenue Growth (%)': [12.0, 9.5, 15.2],
@@ -119,42 +112,33 @@ peer_data = pd.DataFrame({
 })
 st.dataframe(peer_data)
 
-# --- Interactive Chart ---
-st.subheader("Interactive Visualizations")
-selected_vars = st.multiselect("Select variables to visualize:", df.columns, default=['revenue', 'store_count'])
+# --- Interactive Plot ---
+st.subheader("Explore Starbucks KPIs")
+selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue', 'store_count'])
 st.line_chart(df[selected_vars])
 
 # --- Forecast Plot ---
-st.title("Starbucks Revenue Forecasting App")
-st.write("This app forecasts Starbucks quarterly revenue using ARIMAX. It uses CPI and store count as predictors.")
-
-fig, ax = plt.subplots(figsize=(10, 5)) 
-ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue') 
-ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange') 
-ax.fill_between(
-    forecast_mean.index, 
-    forecast_ci.iloc[:, 0].astype(float), 
-    forecast_ci.iloc[:, 1].astype(float), 
-    color='orange', alpha=0.3
-) 
-ax.set_title("Revenue Forecast vs Actual") 
-ax.set_ylabel("Revenue (in millions)") 
-ax.legend() 
-ax.grid(True) 
+st.title("Forecast vs Actual")
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue')
+ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange')
+ax.fill_between(forecast_mean.index, forecast_ci.iloc[:, 0], forecast_ci.iloc[:, 1], color='orange', alpha=0.3)
+ax.set_title("Revenue Forecast")
+ax.set_ylabel("Revenue (in millions)")
+ax.legend()
+ax.grid(True)
 st.pyplot(fig)
 
 # --- Risk Flag ---
-if risk_flag: 
-    st.error("⚠️ Potential Overstatement Risk: Revenue per store exceeds historical range.") 
-else: 
-    st.success("✅ Revenue per store is within normal historical range.")
+if risk_flag:
+    st.error("⚠️ Risk: Forecasted revenue per store is unusually high.")
+else:
+    st.success("✅ Revenue per store forecast is reasonable.")
 
-# --- AI Summary ---
+# --- Summary ---
 st.subheader("AI Summary")
 st.markdown("""
-Based on the ARIMAX forecast using CPI and store count, Starbucks' revenue is projected to remain stable over the next four quarters. 
-However, revenue per store shows a potential increase above historical norms. 
-This could indicate aggressive revenue projections not matched by store expansion, suggesting a moderate risk of revenue overstatement. 
-The average ticket size also appears to be a meaningful signal and should be monitored to better understand consumer behavior trends.
-Earnings sentiment and peer comparisons also support the importance of monitoring pricing strategies and external expectations.
+Starbucks' revenue is forecasted to remain stable. However, forecasted revenue per store may exceed historical norms, 
+indicating potential risk of overstatement. Average ticket size trends and external sentiment are important indicators 
+to monitor alongside CPI-driven forecasting.
 """)
