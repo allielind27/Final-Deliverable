@@ -153,25 +153,6 @@ st.markdown("""
 <h2 style='text-align: center; margin-top: 20px;'>🔍 Additional Insights</h2>
 """, unsafe_allow_html=True)
 
-# --- Revenue per Store Check ---
-latest_store_count = df['store_count'].iloc[-4:]
-rev_per_store_forecast = forecast_mean / latest_store_count.values
-historical_ratio = (train_revenue / train_exog['store_count']).mean()
-risk_flag = any(rev_per_store_forecast > 1.25 * historical_ratio)
-
-# --- Average Ticket Insight ---
-st.subheader("Average Ticket Size Insight")
-avg_ticket_recent = df['avg_ticket'].iloc[-4:]
-avg_ticket_mean = df['avg_ticket'].mean()
-st.line_chart(df['avg_ticket'], use_container_width=True)
-
-if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
-    st.warning("⚠️ Average ticket size is significantly above average.")
-elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
-    st.info("ℹ️ Average ticket size is below long-term average.")
-else:
-    st.success("✅ Ticket size is stable.")
-
 # --- Sentiment Analysis ---
 st.subheader("Earnings Headline Sentiment")
 headlines = [
@@ -190,6 +171,25 @@ sentiments = [score_sentiment(h) for h in headlines]
 for h, s in zip(headlines, sentiments):
     sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
     st.write(f"{sentiment_type}: {h}")
+
+# --- Revenue per Store Check ---
+latest_store_count = df['store_count'].iloc[-4:]
+rev_per_store_forecast = forecast_mean / latest_store_count.values
+historical_ratio = (train_revenue / train_exog['store_count']).mean()
+risk_flag = any(rev_per_store_forecast > 1.25 * historical_ratio)
+
+# --- Average Ticket Insight ---
+st.subheader("Average Ticket Size Insight")
+avg_ticket_recent = df['avg_ticket'].iloc[-4:]
+avg_ticket_mean = df['avg_ticket'].mean()
+st.line_chart(df['avg_ticket'], use_container_width=True)
+
+if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
+    st.warning("⚠️ Average ticket size is significantly above average.")
+elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
+    st.info("ℹ️ Average ticket size is below long-term average.")
+else:
+    st.success("✅ Ticket size is stable.")
 
 # --- Benchmarking ---
 st.subheader("Industry Peer Comparison")
