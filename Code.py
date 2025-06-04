@@ -86,27 +86,25 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4].copy()
 test_exog = exog[-4:].copy()
 
-st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
-
 st.markdown("### 🏪 Adjust Store Count Forecast")
-st.markdown(
-    "Before you begin reading the analysis, input the expected store count for the upcoming quarter. "
-    "This way, you can test different outcomes for future revenue based on your location expectations."
-)
 
-# Create two columns
-col1, col2 = st.columns([2, 1])  # Wider for label, narrower for input
+st.markdown("""
+Before you begin reading the analysis, input the expected store count for the upcoming quarter.  
+This way, you can test different outcomes for future revenue based on your location expectations.
+""")
+
+# Inline layout: better spacing between label and input box
+col1, col2, spacer = st.columns([1.8, 1.2, 0.5])
 
 with col1:
-    st.markdown("**Enter expected store count for next period:**")
+    st.markdown("#### 👉 Expected store count for next period:")
 
 with col2:
     user_store_count = st.number_input(
-        label="",  # leave label blank, already shown to the left
+        label="",
         value=int(test_exog['store_count'].iloc[-1]),
         min_value=0,
-        step=10
-    )
+        st
     
 # Drop rows with NaNs
 valid_mask = train_exog.notnull().all(axis=1)
