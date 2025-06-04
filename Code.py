@@ -9,7 +9,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 st.markdown("""
-    <h1 style='font-size: 36px;'>Starbucks Revenue Forecasting</h1>
+    <h1 style='font-size: 36px;'>Starbucks Revenue Forecasting App</h1>
 """, unsafe_allow_html=True)
 
 st.markdown("""
