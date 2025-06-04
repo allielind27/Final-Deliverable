@@ -61,6 +61,9 @@ try:
     
     st.write(f"Latest CPI Value: {latest_cpi}")
     
+    if 'CPI' not in df.columns:
+    df['CPI'] = np.nan  # Create the column with NaNs if it doesn't exist
+    
     # Assign the latest CPI value to the last 4 quarters in df['CPI']
     df['CPI'].iloc[-4:] = latest_cpi
     st.success("✅ Latest CPI data fetched successfully from FRED website.") 
