@@ -16,6 +16,7 @@ st.set_page_config(
 )
 
 st.markdown("# ☕ Starbucks Revenue Forecasting App")
+st.markdown("### Powered by ARIMAX modeling, CPI integration, and audit-enhancing analytics")
 
 warnings.filterwarnings("ignore")
 
