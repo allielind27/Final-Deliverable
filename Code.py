@@ -16,7 +16,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Load Data ---
-df = pd.read_csv("starbucks_financials_expanded.csv") 
+df = pd.read_excel("starbucks_financials_expanded.xlsx")
 df['date'] = pd.to_datetime(df['date']) 
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
