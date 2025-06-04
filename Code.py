@@ -60,7 +60,7 @@ else:
 
 st.markdown(f"""
 <hr>
-#### 📊 CPI Data Source
+### 📊 CPI Data Source
 
 The Consumer Price Index (CPI) data used is sourced directly from the Federal Reserve Economic Data (FRED):
 
