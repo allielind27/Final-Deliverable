@@ -1,3 +1,13 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+from datetime import datetime
+import warnings
+import requests
+from bs4 import BeautifulSoup
+
+warnings.filterwarnings("ignore")
 # --- Title ---
 st.markdown("<h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>", unsafe_allow_html=True)
 
