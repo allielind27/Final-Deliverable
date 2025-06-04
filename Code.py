@@ -60,14 +60,6 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4].copy()
 test_exog = exog[-4:].copy()
 
-# Ensure numeric and clean
-train_exog = train_exog.apply(pd.to_numeric, errors='coerce')
-test_exog = test_exog.apply(pd.to_numeric, errors='coerce')
-
-# Show any missing values
-st.write("🔍 Any NaNs in train_exog before dropna?", train_exog.isnull().sum())
-st.write("🔍 Sample train_exog:", train_exog.tail(10))
-
 # Drop rows with NaNs
 valid_mask = train_exog.notnull().all(axis=1)
 train_exog = train_exog[valid_mask]
