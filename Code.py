@@ -141,40 +141,29 @@ ax.legend()
 ax.grid(True)
 st.pyplot(fig)
 
-# --- Forecast Results Bar Chart ---
+# --- Forecast Results Summary Table ---
 st.markdown("""
 ---
 ### 📊 Forecast Results
-The chart below compares forecasted revenue to actual revenue for the next four quarters.
+The table below compares forecasted revenue to actual revenue for the next four quarters.
 """)
 
-# Prepare data from the model
+# Prepare data
 quarters = forecast_mean.index.strftime('%Y-%m')
-forecasted_revenue = forecast_mean.round(2)
-actual_revenue = test_revenue.reindex(forecast_mean.index).round(2)
+forecasted = forecast_mean.round(2)
+actual = test_revenue.reindex(forecast_mean.index).round(2)
+pct_diff = ((forecasted - actual) / actual * 100).round(2)
 
-# Quick diagnostic to verify data
-st.markdown("**Model Data:**")
-st.write("Forecasted Revenue ($M):", forecasted_revenue.tolist())
-st.write("Actual Revenue ($M):", actual_revenue.tolist())
+# Combine into one DataFrame
+results_df = pd.DataFrame({
+    'Date': quarters,
+    'Forecasted Revenue ($M)': forecasted.values,
+    'Actual Revenue ($M)': actual.values,
+    '% Difference': pct_diff.values
+})
 
-# Create DataFrame for bar chart
-chart_data = pd.DataFrame({
-    'Forecasted': forecasted_revenue,
-    'Actual': actual_revenue
-}, index=quarters)
-
-# Render bar chart only if data is valid
-if chart_data.isna().all().all() or chart_data.empty:
-    st.error("❌ No valid data to display. Forecasted or actual revenue may be missing or invalid.")
-else:
-    st.bar_chart(chart_data, use_container_width=True)
-
-# Calculate percentage differences and add warning for >5%
-differences = ((forecasted_revenue - actual_revenue) / actual_revenue * 100).round(2)
-significant_diff = [abs(diff) > 5 for diff in differences if not np.isnan(diff)]
-if any(significant_diff):
-    st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues.")
+# Display
+st.dataframe(results_df)
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
