@@ -104,7 +104,8 @@ with col2:
         label="",
         value=int(test_exog['store_count'].iloc[-1]),
         min_value=0,
-        st
+        step=10
+    )
     
 # Drop rows with NaNs
 valid_mask = train_exog.notnull().all(axis=1)
