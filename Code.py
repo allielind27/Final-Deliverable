@@ -79,6 +79,13 @@ st.markdown("""
     <h2 style='text-align: center; margin-top: 40px;'>🏪 Adjust Store Count Forecast</h2>
 """, unsafe_allow_html=True)
 
+user_store_count = st.number_input(
+    "Enter expected store count for next period:",
+    value=int(test_exog['store_count'].iloc[-1]),
+    min_value=0,
+    step=10
+)
+
 # --- Clean Inputs for Model ---
 revenue = df['revenue']
 exog = df[['CPI', 'store_count']]
