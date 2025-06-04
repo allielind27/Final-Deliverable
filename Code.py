@@ -50,6 +50,7 @@ st.markdown(f"**Latest CPI Value Used:** {cpi_to_use}")
 
 # --- Forecasting ---
 revenue = df['revenue'] 
+st.write("Current columns:", df.columns.tolist()
 exog = df[['CPI', 'store_count']]
 
 train_revenue = revenue[:-4] 
