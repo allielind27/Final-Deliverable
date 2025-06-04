@@ -38,10 +38,14 @@ def fetch_latest_cpi():
         st.error(f"❌ Failed to fetch CPI: {e}")
         return None
 
-# --- Update df['CPI'] with live or fallback data ---
+# --- Ensure 'CPI' column exists and update values ---
+if 'CPI' not in df.columns:
+    df['CPI'] = float('nan')
+
 latest_cpi = fetch_latest_cpi()
 cpi_to_use = latest_cpi if latest_cpi else 320.321
 df['CPI'].iloc[-4:] = cpi_to_use
+
 st.markdown(f"**Latest CPI Value Used:** {cpi_to_use}")
 
 # --- Forecasting ---
