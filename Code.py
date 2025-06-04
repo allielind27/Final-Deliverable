@@ -183,6 +183,12 @@ ax.grid(True, axis='y', linestyle='--', alpha=0.6)
 
 st.pyplot(fig)
 
+# Show alert if any % difference exceeds ±5%
+if any(abs(pct_diff) > 5):
+    st.warning("⚠️ One or more forecasted revenues differ from actuals by more than 5%. This may indicate a risk of revenue overstatement or model inaccuracy.")
+else:
+    st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
+
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
 headlines = [
