@@ -3,11 +3,7 @@ pandas
 numpy
 matplotlib
 statsmodels
-openai
-fredapi
-vaderSentiment
-requests
-plotly
 pandas_datareader
-setuptools
+openpyxl
 beautifulsoup4
+requests
