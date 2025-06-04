@@ -3,26 +3,23 @@ import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt 
 from statsmodels.tsa.statespace.sarimax import SARIMAX 
+from pandas_datareader import data as pdr
 from datetime import datetime 
 import warnings 
-import requests
-from bs4 import BeautifulSoup
-import re
 
 warnings.filterwarnings("ignore")
 
 # --- Title ---
-st.markdown("""
-    <h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>
-""", unsafe_allow_html=True)
+st.markdown("<h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>", unsafe_allow_html=True)
 
 # --- Load Excel Data ---
 df = pd.read_excel("starbucks_financials_expanded.xlsx") 
+df.columns = df.columns.str.strip()  # Clean column names
 df['date'] = pd.to_datetime(df['date']) 
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
 
-# --- Load CPI automatically from FRED ---
+# --- Fetch CPI from FRED or fallback ---
 try:
     cpi_data = pdr.get_data_fred('CPIAUCSL', start=df.index.min(), end=datetime.today())
     cpi_data = cpi_data.resample('Q').mean()
@@ -36,9 +33,8 @@ except Exception as e:
     df['CPI'].iloc[-4:] = fallback_cpi
     st.warning(f"📌 Fallback CPI of {fallback_cpi} applied to last 4 quarters.")
 
-# --- Forecasting ---
+# --- Forecasting with ARIMAX ---
 revenue = df['revenue'] 
-st.write("Current columns:", df.columns.tolist()
 exog = df[['CPI', 'store_count']]
 
 train_revenue = revenue[:-4] 
@@ -46,12 +42,10 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4] 
 test_exog = exog[-4:]
 
-# Clean training data
 train_data = pd.concat([train_revenue, train_exog], axis=1).dropna()
 train_revenue = train_data['revenue']
 train_exog = train_data[['CPI', 'store_count']]
 
-# Fit model
 model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4)) 
 results = model.fit(disp=False) 
 forecast = results.get_forecast(steps=4, exog=test_exog) 
