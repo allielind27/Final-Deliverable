@@ -15,8 +15,10 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown("# ☕ Starbucks Revenue Forecasting App")
-st.markdown("### Powered by ARIMAX Modeling, Real Time Data, and Sentiment Analysis")
+st.markdown("""
+    <h1 style='text-align: center;'>☕ Starbucks Revenue Forecasting & Audit Risk Dashboard</h1>
+    <h3 style='text-align: center;'>Powered by ARIMAX modeling, CPI integration, and audit-enhancing analytics</h3>
+""", unsafe_allow_html=True)
 
 warnings.filterwarnings("ignore")
 
