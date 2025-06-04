@@ -67,7 +67,9 @@ else:
 st.markdown("""
 ---
 #### 📊 CPI Data Source
-The Consumer Price Index (CPI) data used is sourced directly from the Federal Reserve Economic Data (FRED). This economic indicator serves as an exogenous input in the ARIMAX forecast to model the inflation impact on Starbucks’ revenue patterns.
+The Consumer Price Index (CPI) data used is sourced directly from the Federal Reserve Economic Data (FRED). 
+This economic indicator serves as an exogenous input in the ARIMAX forecast to model the inflation impact on Starbucks’ revenue patterns.
+
 **Series ID:** [CPIAUCSL](https://fred.stlouisfed.org/series/CPIAUCSL)  
 **Title:** Consumer Price Index for All Urban Consumers: All Items (Not Seasonally Adjusted)  
 **Source:** U.S. Bureau of Labor Statistics  
