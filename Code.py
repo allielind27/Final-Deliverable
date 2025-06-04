@@ -94,10 +94,10 @@ This way, you can test different outcomes for future revenue based on your locat
 """)
 
 # Inline layout: better spacing between label and input box
-col1, col2, spacer = st.columns([1.8, 1.2, 0.5])
+col1, col2, spacer = st.columns([1.8, 1.2, 0.2])
 
 with col1:
-    st.markdown("#### 👉 Expected store count for next period:")
+    st.markdown("#### Expected store count for next period:")
 
 with col2:
     user_store_count = st.number_input(
