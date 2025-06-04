@@ -13,10 +13,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("""
-Welcome to the Starbucks Revenue Forecasting App!  
-This application provides a powerful tool to forecast Starbucks' quarterly revenue using advanced time-series modeling. 
-By leveraging economic indicators like CPI and operational metrics like store count, the app delivers insights into future revenue trends. 
-Explore interactive visualizations, analyze market sentiment, and benchmark performance against industry peers to make informed decisions.
+Welcome to the Starbucks Revenue Forecasting App! This application provides useful tools to forecast Starbucks' quarterly revenue using time-series modeling. 
+By leveraging economic indicators and operational metrics, the app delivers insights into future revenue trends. 
 """)
 
 # --- Load Data ---
