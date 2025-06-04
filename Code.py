@@ -132,7 +132,8 @@ else:
     st.stop()
 
 st.markdown("""
-<h2 style='text-align: center; margin-top: 40px;'>📈 Revenue Forecast Model</h2>
+<hr>
+<h2 style='text-align: center; margin-top: 20px;'>📈 Revenue Forecast Model</h2>
 """, unsafe_allow_html=True)
 
 # --- Forecast Plot ---
