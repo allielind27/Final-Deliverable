@@ -1,7 +1,5 @@
 # --- Streamlit Setup ---
 import streamlit as st
-st.set_page_config(page_title="Starbucks Forecasting", layout="wide")
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,6 +8,12 @@ from datetime import datetime
 import warnings
 import requests
 from bs4 import BeautifulSoup
+
+st.set_page_config(
+    page_title="Starbucks Audit Dashboard",
+    page_icon="☕",
+    layout="wide"
+)
 
 warnings.filterwarnings("ignore")
 
