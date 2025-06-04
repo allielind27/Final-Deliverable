@@ -86,9 +86,9 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4].copy()
 test_exog = exog[-4:].copy()
 
-st.markdown("
+st.markdown("""
 ---  
-### 🏪 Adjust Store Count Forecast")
+### 🏪 Adjust Store Count Forecast""")
 
 st.markdown("""
 Before you begin reading the analysis, input the expected store count for the upcoming quarter.  
