@@ -10,9 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 
 st.set_page_config(
-    page_title="Starbucks Audit Dashboard",
-    page_icon="☕",
-    layout="wide"
+    page_title="Starbucks Audit App", page_icon="☕", layout="wide"
 )
 
 st.markdown("""
@@ -25,6 +23,7 @@ st.markdown("""
 
 This app is a tool meant to aid audit teams with assessing the risk of revenue overstatement at Starbucks. 
 """)
+
 warnings.filterwarnings("ignore")
 
 # --- Load CSV ---
@@ -95,7 +94,7 @@ Before you begin reading the analysis, input the expected store count for the up
 """)
 
 # Inline layout with visual balance
-col1, col2 = st.columns([1.2, 1])
+col1, col2 = st.columns([1, 3])
 
 with col1:
     st.markdown("<div style='padding-top: 10px; font-weight: bold;'>Expected store count for next period:</div>", unsafe_allow_html=True)
