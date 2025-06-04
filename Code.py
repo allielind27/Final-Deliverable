@@ -47,15 +47,32 @@ df.loc[df.index[-4:], 'CPI'] = cpi_to_use
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
 # --- Clean Inputs for Model ---
+# --- Clean Inputs for Model ---
 revenue = df['revenue']
 exog = df[['CPI', 'store_count']]
 
+# Split train and test
 train_revenue = revenue[:-4]
 test_revenue = revenue[-4:]
-train_exog = exog[:-4].apply(pd.to_numeric, errors='coerce').dropna()
-train_revenue = train_revenue.loc[train_exog.index]
+
+train_exog = exog[:-4].copy()
+test_exog = exog[-4:].copy()
+
+# Ensure numeric and clean
+train_exog = train_exog.apply(pd.to_numeric, errors='coerce')
+test_exog = test_exog.apply(pd.to_numeric, errors='coerce')
+
+# Drop rows with any NaNs from training exog and align
+valid_mask = train_exog.notnull().all(axis=1)
+train_exog = train_exog[valid_mask]
+train_revenue = train_revenue[valid_mask]
+
+# Final alignment safety check
 train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
-test_exog = exog[-4:].apply(pd.to_numeric, errors='coerce')
+
+# Optional debug (you can remove later)
+st.write("✅ Training data shape:", train_revenue.shape, train_exog.shape)
+st.write("✅ Test data shape:", test_revenue.shape, test_exog.shape)
 
 # --- Fit Model ---
 model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
