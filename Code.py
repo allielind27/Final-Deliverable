@@ -95,7 +95,8 @@ user_store_count = st.number_input(
     "Enter expected store count for next period:",
     value=int(test_exog['store_count'].iloc[-1]),
     min_value=0,
-    step=10
+    step=10    
+)
     
 # Drop rows with NaNs
 valid_mask = train_exog.notnull().all(axis=1)
@@ -104,7 +105,6 @@ train_revenue = train_revenue[valid_mask]
 
 # Final alignment
 train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
-)
 
 # --- Fit Model ---
 if train_revenue.shape[0] >= 12:
