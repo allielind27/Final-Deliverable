@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 st.markdown("# ☕ Starbucks Revenue Forecasting App")
-st.markdown("### Powered by ARIMAX modeling, real time macro data, and sentiment analysis")
+st.markdown("### Powered by ARIMAX Modeling, Real Time Data, and Sentiment Analysis")
 
 warnings.filterwarnings("ignore")
 
