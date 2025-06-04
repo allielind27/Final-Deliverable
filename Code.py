@@ -20,6 +20,11 @@ st.markdown("""
     <h3 style='text-align: center;'>Powered by ARIMAX Modeling, Live Data, and Sentiment Analysis</h3>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+### 📘 App Summary
+
+This app forecasts Starbucks revenue using ARIMAX modeling, integrating CPI data and operational metrics like store count and average ticket size. It helps audit teams assess the risk of revenue overstatement by visualizing forecasts, identifying anomalies, and providing narrative insights backed by economic trends and peer comparisons.
+""")
 warnings.filterwarnings("ignore")
 
 # --- Load CSV ---
