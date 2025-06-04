@@ -94,19 +94,19 @@ st.markdown("""
 Before you begin reading the analysis, input the expected store count for the upcoming quarter. This way, you can test different outcomes for future revenue based on your location expectations.
 """)
 
-# Inline layout: better spacing between label and input box
-col1, col2, spacer = st.columns([0.4, 0.4, 0.1])
+# Inline layout with visual balance
+col1, col2 = st.columns([1.2, 1])
 
 with col1:
-    st.markdown("#### Expected store count for next period:")
+    st.markdown("<div style='padding-top: 10px; font-weight: bold;'>Expected store count for next period:</div>", unsafe_allow_html=True)
 
 with col2:
     user_store_count = st.number_input(
         label="",
         value=int(test_exog['store_count'].iloc[-1]),
         min_value=0,
-        step=10
-    )
+        step = 10
+)
     
 # Drop rows with NaNs
 valid_mask = train_exog.notnull().all(axis=1)
