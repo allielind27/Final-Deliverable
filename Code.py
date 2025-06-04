@@ -165,6 +165,21 @@ results_df = pd.DataFrame({
 # Display
 st.dataframe(results_df)
 
+# -- Plot bar chart --
+st.markdown("""
+---
+### 📉 % Difference Between Forecasted and Actual Revenue
+""")
+
+fig, ax = plt.subplots(figsize=(8, 4))
+bars = ax.bar(quarters, pct_diff, color=colors)
+ax.axhline(0, color='black', linewidth=0.8)
+ax.set_ylabel('% Difference')
+ax.set_title('Forecast Accuracy')
+ax.grid(True, axis='y', linestyle='--', alpha=0.6)
+
+st.pyplot(fig)
+
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
 headlines = [
