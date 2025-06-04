@@ -165,6 +165,9 @@ results_df = pd.DataFrame({
 # Display
 st.dataframe(results_df)
 
+# -- Build color map --
+colors = ['red' if abs(val) > 5 else 'gray' for val in pct_diff]
+
 # -- Plot bar chart --
 st.markdown("""
 ---
