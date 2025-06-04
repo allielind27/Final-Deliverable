@@ -10,3 +10,4 @@ requests
 plotly
 pandas_datareader
 setuptools
+beautifulsoup4
