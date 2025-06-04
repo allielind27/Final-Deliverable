@@ -21,6 +21,20 @@ df['date'] = pd.to_datetime(df['date'])
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
 
+# --- Ensure required columns exist ---
+if 'CPI' not in df.columns:
+    df['CPI'] = float('nan')
+
+if 'store_count' not in df.columns:
+    df['store_count'] = float('nan')
+
+# Update CPI values with live data or fallback
+latest_cpi = fetch_latest_cpi()
+cpi_to_use = latest_cpi if latest_cpi else 320.321
+df['CPI'].iloc[-4:] = cpi_to_use
+
+st.markdown(f"**Latest CPI Value Used:** {cpi_to_use}")
+
 # --- Fetch Latest CPI ---
 def fetch_latest_cpi():
     try:
