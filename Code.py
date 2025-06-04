@@ -158,25 +158,36 @@ st.pyplot(fig)
 st.markdown("""
 ---
 ### 📋 Forecast Results
-The table below summarizes the ARIMAX model's revenue forecast for the next four quarters, compared to actual revenue (where available), including differences and confidence intervals to aid audit evaluation.
+The table below compares forecasted revenue to actual revenue (where available) for the next four quarters, highlighting differences to aid audit review.
 """)
 
-# Create results DataFrame
+# Create simplified results DataFrame
 results_df = pd.DataFrame({
-    'Date': forecast_mean.index.strftime('%Y-%m'),
+    'Quarter': forecast_mean.index.strftime('%Y-%m'),
     'Forecasted Revenue ($M)': forecast_mean.round(2),
     'Actual Revenue ($M)': test_revenue.reindex(forecast_mean.index).round(2),
-    'Difference ($M)': (forecast_mean - test_revenue.reindex(forecast_mean.index)).round(2),
-    'Difference (%)': ((forecast_mean - test_revenue.reindex(forecast_mean.index)) / test_revenue.reindex(forecast_mean.index) * 100).round(2),
-    'Lower CI ($M)': forecast_ci.iloc[:, 0].round(2),
-    'Upper CI ($M)': forecast_ci.iloc[:, 1].round(2)
+    'Difference (%)': ((forecast_mean - test_revenue.reindex(forecast_mean.index)) / test_revenue.reindex(forecast_mean.index) * 100).round(2)
 })
 results_df['Actual Revenue ($M)'] = results_df['Actual Revenue ($M)'].fillna('N/A')
-results_df['Difference ($M)'] = results_df['Difference ($M)'].fillna('N/A')
 results_df['Difference (%)'] = results_df['Difference (%)'].fillna('N/A')
 
-# Display table
-st.dataframe(results_df, use_container_width=True)
+# Apply custom styling
+st.dataframe(
+    results_df.style.set_properties(**{
+        'background-color': '#f5f5f5',
+        'border-color': '#d3d3d3',
+        'border-width': '1px',
+        'border-style': 'solid',
+        'font-family': 'Arial, sans-serif',
+        'text-align': 'center',
+        'padding': '8px'
+    }).set_table_styles([
+        {'selector': 'th', 'props': [('background-color', '#2c3e50'), ('color', 'white'), ('font-weight', 'bold'), ('text-align', 'center'), ('padding', '10px')]},
+        {'selector': 'tr:nth-child(even)', 'props': [('background-color', '#e8ecef')]},
+        {'selector': 'tr:hover', 'props': [('background-color', '#d1e7ff')]}
+    ]),
+    use_container_width=True
+)
 
 # Highlight significant differences
 significant_diff = results_df['Difference (%)'].apply(lambda x: abs(float(x)) > 10 if x != 'N/A' else False)
