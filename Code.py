@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 st.markdown("<h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>", unsafe_allow_html=True)
 
 # --- Load Excel Data ---
-df = pd.read_excel("starbucks_financials_expanded.xlsx") 
+df = pd.read_csv("starbucks_financials_expanded.csv")
 df.columns = df.columns.str.strip()  # Clean column names
 df['date'] = pd.to_datetime(df['date']) 
 df.set_index('date', inplace=True) 
