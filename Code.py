@@ -68,10 +68,6 @@ train_revenue = train_revenue[valid_mask]
 # Final alignment
 train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
 
-# Check shapes
-st.write("✅ Training data shape:", train_revenue.shape, train_exog.shape)
-st.write("✅ Test data shape:", test_revenue.shape, test_exog.shape)
-
 # --- Fit Model ---
 if train_revenue.shape[0] >= 12:
     model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
