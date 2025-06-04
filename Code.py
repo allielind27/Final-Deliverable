@@ -7,7 +7,10 @@ from pandas_datareader import data as pdr
 from datetime import datetime 
 import warnings 
 
-st.title("Starbucks Revenue Forecasting App")
+warnings.filterwarnings("ignore")
+st.markdown("""
+    <h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 Welcome to the Starbucks Revenue Forecasting App!  
@@ -15,9 +18,6 @@ This application provides a powerful tool to forecast Starbucks' quarterly reven
 By leveraging economic indicators like CPI and operational metrics like store count, the app delivers insights into future revenue trends. 
 Explore interactive visualizations, analyze market sentiment, and benchmark performance against industry peers to make informed decisions.
 """)
-
-warnings.filterwarnings("ignore")
-st.title("Starbucks Revenue Forecasting")
 
 # --- Load Data ---
 df = pd.read_csv("starbucks_financials_expanded.csv") 
