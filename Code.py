@@ -23,7 +23,7 @@ st.markdown("""
 st.markdown("""
 ### 📘 App Summary
 
-This app is a tool meant to aid audit teams with assessing the risk of revenue overstatement at Starbucks.
+This app is a tool meant to aid audit teams with assessing the risk of revenue overstatement at Starbucks. 
 """)
 warnings.filterwarnings("ignore")
 
@@ -55,11 +55,7 @@ def fetch_latest_cpi_scraper():
 # --- CPI Handling ---
 latest_cpi = fetch_latest_cpi_scraper()
 cpi_to_use = latest_cpi if latest_cpi else 0
-
-if 'CPI' not in df.columns or df['CPI'].isna().all():
-    df['CPI'] = cpi_to_use
-else:
-    df['CPI'].fillna(cpi_to_use, inplace=True)
+df['CPI'].fillna(cpi_to_use, inplace=True)
 
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
