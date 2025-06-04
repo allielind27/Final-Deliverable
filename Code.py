@@ -84,14 +84,12 @@ train_exog = exog[:-4].copy()
 test_exog = exog[-4:].copy()
 
 st.markdown("""
-<hr>
-<h3 style='text-align: center;'>🏪 Adjust Store Count Forecast</h3>
+<hr>  
+### 🏪 Adjust Store Count Forecast
 
-<div style='text-align: center; font-size: 16px; margin-bottom: 20px;'>
 Before you begin reading the analysis, input the expected store count for the upcoming quarter.  
-This allows you to test different outcomes for future revenue based on your operational growth assumptions.
-</div>
-""", unsafe_allow_html=True)
+This allows you to test different outcomes for future revenue based on your location expectations.
+""")
 
 col1, col2 = st.columns([1, 3.4])
 
