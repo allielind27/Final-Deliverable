@@ -148,14 +148,13 @@ st.markdown("""
 The chart below compares forecasted revenue to actual revenue for the next four quarters.
 """)
 
-# Prepare data for bar chart
+# Prepare data from the model
 quarters = forecast_mean.index.strftime('%Y-%m')
 forecasted_revenue = forecast_mean.round(2)
 actual_revenue = test_revenue.reindex(forecast_mean.index).round(2)
 
-# Display raw data to confirm values
-st.markdown("**Raw Data for Chart:**")
-st.write("Quarters:", quarters.tolist())
+# Quick diagnostic to verify data
+st.markdown("**Model Data:**")
 st.write("Forecasted Revenue ($M):", forecasted_revenue.tolist())
 st.write("Actual Revenue ($M):", actual_revenue.tolist())
 
@@ -165,7 +164,7 @@ chart_data = pd.DataFrame({
     'Actual': actual_revenue
 }, index=quarters)
 
-# Check if data is valid, then render bar chart
+# Render bar chart only if data is valid
 if chart_data.isna().all().all() or chart_data.empty:
     st.error("❌ No valid data to display. Forecasted or actual revenue may be missing or invalid.")
 else:
