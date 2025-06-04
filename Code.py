@@ -9,16 +9,21 @@ import warnings
 import requests
 from bs4 import BeautifulSoup
 
+# Suppress warnings for cleaner output
+warnings.filterwarnings("ignore")
+
 # Configures the page
 st.set_page_config(
     page_title="Starbucks Audit App", page_icon="☕", layout="wide"
 )
 
+# App header
 st.markdown("""
     <h1 style='text-align: center;'>☕ Starbucks Revenue Forecasting App</h1>
     <h3 style='text-align: center;'>Powered by ARIMAX Modeling, Live Data, and Sentiment Analysis</h3>
 """, unsafe_allow_html=True)
 
+# App summary
 st.markdown("""
 ### 📘 App Summary
 
@@ -50,7 +55,7 @@ def fetch_latest_cpi_scraper():
         st.error(f"❌ Failed to scrape CPI: {e}")
         return None
 
-# --- CPI Handling ---
+# CPI Integeration
 latest_cpi = fetch_latest_cpi_scraper()
 cpi_to_use = latest_cpi if latest_cpi else 0
 if 'CPI' not in df.columns or df['CPI'].isna().all():
@@ -58,6 +63,7 @@ if 'CPI' not in df.columns or df['CPI'].isna().all():
 else:
     df['CPI'].fillna(cpi_to_use, inplace=True)
 
+# Information about CPI
 st.markdown("""
 ---  
 #### 📊 CPI Data Source
@@ -73,17 +79,17 @@ This economic indicator serves as an exogenous input in the ARIMAX forecast to m
 
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
-# --- Clean Inputs for Model ---
+# Clean Inputs for Model
 revenue = df['revenue']
 exog = df[['CPI', 'store_count']]
 
 # Split train and test
 train_revenue = revenue[:-4]
 test_revenue = revenue[-4:]
-
 train_exog = exog[:-4].copy()
 test_exog = exog[-4:].copy()
 
+# Title for user adjustment
 st.markdown("""
 ---  
 ### 🏪 Adjust Store Count Forecast""")
@@ -92,20 +98,21 @@ st.markdown("""
 Before you begin reading the analysis, input the expected store count for the upcoming quarter. This way, you can test different outcomes for future revenue based on your location expectations.
 """)
 
+# Uses columns to format the user input
 col1, col2 = st.columns([1, 3.4])
 
+# Output of columns
 with col1:
     st.markdown(
         "<div style='padding-top: 34px; font-weight: bold;'>Expected store count for next period:</div>",
         unsafe_allow_html=True
     )
-
 with col2:
     user_store_count = st.number_input(
         label="",
         value=int(test_exog['store_count'].iloc[-1]),
         min_value=0,
-        step=10
+        step=5
     )
     
 # Drop rows with NaNs
@@ -129,12 +136,13 @@ else:
     st.error("❌ Not enough clean training data to run the model. Please check your CPI/store_count history.")
     st.stop()
 
+# Title for revenue model section
 st.markdown("""
 <hr>
 <h2 style='text-align: center; margin-top: 20px;'>📈 Revenue Forecast Model</h2>
 """, unsafe_allow_html=True)
 
-# --- Forecast Plot ---
+# Forecast Plot
 st.title("Forecast vs Actual")
 fig, ax = plt.subplots(figsize=(10, 5))
 ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue')
@@ -146,6 +154,36 @@ ax.legend()
 ax.grid(True)
 st.pyplot(fig)
 
+# --- Forecast Results Table ---
+st.markdown("""
+---
+### 📋 Forecast Results
+The table below summarizes the ARIMAX model's revenue forecast for the next four quarters, compared to actual revenue (where available), including differences and confidence intervals to aid audit evaluation.
+""")
+
+# Create results DataFrame
+results_df = pd.DataFrame({
+    'Date': forecast_mean.index.strftime('%Y-%m'),
+    'Forecasted Revenue ($M)': forecast_mean.round(2),
+    'Actual Revenue ($M)': test_revenue.reindex(forecast_mean.index).round(2),
+    'Difference ($M)': (forecast_mean - test_revenue.reindex(forecast_mean.index)).round(2),
+    'Difference (%)': ((forecast_mean - test_revenue.reindex(forecast_mean.index)) / test_revenue.reindex(forecast_mean.index) * 100).round(2),
+    'Lower CI ($M)': forecast_ci.iloc[:, 0].round(2),
+    'Upper CI ($M)': forecast_ci.iloc[:, 1].round(2)
+})
+results_df['Actual Revenue ($M)'] = results_df['Actual Revenue ($M)'].fillna('N/A')
+results_df['Difference ($M)'] = results_df['Difference ($M)'].fillna('N/A')
+results_df['Difference (%)'] = results_df['Difference (%)'].fillna('N/A')
+
+# Display table
+st.dataframe(results_df, use_container_width=True)
+
+# Highlight significant differences
+significant_diff = results_df['Difference (%)'].apply(lambda x: abs(float(x)) > 10 if x != 'N/A' else False)
+if significant_diff.any():
+    st.warning("⚠️ Significant differences (>10%) between forecasted and actual revenue detected. Review for potential overstatement risks.")
+    
+# Title for additional insights
 st.markdown("""
 <hr>
 <h2 style='text-align: center; margin-top: 20px;'>🔍 Additional Insights</h2>
