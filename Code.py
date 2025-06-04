@@ -6,6 +6,7 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 from pandas_datareader import data as pdr
 from datetime import datetime 
 import warnings 
+from bs4 import BeautifulSoup
 
 warnings.filterwarnings("ignore")
 
