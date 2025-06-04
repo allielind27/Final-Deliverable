@@ -131,6 +131,28 @@ else:
     st.error("❌ Not enough clean training data to run the model. Please check your CPI/store_count history.")
     st.stop()
 
+st.markdown("""
+<h2 style='text-align: center; margin-top: 40px;'>📈 Revenue Forecast Model</h2>
+""", unsafe_allow_html=True)
+
+# --- Forecast Plot ---
+st.title("Forecast vs Actual")
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue')
+ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange')
+ax.fill_between(forecast_mean.index, forecast_ci.iloc[:, 0], forecast_ci.iloc[:, 1], color='orange', alpha=0.3)
+ax.set_title("Revenue Forecast")
+ax.set_ylabel("Revenue (in millions)")
+ax.legend()
+ax.grid(True)
+st.pyplot(fig)
+
+# --- Risk Flag ---
+if risk_flag:
+    st.error("⚠️ Risk: Forecasted revenue per store is unusually high.")
+else:
+    st.success("✅ Revenue per store forecast is reasonable.")
+
 # --- Revenue per Store Check ---
 latest_store_count = df['store_count'].iloc[-4:]
 rev_per_store_forecast = forecast_mean / latest_store_count.values
@@ -183,29 +205,3 @@ st.subheader("Explore Starbucks KPIs")
 selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue', 'store_count'])
 if selected_vars:
     st.line_chart(df[selected_vars])
-
-# --- Forecast Plot ---
-st.title("Forecast vs Actual")
-fig, ax = plt.subplots(figsize=(10, 5))
-ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue')
-ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange')
-ax.fill_between(forecast_mean.index, forecast_ci.iloc[:, 0], forecast_ci.iloc[:, 1], color='orange', alpha=0.3)
-ax.set_title("Revenue Forecast")
-ax.set_ylabel("Revenue (in millions)")
-ax.legend()
-ax.grid(True)
-st.pyplot(fig)
-
-# --- Risk Flag ---
-if risk_flag:
-    st.error("⚠️ Risk: Forecasted revenue per store is unusually high.")
-else:
-    st.success("✅ Revenue per store forecast is reasonable.")
-
-# --- Summary ---
-st.subheader("AI Summary")
-st.markdown("""
-Starbucks' revenue is forecasted to remain stable. However, forecasted revenue per store may exceed historical norms, 
-indicating potential risk of overstatement. Average ticket size trends and external sentiment are important indicators 
-to monitor alongside CPI-driven forecasting.
-""")
