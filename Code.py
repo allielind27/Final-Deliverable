@@ -97,7 +97,7 @@ col1, col2 = st.columns([1, 3.2])
 
 with col1:
     st.markdown(
-        "<div style='padding-top: 20px; font-weight: bold;'>Expected store count for next period:</div>",
+        "<div style='padding-top: 30px; font-weight: bold;'>Expected store count for next period:</div>",
         unsafe_allow_html=True
     )
 
