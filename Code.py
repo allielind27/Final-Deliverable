@@ -35,6 +35,7 @@ except Exception as e:
 
 # --- Forecasting with ARIMAX ---
 revenue = df['revenue'] 
+st.write("Loaded columns:", df.columns.tolist())
 exog = df[['CPI', 'store_count']]
 
 train_revenue = revenue[:-4] 
