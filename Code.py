@@ -93,6 +93,7 @@ st.markdown("""
 Before you begin reading the analysis, input the expected store count for the upcoming quarter. This way, you can test different outcomes for future revenue based on your location expectations.
 """)
 
+col1, col2 = st.columns([1, 3.2])
 
 with col1:
     st.markdown(
