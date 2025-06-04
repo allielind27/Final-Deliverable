@@ -75,15 +75,25 @@ This economic indicator serves as an exogenous input in the ARIMAX forecast to m
 
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
-st.markdown("""
----  
-#### 🏪 Adjust Store Count Forecast
-""", unsafe_allow_html=True)
+st.markdown("### 🏪 Adjust Store Count Forecast")
+st.markdown(
+    "Before you begin reading the analysis, input the expected store count for the upcoming quarter. "
+    "This way, you can test different outcomes for future revenue based on your location expectations."
+)
 
-st.markdown("""
-Before you begin reading the analysis, input the expected store count for the upcoming quarter. 
-This will way you can test different outcomes for future revenue based on your location expectations.
-""")
+# Create two columns
+col1, col2 = st.columns([2, 1])  # Wider for label, narrower for input
+
+with col1:
+    st.markdown("**Enter expected store count for next period:**")
+
+with col2:
+    user_store_count = st.number_input(
+        label="",  # leave label blank, already shown to the left
+        value=int(test_exog['store_count'].iloc[-1]),
+        min_value=0,
+        step=10
+    )
 
 # --- Clean Inputs for Model ---
 revenue = df['revenue']
