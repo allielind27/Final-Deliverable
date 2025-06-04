@@ -34,12 +34,18 @@ try:
     
     # Parse the HTML to find the latest CPI value
     soup = BeautifulSoup(response.content, 'html.parser')
-    # Look for the "Latest Observation" or similar element
-    latest_value_elem = soup.find('span', class_='series-latest-observation-value')
-    if not latest_value_elem:
-        raise ValueError("Could not find latest CPI value on FRED page")
+    # Search for the latest observation text and extract the adjacent value
+    latest_obs = soup.find(string=lambda text: text and ("Apr 2025" in text or "Latest Observation" in text))
+    if not latest_obs:
+        raise ValueError("Could not find latest observation text on FRED page")
     
-    latest_cpi = float(latest_value_elem.text.strip())
+    # Find the parent element and look for the numeric value
+    parent = latest_obs.find_parent()
+    latest_cpi_elem = parent.find_next('span', class_=lambda x: x and any(kw in x.lower() for kw in ['value', 'data']))
+    if not latest_cpi_elem or not latest_cpi_elem.text.strip().replace('.', '').isdigit():
+        raise ValueError("Could not find valid CPI value near latest observation")
+    
+    latest_cpi = float(latest_cpi_elem.text.strip())
     st.write(f"Latest CPI Value: {latest_cpi}")
     
     # Assign the latest CPI value to the last 4 quarters in df['CPI']
@@ -47,8 +53,8 @@ try:
     st.success("✅ Latest CPI data fetched successfully from FRED website.") 
 except Exception as e:
     st.error(f"⚠️ Failed to fetch latest CPI data from FRED website: {e}")
-    st.warning("Using fallback CPI value (300) to continue. Update data source for accurate forecasts.")
-    df['CPI'].iloc[-4:] = 300  # Fallback value for last 4 quarters
+    st.warning("Using fallback CPI value (320.321) to continue. Update data source for accurate forecasts.")
+    df['CPI'].iloc[-4:] = 320.321  # Fallback value based on screenshot
     
 # --- Forecast revenue using ARIMAX ---
 revenue = df['revenue'] 
