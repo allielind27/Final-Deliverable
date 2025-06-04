@@ -15,7 +15,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("""
-Welcome to the Starbucks Revenue Forecasting App! This application provides useful tools to forecast Starbucks' quarterly revenue using time-series modeling. 
+hiWelcome to the Starbucks Revenue Forecasting App! This application provides useful tools to forecast Starbucks' quarterly revenue using time-series modeling. 
 By leveraging economic indicators and operational metrics, the app delivers insights into future revenue trends. 
 """)
 
@@ -24,8 +24,6 @@ df = pd.read_csv("starbucks_financials_expanded.csv")
 df['date'] = pd.to_datetime(df['date']) 
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
-
-
 
 # --- Forecast revenue using ARIMAX ---
 revenue = df['revenue'] 
