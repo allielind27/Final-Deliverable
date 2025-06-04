@@ -221,11 +221,6 @@ rev_per_store_forecast = forecast_mean / latest_store_count.values
 historical_ratio = (train_revenue / train_exog['store_count']).mean()
 risk_flag = any(rev_per_store_forecast > 1.25 * historical_ratio)
 
-if risk_flag:
-    st.error("⚠️ Risk: Forecasted revenue per store is unusually high.")
-else:
-    st.success("✅ Revenue per store forecast is reasonable.")
-
 # Industry Peer Comparison
 st.subheader("Industry Peer Comparison")
 peer_data = pd.DataFrame({
@@ -240,3 +235,8 @@ st.subheader("Explore Starbucks KPIs")
 selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue', 'store_count'])
 if selected_vars:
     st.line_chart(df[selected_vars])
+
+if risk_flag:
+    st.error("⚠️ Risk: Forecasted revenue per store is unusually high.")
+else:
+    st.success("✅ Revenue per store forecast is reasonable.")
