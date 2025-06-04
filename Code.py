@@ -76,7 +76,7 @@ This economic indicator serves as an exogenous input in the ARIMAX forecast to m
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
 st.markdown("""
-    <h2 style='text-align: center; margin-top: 40px;'>🔧 Adjust Forecast Inputs</h2>
+    <h2 style='text-align: center; margin-top: 40px;'>🏪 Adjust Store Count Forecast</h2>
 """, unsafe_allow_html=True)
 
 # --- Clean Inputs for Model ---
