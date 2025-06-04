@@ -94,7 +94,7 @@ Before you begin reading the analysis, input the expected store count for the up
 """)
 
 # Inline layout with visual balance
-col1, col2 = st.columns([1, 3])
+col1, col2 = st.columns([1, 3.2])
 
 with col1:
     st.markdown("<div style='padding-top: 10px; font-weight: bold;'>Expected store count for next period:</div>", unsafe_allow_html=True)
