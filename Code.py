@@ -80,6 +80,12 @@ st.markdown("""
 #### 🏪 Adjust Store Count Forecast
 """, unsafe_allow_html=True)
 
+st.markdown("""
+**What this input does:**  
+This field allows you to simulate changes in Starbucks' projected store count for the upcoming quarter.  
+Adjusting this value helps you explore how expansion or contraction in store operations could impact the revenue forecast and reveal potential risks of overstatement.
+""")
+
 # --- Clean Inputs for Model ---
 revenue = df['revenue']
 exog = df[['CPI', 'store_count']]
