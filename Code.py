@@ -81,9 +81,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("""
-**What this input does:**  
-This field allows you to simulate changes in Starbucks' projected store count for the upcoming quarter.  
-Adjusting this value helps you explore how expansion or contraction in store operations could impact the revenue forecast and reveal potential risks of overstatement.
+Before you begin reading the analysis, input the expected store count for the upcoming quarter. 
+This will way you can test different outcomes for future revenue based on your location expectations.
 """)
 
 # --- Clean Inputs for Model ---
