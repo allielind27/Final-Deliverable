@@ -31,15 +31,6 @@ st.markdown("""
 This app is a tool meant to aid audit teams with assessing the risk of revenue overstatement at Starbucks.
 """)
 
-# --- AI-Generated Summary (Placeholder to Meet Requirement) ---
-st.markdown("""
-### 📝 AI-Generated Audit Summary
-*Generated using AI and refined for audit committee use*
-
-Starbucks’ revenue forecast, powered by our ARIMAX model, indicates stable growth but flags potential overstatement risks. Rising average ticket sizes and aggressive store expansion may inflate projections. Live CPI data from FRED adjusts for inflation, ensuring robust predictions. Our revenue per store check identifies forecasts exceeding historical norms by 25%, warranting audit scrutiny. Compared to peers, Starbucks’ growth is competitive but requires monitoring for sustainability.
-*Word count: 72*
-""")
-
 # --- Data Loading ---
 df = pd.read_csv("starbucks_financials_expanded.csv")
 df.columns = df.columns.str.strip()
