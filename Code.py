@@ -190,11 +190,6 @@ for quarter, diff in zip(quarters, differences):
 significant_diff = [abs(diff) > 10 for diff in differences if not np.isnan(diff)]
 if any(significant_diff):
     st.warning("⚠️ Significant differences (>10%) between forecasted and actual revenue detected. Review for potential overstatement risks.")
-# --- Additional Insights ---
-st.markdown("""
-<hr>
-<h2 style='text-align: center; margin-top: 20px;'>🔍 Additional Insights</h2>
-""", unsafe_allow_html=True)
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
