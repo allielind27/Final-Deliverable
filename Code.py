@@ -7,35 +7,22 @@ from datetime import datetime
 import warnings 
 import requests
 from bs4 import BeautifulSoup
+import re
 
 warnings.filterwarnings("ignore")
 
-# --- App Title ---
+# --- Title ---
 st.markdown("""
     <h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>
 """, unsafe_allow_html=True)
 
-# --- Load Data ---
-df = pd.read_excel("starbucks_financials_expanded.xlsx")
+# --- Load Excel Data ---
+df = pd.read_excel("starbucks_financials_expanded.xlsx") 
 df['date'] = pd.to_datetime(df['date']) 
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
 
-# --- Ensure required columns exist ---
-if 'CPI' not in df.columns:
-    df['CPI'] = float('nan')
-
-if 'store_count' not in df.columns:
-    df['store_count'] = float('nan')
-
-# Update CPI values with live data or fallback
-latest_cpi = fetch_latest_cpi()
-cpi_to_use = latest_cpi if latest_cpi else 320.321
-df['CPI'].iloc[-4:] = cpi_to_use
-
-st.markdown(f"**Latest CPI Value Used:** {cpi_to_use}")
-
-# --- Fetch Latest CPI ---
+# --- Fetch Latest CPI from FRED ---
 def fetch_latest_cpi():
     try:
         url = "https://fred.stlouisfed.org/series/CPIAUCSL"
@@ -45,21 +32,19 @@ def fetch_latest_cpi():
         soup = BeautifulSoup(response.text, "html.parser")
         cpi_elem = soup.find("span", class_="series-meta-observation-value")
         if not cpi_elem:
-            raise ValueError("CPI element not found on FRED page.")
+            raise ValueError("CPI element not found.")
         return float(cpi_elem.text.strip())
     except Exception as e:
-        st.error(f"❌ Failed to fetch CPI from FRED: {e}")
+        st.error(f"❌ Failed to fetch CPI: {e}")
         return None
 
-# --- Update df['CPI'] with latest CPI or fallback ---
+# --- Update df['CPI'] with live or fallback data ---
 latest_cpi = fetch_latest_cpi()
-if 'CPI' not in df.columns:
-    df['CPI'] = float('nan')
 cpi_to_use = latest_cpi if latest_cpi else 320.321
 df['CPI'].iloc[-4:] = cpi_to_use
 st.markdown(f"**Latest CPI Value Used:** {cpi_to_use}")
 
-# --- Forecast revenue using ARIMAX ---
+# --- Forecasting ---
 revenue = df['revenue'] 
 exog = df[['CPI', 'store_count']]
 
@@ -68,12 +53,12 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4] 
 test_exog = exog[-4:]
 
-# Combine and clean training data
+# Clean training data
 train_data = pd.concat([train_revenue, train_exog], axis=1).dropna()
 train_revenue = train_data['revenue']
 train_exog = train_data[['CPI', 'store_count']]
 
-# Fit the model and forecast
+# Fit model
 model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4)) 
 results = model.fit(disp=False) 
 forecast = results.get_forecast(steps=4, exog=test_exog) 
@@ -86,7 +71,7 @@ rev_per_store_forecast = forecast_mean / latest_store_count.values
 historical_ratio = (train_revenue / train_exog['store_count']).mean()
 risk_flag = any(rev_per_store_forecast > 1.25 * historical_ratio)
 
-# --- New Insight: Avg Ticket Analysis ---
+# --- Average Ticket Insight ---
 st.subheader("New Insight: Average Ticket Size")
 avg_ticket_recent = df['avg_ticket'].iloc[-4:]
 avg_ticket_mean = df['avg_ticket'].mean()
@@ -97,9 +82,9 @@ if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
 elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
     st.info("ℹ️ Recent average ticket size is below the long-term average.")
 else:
-    st.success("✅ Average ticket size appears consistent with historical levels.")
+    st.success("✅ Average ticket size is consistent with historical norms.")
 
-# --- Sentiment Analysis of Headlines ---
+# --- Sentiment Analysis ---
 st.subheader("Sentiment Analysis of Recent Earnings Headlines")
 headlines = [
     "Starbucks beats expectations with strong Q1 sales",
@@ -123,7 +108,7 @@ for h, s in zip(headlines, sentiments):
 if sentiment_score < -1:
     st.error("⚠️ Negative sentiment detected.")
 elif sentiment_score > 1:
-    st.success("✅ Positive market sentiment.")
+    st.success("✅ Headlines suggest positive sentiment.")
 else:
     st.info("ℹ️ Sentiment appears mixed or neutral.")
 
@@ -136,14 +121,14 @@ peer_data = pd.DataFrame({
 })
 st.dataframe(peer_data)
 
-# --- Interactive Visualizations ---
+# --- Interactive Chart ---
 st.subheader("Interactive Visualizations")
 selected_vars = st.multiselect("Select variables to visualize:", df.columns, default=['revenue', 'store_count'])
 st.line_chart(df[selected_vars])
 
-# --- Revenue Forecast Chart ---
+# --- Forecast Plot ---
 st.title("Starbucks Revenue Forecasting App")
-st.write("This app forecasts Starbucks quarterly revenue using ARIMAX. It incorporates store count and CPI as predictors.")
+st.write("This app forecasts Starbucks quarterly revenue using ARIMAX. It uses CPI and store count as predictors.")
 
 fig, ax = plt.subplots(figsize=(10, 5)) 
 ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue') 
@@ -160,14 +145,14 @@ ax.legend()
 ax.grid(True) 
 st.pyplot(fig)
 
-# --- Risk flag output ---
+# --- Risk Flag ---
 if risk_flag: 
-    st.error("⚠️ Potential Overstatement Risk: Forecasted revenue per store exceeds historical range.") 
+    st.error("⚠️ Potential Overstatement Risk: Revenue per store exceeds historical range.") 
 else: 
-    st.success("✅ Revenue per store appears within normal historical range.")
+    st.success("✅ Revenue per store is within normal historical range.")
 
 # --- AI Summary ---
-st.subheader("AI Summary") 
+st.subheader("AI Summary")
 st.markdown("""
 Based on the ARIMAX forecast using CPI and store count, Starbucks' revenue is projected to remain stable over the next four quarters. 
 However, revenue per store shows a potential increase above historical norms. 
