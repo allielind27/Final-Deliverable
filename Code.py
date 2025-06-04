@@ -12,14 +12,22 @@ warnings.filterwarnings("ignore")
 # --- Title ---
 st.markdown("<h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>", unsafe_allow_html=True)
 
-# --- Load Excel Data ---
-df = pd.read_excel("starbucks_financials_expanded.xlsx") 
-df.columns = df.columns.str.strip()  # Clean column names
-df['date'] = pd.to_datetime(df['date']) 
-df.set_index('date', inplace=True) 
+# Load Excel
+df = pd.read_excel("starbucks_financials_expanded.xlsx")
+df.columns = df.columns.str.strip()  # fix column name spacing
+df['date'] = pd.to_datetime(df['date'])
+df.set_index('date', inplace=True)
 df = df.asfreq('Q')
 
-# --- Fetch CPI from FRED or fallback ---
+# Check column existence before accessing
+if 'store_count' not in df.columns:
+    st.error("❌ 'store_count' column is missing.")
+    st.stop()
+
+# Fetch CPI from FRED
+from pandas_datareader import data as pdr
+from datetime import datetime
+
 try:
     cpi_data = pdr.get_data_fred('CPIAUCSL', start=df.index.min(), end=datetime.today())
     cpi_data = cpi_data.resample('Q').mean()
@@ -35,7 +43,6 @@ except Exception as e:
 
 # --- Forecasting with ARIMAX ---
 revenue = df['revenue'] 
-st.write("Loaded columns:", df.columns.tolist())
 exog = df[['CPI', 'store_count']]
 
 train_revenue = revenue[:-4] 
