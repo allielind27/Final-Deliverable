@@ -6,6 +6,7 @@ from datetime import datetime
 import warnings
 import requests
 from bs4 import BeautifulSoup
+import streamlit as st
 
 warnings.filterwarnings("ignore")
 # --- Title ---
