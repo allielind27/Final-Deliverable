@@ -26,62 +26,28 @@ import requests
 from bs4 import BeautifulSoup
 import streamlit as st
 
-# --- CPI Handling via Web Scraping from FRED (Latest Value Only) ---
-st.markdown("**Fetching Latest CPI Data from FRED Website**")
-
-def fetch_and_assign_cpi(df):
+def fetch_latest_cpi():
     try:
-        # Make sure the 'CPI' column exists
-        if 'CPI' not in df.columns:
-            df['CPI'] = float('nan')
-
-        # FRED CPI series URL
         url = "https://fred.stlouisfed.org/series/CPIAUCSL"
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            "User-Agent": "Mozilla/5.0"
         }
 
-        # Send GET request to fetch the page content
         response = requests.get(url, headers=headers)
         response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
 
-        # Parse the page content with BeautifulSoup
-        soup = BeautifulSoup(response.content, 'html.parser')
+        # Grab the first element with this class
+        cpi_elem = soup.find("span", class_="series-meta-observation-value")
+        if not cpi_elem:
+            raise ValueError("CPI element not found on FRED page.")
 
-        # Search for date strings like "Apr 2025"
-        date_pattern = re.compile(r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s?\d{4}")
-        latest_obs = soup.find(string=date_pattern)
+        latest_cpi = float(cpi_elem.text.strip())
+        return latest_cpi
 
-        if not latest_obs:
-            raise ValueError("Could not find the latest CPI observation date on the FRED page.")
-
-        # Search for the CPI value near the observation date
-        page_text = soup.get_text()
-        matches = re.findall(r'\d{3}\.\d{3}', page_text)
-
-        latest_cpi = None
-        for match in matches:
-            if latest_obs in page_text[page_text.index(match)-50:page_text.index(match)+50]:
-                latest_cpi = float(match)
-                break
-
-        if not latest_cpi:
-            raise ValueError("Could not extract CPI value.")
-
-        # Assign to the last 4 quarters
-        df['CPI'].iloc[-4:] = latest_cpi
-        st.write(f"Latest CPI Value: {latest_cpi}")
-        st.success("✅ Latest CPI data fetched successfully from FRED website.")
-    
     except Exception as e:
-        st.error(f"⚠️ Failed to fetch latest CPI data from FRED website: {e}")
-        st.warning("Using fallback CPI value (320.321) to continue. Update data source for accurate forecasts.")
-        if 'CPI' not in df.columns:
-            df['CPI'] = float('nan')
-        df['CPI'].iloc[-4:] = 320.321
-        st.write("Latest CPI Value: 320.321")
-
-    return df
+        st.error(f"❌ Failed to fetch CPI from FRED: {e}")
+        return None
     
 # --- Forecast revenue using ARIMAX ---
 revenue = df['revenue'] 
