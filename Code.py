@@ -91,6 +91,12 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4].copy()
 test_exog = exog[-4:].copy()
 
+user_store_count = st.number_input(
+    "Enter expected store count for next period:",
+    value=int(test_exog['store_count'].iloc[-1]),
+    min_value=0,
+    step=10
+    
 # Drop rows with NaNs
 valid_mask = train_exog.notnull().all(axis=1)
 train_exog = train_exog[valid_mask]
@@ -98,12 +104,6 @@ train_revenue = train_revenue[valid_mask]
 
 # Final alignment
 train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
-
-user_store_count = st.number_input(
-    "Enter expected store count for next period:",
-    value=int(test_exog['store_count'].iloc[-1]),
-    min_value=0,
-    step=10
 )
 
 # --- Fit Model ---
