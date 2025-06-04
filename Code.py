@@ -21,6 +21,7 @@ df.set_index('date', inplace=True)
 df = df.asfreq('Q')
 
 # --- Scrape CPI from FRED ---
+@st.cache_data(ttl=3600)
 def fetch_latest_cpi_scraper():
     try:
         url = "https://fred.stlouisfed.org/series/CPIAUCSL"
@@ -31,7 +32,8 @@ def fetch_latest_cpi_scraper():
         cpi_elem = soup.find("span", class_="series-meta-observation-value")
         if not cpi_elem:
             raise ValueError("CPI value element not found.")
-        return float(cpi_elem.text.strip())
+        cpi_value = cpi_elem.text.strip().replace(",", "")
+        return float(cpi_value)
     except Exception as e:
         st.error(f"❌ Failed to scrape CPI: {e}")
         return None
@@ -41,7 +43,7 @@ if 'CPI' not in df.columns:
 
 latest_cpi = fetch_latest_cpi_scraper()
 cpi_to_use = latest_cpi if latest_cpi else 320.321
-df['CPI'].iloc[-4:] = cpi_to_use
+df.loc[df.index[-4:], 'CPI'] = cpi_to_use
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
 # --- Clean Inputs for Model ---
@@ -50,13 +52,10 @@ exog = df[['CPI', 'store_count']]
 
 train_revenue = revenue[:-4]
 test_revenue = revenue[-4:]
-train_exog = exog[:-4]
-test_exog = exog[-4:]
-
-# Coerce and align
-train_exog = train_exog.apply(pd.to_numeric, errors='coerce').dropna()
+train_exog = exog[:-4].apply(pd.to_numeric, errors='coerce').dropna()
 train_revenue = train_revenue.loc[train_exog.index]
-test_exog = test_exog.apply(pd.to_numeric, errors='coerce')
+train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
+test_exog = exog[-4:].apply(pd.to_numeric, errors='coerce')
 
 # --- Fit Model ---
 model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
@@ -64,6 +63,8 @@ results = model.fit(disp=False)
 forecast = results.get_forecast(steps=4, exog=test_exog)
 forecast_mean = forecast.predicted_mean
 forecast_ci = forecast.conf_int()
+forecast_mean.index = test_exog.index
+forecast_ci.index = test_exog.index
 
 # --- Revenue per Store Check ---
 latest_store_count = df['store_count'].iloc[-4:]
@@ -115,7 +116,8 @@ st.dataframe(peer_data)
 # --- Interactive Plot ---
 st.subheader("Explore Starbucks KPIs")
 selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue', 'store_count'])
-st.line_chart(df[selected_vars])
+if selected_vars:
+    st.line_chart(df[selected_vars])
 
 # --- Forecast Plot ---
 st.title("Forecast vs Actual")
