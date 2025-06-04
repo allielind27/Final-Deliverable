@@ -7,17 +7,13 @@ from datetime import datetime
 import warnings 
 import requests
 from bs4 import BeautifulSoup
-import io
 
 warnings.filterwarnings("ignore")
-st.markdown("""
-    <h1 style='font-size: 36px;'>Starbucks Revenue Forecasting App</h1>
-""", unsafe_allow_html=True)
 
+# Custom title with smaller font size
 st.markdown("""
-Welcome to the Starbucks Revenue Forecasting App! This application provides useful tools to forecast Starbucks' quarterly revenue using time-series modeling. 
-By leveraging economic indicators and operational metrics, the app delivers insights into future revenue trends. 
-""")
+    <h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>
+""", unsafe_allow_html=True)
 
 # --- Load Data ---
 df = pd.read_csv("starbucks_financials_expanded.csv") 
@@ -25,8 +21,8 @@ df['date'] = pd.to_datetime(df['date'])
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
 
-# --- CPI Handling via Web Scraping from FRED ---
-st.markdown("**Fetching CPI Data from FRED Website**")
+# --- CPI Handling via Web Scraping from FRED (Latest Value Only) ---
+st.markdown("**Fetching Latest CPI Data from FRED Website**")
 try:
     # Fetch the FRED CPIAUCSL page
     url = "https://fred.stlouisfed.org/series/CPIAUCSL"
@@ -36,28 +32,23 @@ try:
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     
-    # Parse the page to find the CSV download link
+    # Parse the HTML to find the latest CPI value
     soup = BeautifulSoup(response.content, 'html.parser')
-    download_link = soup.find('a', href=lambda href: href and 'download' in href.lower() and 'csv' in href.lower())
-    if not download_link:
-        raise ValueError("Could not find CSV download link on FRED page")
+    # Look for the "Latest Observation" or similar element
+    latest_value_elem = soup.find('span', class_='series-latest-observation-value')
+    if not latest_value_elem:
+        raise ValueError("Could not find latest CPI value on FRED page")
     
-    # Fetch the CSV data
-    csv_url = "https://fred.stlouisfed.org" + download_link['href']
-    csv_response = requests.get(csv_url, headers=headers)
-    csv_response.raise_for_status()
+    latest_cpi = float(latest_value_elem.text.strip())
+    st.write(f"Latest CPI Value: {latest_cpi}")
     
-    # Read CSV data into a DataFrame
-    live_cpi = pd.read_csv(io.StringIO(csv_response.text))
-    live_cpi['DATE'] = pd.to_datetime(live_cpi['DATE'])
-    live_cpi.set_index('DATE', inplace=True)
-    live_cpi = live_cpi.resample('Q').mean()
-    df['CPI'] = live_cpi['CPIAUCSL'].reindex(df.index).fillna(method='ffill')
-    st.success("✅ Live CPI data fetched successfully from FRED website.") 
+    # Assign the latest CPI value to the last 4 quarters in df['CPI']
+    df['CPI'].iloc[-4:] = latest_cpi
+    st.success("✅ Latest CPI data fetched successfully from FRED website.") 
 except Exception as e:
-    st.error(f"⚠️ Failed to fetch live CPI data from FRED website: {e}")
-    st.error("The app requires live CPI data to proceed. Please try again later.")
-    st.stop()
+    st.error(f"⚠️ Failed to fetch latest CPI data from FRED website: {e}")
+    st.warning("Using fallback CPI value (300) to continue. Update data source for accurate forecasts.")
+    df['CPI'].iloc[-4:] = 300  # Fallback value for last 4 quarters
     
 # --- Forecast revenue using ARIMAX ---
 revenue = df['revenue'] 
