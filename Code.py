@@ -25,8 +25,6 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-warnings.filterwarnings("ignore")
-
 # --- Load CSV ---
 df = pd.read_csv("starbucks_financials_expanded.csv")
 df.columns = df.columns.str.strip()
