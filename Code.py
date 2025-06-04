@@ -86,7 +86,8 @@ test_revenue = revenue[-4:]
 train_exog = exog[:-4].copy()
 test_exog = exog[-4:].copy()
 
-st.markdown("### 🏪 Adjust Store Count Forecast")
+st.markdown("---  
+### 🏪 Adjust Store Count Forecast")
 
 st.markdown("""
 Before you begin reading the analysis, input the expected store count for the upcoming quarter.  
@@ -94,7 +95,7 @@ This way, you can test different outcomes for future revenue based on your locat
 """)
 
 # Inline layout: better spacing between label and input box
-col1, col2, spacer = st.columns([1.8, 1.2, 0.2])
+col1, col2, spacer = st.columns([0.5, 0.5, 0.2])
 
 with col1:
     st.markdown("#### Expected store count for next period:")
