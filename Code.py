@@ -75,6 +75,19 @@ This economic indicator serves as an exogenous input in the ARIMAX forecast to m
 
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
+# --- Clean Inputs for Model ---
+revenue = df['revenue']
+exog = df[['CPI', 'store_count']]
+
+# Split train and test
+train_revenue = revenue[:-4]
+test_revenue = revenue[-4:]
+
+train_exog = exog[:-4].copy()
+test_exog = exog[-4:].copy()
+
+st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
+
 st.markdown("### 🏪 Adjust Store Count Forecast")
 st.markdown(
     "Before you begin reading the analysis, input the expected store count for the upcoming quarter. "
@@ -94,24 +107,6 @@ with col2:
         min_value=0,
         step=10
     )
-
-# --- Clean Inputs for Model ---
-revenue = df['revenue']
-exog = df[['CPI', 'store_count']]
-
-# Split train and test
-train_revenue = revenue[:-4]
-test_revenue = revenue[-4:]
-
-train_exog = exog[:-4].copy()
-test_exog = exog[-4:].copy()
-
-user_store_count = st.number_input(
-    "Enter expected store count for next period:",
-    value=int(test_exog['store_count'].iloc[-1]),
-    min_value=0,
-    step=10    
-)
     
 # Drop rows with NaNs
 valid_mask = train_exog.notnull().all(axis=1)
