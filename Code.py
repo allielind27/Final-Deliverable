@@ -1,4 +1,4 @@
-# --- Streamlit Setup ---
+# Libraries
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 st.markdown("# ☕ Starbucks Revenue Forecasting App")
-st.markdown("### Powered by ARIMAX modeling, CPI integration, and audit-enhancing analytics")
+st.markdown("### Powered by ARIMAX modeling, real time macro data, and sentiment analysis")
 
 warnings.filterwarnings("ignore")
 
