@@ -72,7 +72,12 @@ The Consumer Price Index (CPI) data used is sourced directly from the Federal Re
 
 This economic indicator serves as an exogenous input in the ARIMAX forecast to model the inflation impact on Starbucks’ revenue patterns.
 """)
+
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
+
+st.markdown("""
+    <h2 style='text-align: center; margin-top: 40px;'>🔧 Adjust Forecast Inputs</h2>
+""", unsafe_allow_html=True)
 
 # --- Clean Inputs for Model ---
 revenue = df['revenue']
