@@ -6,7 +6,6 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 from datetime import datetime 
 import warnings 
 import requests
-from bs4 import BeautifulSoup
 import io
 
 warnings.filterwarnings("ignore")
@@ -15,7 +14,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("""
-hiWelcome to the Starbucks Revenue Forecasting App! This application provides useful tools to forecast Starbucks' quarterly revenue using time-series modeling. 
+Welcome to the Starbucks Revenue Forecasting App! This application provides useful tools to forecast Starbucks' quarterly revenue using time-series modeling. 
 By leveraging economic indicators and operational metrics, the app delivers insights into future revenue trends. 
 """)
 
