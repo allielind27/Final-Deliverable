@@ -14,16 +14,16 @@ st.set_page_config(
     page_title="Starbucks Audit App", page_icon="☕", layout="wide"
 )
 
-# Title and summary of the app
 st.markdown("""
     <h1 style='text-align: center;'>☕ Starbucks Revenue Forecasting App</h1>
     <h3 style='text-align: center;'>Powered by ARIMAX Modeling, Live Data, and Sentiment Analysis</h3>
-    <hr>
-    <div style='font-size: 16px; padding-top: 10px; text-align: left;'>
-        <strong>📘 App Summary</strong><br><br>
-        This app is a tool meant to aid audit teams with assessing the risk of revenue overstatement at Starbucks. 
-    </div>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+### 📘 App Summary
+
+This app is a tool meant to aid audit teams with assessing the risk of revenue overstatement at Starbucks. 
+""")
 
 # --- Load CSV ---
 df = pd.read_csv("starbucks_financials_expanded.csv")
