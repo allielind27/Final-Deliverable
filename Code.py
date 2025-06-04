@@ -3,9 +3,11 @@ import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt 
 from statsmodels.tsa.statespace.sarimax import SARIMAX 
-from pandas_datareader import data as pdr 
 from datetime import datetime 
 import warnings 
+import requests
+from bs4 import BeautifulSoup
+import io
 
 warnings.filterwarnings("ignore")
 st.markdown("""
@@ -23,27 +25,39 @@ df['date'] = pd.to_datetime(df['date'])
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
 
-# --- Sidebar Inputs ---
-st.sidebar.header("CPI Input Options") 
-use_live_cpi = st.sidebar.checkbox("Use Live CPI from FRED", value=True)
-cpi_input = st.sidebar.number_input(
-    "Enter your expected CPI for the next quarter:",
-    min_value=0.0, max_value=500.0, value=300.0, step=0.5
-)
-
-# --- CPI Handling ---
-if use_live_cpi: 
-    try:
-        live_cpi = pdr.get_data_fred('CPIAUCSL', start=df.index.min(), end=datetime.today()) 
-        live_cpi = live_cpi.resample('Q').mean()
-        df['CPI'] = live_cpi['CPIAUCSL'].reindex(df.index).fillna(method='ffill') 
-        st.sidebar.success("✅ Live CPI data fetched successfully.") 
-    except Exception as e:
-        st.sidebar.error(f"⚠️ Failed to fetch live CPI: {e}") 
-        use_live_cpi = False
-
-if not use_live_cpi: 
-    df['CPI'].iloc[-4:] = cpi_input  # Override last 4 quarters
+# --- CPI Handling via Web Scraping from FRED ---
+st.markdown("**Fetching CPI Data from FRED Website**")
+try:
+    # Fetch the FRED CPIAUCSL page
+    url = "https://fred.stlouisfed.org/series/CPIAUCSL"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    
+    # Parse the page to find the CSV download link
+    soup = BeautifulSoup(response.content, 'html.parser')
+    download_link = soup.find('a', href=lambda href: href and 'download' in href.lower() and 'csv' in href.lower())
+    if not download_link:
+        raise ValueError("Could not find CSV download link on FRED page")
+    
+    # Fetch the CSV data
+    csv_url = "https://fred.stlouisfed.org" + download_link['href']
+    csv_response = requests.get(csv_url, headers=headers)
+    csv_response.raise_for_status()
+    
+    # Read CSV data into a DataFrame
+    live_cpi = pd.read_csv(io.StringIO(csv_response.text))
+    live_cpi['DATE'] = pd.to_datetime(live_cpi['DATE'])
+    live_cpi.set_index('DATE', inplace=True)
+    live_cpi = live_cpi.resample('Q').mean()
+    df['CPI'] = live_cpi['CPIAUCSL'].reindex(df.index).fillna(method='ffill')
+    st.success("✅ Live CPI data fetched successfully from FRED website.") 
+except Exception as e:
+    st.error(f"⚠️ Failed to fetch live CPI data from FRED website: {e}")
+    st.error("The app requires live CPI data to proceed. Please try again later.")
+    st.stop()
 
 # --- Forecast revenue using ARIMAX ---
 revenue = df['revenue'] 
