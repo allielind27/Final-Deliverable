@@ -148,6 +148,11 @@ ax.legend()
 ax.grid(True)
 st.pyplot(fig)
 
+st.markdown("""
+<hr>
+<h2 style='text-align: center; margin-top: 20px;'>🔍 Additional Insights</h2>
+""", unsafe_allow_html=True)
+
 # --- Revenue per Store Check ---
 latest_store_count = df['store_count'].iloc[-4:]
 rev_per_store_forecast = forecast_mean / latest_store_count.values
