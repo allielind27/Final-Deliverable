@@ -145,51 +145,37 @@ st.pyplot(fig)
 st.markdown("""
 ---
 ### 📊 Forecast Results
-The bar chart below compares forecasted revenue to actual revenue for the next four quarters. Percentage differences are listed below to highlight potential audit concerns.
+The chart below compares forecasted revenue to actual revenue for the next four quarters.
 """)
 
 # Prepare data for bar chart
 quarters = forecast_mean.index.strftime('%Y-%m')
 forecasted_revenue = forecast_mean.round(2)
 actual_revenue = test_revenue.reindex(forecast_mean.index).round(2)
-differences = ((forecast_mean - test_revenue.reindex(forecast_mean.index)) / test_revenue.reindex(forecast_mean.index) * 100).round(2)
 
-# Diagnostic: Display raw data for debugging
-st.markdown("**Debugging Data (for verification):**")
+# Display raw data to confirm values
+st.markdown("**Raw Data for Chart:**")
 st.write("Quarters:", quarters.tolist())
 st.write("Forecasted Revenue ($M):", forecasted_revenue.tolist())
 st.write("Actual Revenue ($M):", actual_revenue.tolist())
-st.write("Differences (%):", differences.tolist())
 
 # Create DataFrame for bar chart
 chart_data = pd.DataFrame({
-    'Forecasted Revenue ($M)': forecasted_revenue,
-    'Actual Revenue ($M)': actual_revenue
+    'Forecasted': forecasted_revenue,
+    'Actual': actual_revenue
 }, index=quarters)
 
-# Diagnostic: Display the DataFrame
-st.markdown("**DataFrame for Chart:**")
-st.write(chart_data)
-
-# Render bar chart
-if chart_data.isna().all().all():
-    st.error("❌ No data available to display in the chart. Please check the forecast and actual revenue data.")
+# Check if data is valid, then render bar chart
+if chart_data.isna().all().all() or chart_data.empty:
+    st.error("❌ No valid data to display. Forecasted or actual revenue may be missing or invalid.")
 else:
     st.bar_chart(chart_data, use_container_width=True)
 
-# Display percentage differences
-st.markdown("**Percentage Differences (Forecast vs. Actual):**")
-for quarter, diff in zip(quarters, differences):
-    if not np.isnan(diff):
-        color = "red" if abs(diff) > 10 else "black"
-        st.markdown(f"- {quarter}: <span style='color:{color};'>{diff:.1f}%</span>", unsafe_allow_html=True)
-    else:
-        st.markdown(f"- {quarter}: N/A")
-
-# Highlight significant differences
-significant_diff = [abs(diff) > 10 for diff in differences if not np.isnan(diff)]
+# Calculate percentage differences and add warning for >5%
+differences = ((forecasted_revenue - actual_revenue) / actual_revenue * 100).round(2)
+significant_diff = [abs(diff) > 5 for diff in differences if not np.isnan(diff)]
 if any(significant_diff):
-    st.warning("⚠️ Significant differences (>10%) between forecasted and actual revenue detected. Review for potential overstatement risks.")
+    st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues.")
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
