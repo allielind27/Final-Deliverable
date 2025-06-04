@@ -34,18 +34,31 @@ try:
     
     # Parse the HTML to find the latest CPI value
     soup = BeautifulSoup(response.content, 'html.parser')
-    # Search for the latest observation text and extract the adjacent value
+    
+    # First attempt: Search for "Apr 2025" and find the nearby numeric value
     latest_obs = soup.find(string=lambda text: text and ("Apr 2025" in text or "Latest Observation" in text))
-    if not latest_obs:
-        raise ValueError("Could not find latest observation text on FRED page")
+    latest_cpi = None
+    if latest_obs:
+        parent = latest_obs.find_parent()
+        # Look for a span with a class like "series-meta__value" or containing "value/data"
+        latest_cpi_elem = parent.find_next('span', class_=lambda x: x and any(kw in x.lower() for kw in ['meta__value', 'value', 'data']))
+        if latest_cpi_elem and latest_cpi_elem.text.strip().replace('.', '').isdigit():
+            latest_cpi = float(latest_cpi_elem.text.strip())
     
-    # Find the parent element and look for the numeric value
-    parent = latest_obs.find_parent()
-    latest_cpi_elem = parent.find_next('span', class_=lambda x: x and any(kw in x.lower() for kw in ['value', 'data']))
-    if not latest_cpi_elem or not latest_cpi_elem.text.strip().replace('.', '').isdigit():
-        raise ValueError("Could not find valid CPI value near latest observation")
+    # Second attempt: Search the page text for a pattern matching the CPI value (e.g., 320.321)
+    if not latest_cpi:
+        page_text = soup.get_text()
+        # Look for a number with the pattern XXX.XXX near "Apr 2025"
+        cpi_pattern = r'\d{3}\.\d{3}'
+        matches = re.findall(cpi_pattern, page_text)
+        for match in matches:
+            if "Apr 2025" in page_text[page_text.index(match)-50:page_text.index(match)+50]:
+                latest_cpi = float(match)
+                break
     
-    latest_cpi = float(latest_cpi_elem.text.strip())
+    if not latest_cpi:
+        raise ValueError("Could not find latest CPI value on FRED page")
+    
     st.write(f"Latest CPI Value: {latest_cpi}")
     
     # Assign the latest CPI value to the last 4 quarters in df['CPI']
