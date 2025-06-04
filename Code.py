@@ -22,31 +22,19 @@ df['date'] = pd.to_datetime(df['date'])
 df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
 
-# --- Fetch Latest CPI from FRED ---
-def fetch_latest_cpi():
-    try:
-        url = "https://fred.stlouisfed.org/series/CPIAUCSL"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        cpi_elem = soup.find("span", class_="series-meta-observation-value")
-        if not cpi_elem:
-            raise ValueError("CPI element not found.")
-        return float(cpi_elem.text.strip())
-    except Exception as e:
-        st.error(f"❌ Failed to fetch CPI: {e}")
-        return None
-
-# --- Ensure 'CPI' column exists and update values ---
-if 'CPI' not in df.columns:
-    df['CPI'] = float('nan')
-
-latest_cpi = fetch_latest_cpi()
-cpi_to_use = latest_cpi if latest_cpi else 320.321
-df['CPI'].iloc[-4:] = cpi_to_use
-
-st.markdown(f"**Latest CPI Value Used:** {cpi_to_use}")
+# --- Load CPI automatically from FRED ---
+try:
+    cpi_data = pdr.get_data_fred('CPIAUCSL', start=df.index.min(), end=datetime.today())
+    cpi_data = cpi_data.resample('Q').mean()
+    df['CPI'] = cpi_data['CPIAUCSL'].reindex(df.index).fillna(method='ffill')
+    st.markdown("✅ **Live CPI data loaded successfully from FRED.**")
+except Exception as e:
+    st.error(f"⚠️ Failed to fetch CPI from FRED: {e}")
+    if 'CPI' not in df.columns:
+        df['CPI'] = float('nan')
+    fallback_cpi = 320.321
+    df['CPI'].iloc[-4:] = fallback_cpi
+    st.warning(f"📌 Fallback CPI of {fallback_cpi} applied to last 4 quarters.")
 
 # --- Forecasting ---
 revenue = df['revenue'] 
