@@ -1,46 +1,37 @@
-import streamlit as st 
-import pandas as pd 
-import numpy as np 
-import matplotlib.pyplot as plt 
-from statsmodels.tsa.statespace.sarimax import SARIMAX 
-from pandas_datareader import data as pdr
-from datetime import datetime 
-import warnings 
-from bs4 import BeautifulSoup
-
-warnings.filterwarnings("ignore")
-
 # --- Title ---
 st.markdown("<h1 style='font-size: 24px;'>Starbucks Revenue Forecasting</h1>", unsafe_allow_html=True)
 
-# Load Excel
-df = pd.read_excel("starbucks_financials_expanded.xlsx")
-df.columns = df.columns.str.strip()  # fix column name spacing
-df['date'] = pd.to_datetime(df['date'])
-df.set_index('date', inplace=True)
+# --- Load Excel Data ---
+df = pd.read_excel("starbucks_financials_expanded.xlsx") 
+df.columns = df.columns.str.strip()  # Clean column names
+df['date'] = pd.to_datetime(df['date']) 
+df.set_index('date', inplace=True) 
 df = df.asfreq('Q')
 
-# Check column existence before accessing
-if 'store_count' not in df.columns:
-    st.error("❌ 'store_count' column is missing.")
-    st.stop()
+# --- Web Scraper for CPI ---
+def fetch_latest_cpi_scraper():
+    try:
+        url = "https://fred.stlouisfed.org/series/CPIAUCSL"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+        cpi_elem = soup.find("span", class_="series-meta-observation-value")
+        if not cpi_elem:
+            raise ValueError("CPI value element not found.")
+        return float(cpi_elem.text.strip())
+    except Exception as e:
+        st.error(f"❌ Web scraping CPI failed: {e}")
+        return None
 
-# Fetch CPI from FRED
-from pandas_datareader import data as pdr
-from datetime import datetime
+# --- Apply CPI to DataFrame ---
+if 'CPI' not in df.columns:
+    df['CPI'] = float('nan')
 
-try:
-    cpi_data = pdr.get_data_fred('CPIAUCSL', start=df.index.min(), end=datetime.today())
-    cpi_data = cpi_data.resample('Q').mean()
-    df['CPI'] = cpi_data['CPIAUCSL'].reindex(df.index).fillna(method='ffill')
-    st.markdown("✅ **Live CPI data loaded successfully from FRED.**")
-except Exception as e:
-    st.error(f"⚠️ Failed to fetch CPI from FRED: {e}")
-    if 'CPI' not in df.columns:
-        df['CPI'] = float('nan')
-    fallback_cpi = 320.321
-    df['CPI'].iloc[-4:] = fallback_cpi
-    st.warning(f"📌 Fallback CPI of {fallback_cpi} applied to last 4 quarters.")
+latest_cpi = fetch_latest_cpi_scraper()
+cpi_to_use = latest_cpi if latest_cpi else 320.321
+df['CPI'].iloc[-4:] = cpi_to_use
+st.markdown(f"**Latest CPI Value Used:** {cpi_to_use}")
 
 # --- Forecasting with ARIMAX ---
 revenue = df['revenue'] 
@@ -74,11 +65,11 @@ avg_ticket_mean = df['avg_ticket'].mean()
 st.line_chart(df['avg_ticket'], use_container_width=True)
 
 if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
-    st.warning("⚠️ Recent average ticket size is significantly higher than historical average.")
+    st.warning("⚠️ Average ticket size is significantly above historical average.")
 elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
-    st.info("ℹ️ Recent average ticket size is below the long-term average.")
+    st.info("ℹ️ Average ticket size is significantly below historical average.")
 else:
-    st.success("✅ Average ticket size is consistent with historical norms.")
+    st.success("✅ Average ticket size is within normal range.")
 
 # --- Sentiment Analysis ---
 st.subheader("Sentiment Analysis of Recent Earnings Headlines")
