@@ -23,7 +23,7 @@ st.markdown("""
 st.markdown("""
 ### 📘 App Summary
 
-This app forecasts Starbucks revenue using ARIMAX modeling, integrating CPI data and operational metrics like store count and average ticket size. It helps audit teams assess the risk of revenue overstatement by visualizing forecasts, identifying anomalies, and providing narrative insights backed by economic trends and peer comparisons.
+This app is a tool meant to aid audit teams with assessing the risk of revenue overstatement at Starbucks.
 """)
 warnings.filterwarnings("ignore")
 
