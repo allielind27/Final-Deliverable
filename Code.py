@@ -40,7 +40,7 @@ def fetch_latest_cpi_scraper():
 
 # --- CPI Handling ---
 latest_cpi = fetch_latest_cpi_scraper()
-cpi_to_use = latest_cpi if latest_cpi else 320.321
+cpi_to_use = latest_cpi if latest_cpi else 0
 
 if 'CPI' not in df.columns or df['CPI'].isna().all():
     df['CPI'] = cpi_to_use
