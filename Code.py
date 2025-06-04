@@ -38,15 +38,17 @@ def fetch_latest_cpi_scraper():
         st.error(f"❌ Failed to scrape CPI: {e}")
         return None
 
-if 'CPI' not in df.columns:
-    df['CPI'] = float('nan')
-
+# --- CPI Handling ---
 latest_cpi = fetch_latest_cpi_scraper()
 cpi_to_use = latest_cpi if latest_cpi else 320.321
-df.loc[df.index[-4:], 'CPI'] = cpi_to_use
+
+if 'CPI' not in df.columns or df['CPI'].isna().all():
+    df['CPI'] = cpi_to_use
+else:
+    df['CPI'].fillna(cpi_to_use, inplace=True)
+
 st.markdown(f"**CPI used for forecast:** {cpi_to_use}")
 
-# --- Clean Inputs for Model ---
 # --- Clean Inputs for Model ---
 revenue = df['revenue']
 exog = df[['CPI', 'store_count']]
@@ -62,26 +64,34 @@ test_exog = exog[-4:].copy()
 train_exog = train_exog.apply(pd.to_numeric, errors='coerce')
 test_exog = test_exog.apply(pd.to_numeric, errors='coerce')
 
-# Drop rows with any NaNs from training exog and align
+# Show any missing values
+st.write("🔍 Any NaNs in train_exog before dropna?", train_exog.isnull().sum())
+st.write("🔍 Sample train_exog:", train_exog.tail(10))
+
+# Drop rows with NaNs
 valid_mask = train_exog.notnull().all(axis=1)
 train_exog = train_exog[valid_mask]
 train_revenue = train_revenue[valid_mask]
 
-# Final alignment safety check
+# Final alignment
 train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
 
-# Optional debug (you can remove later)
+# Check shapes
 st.write("✅ Training data shape:", train_revenue.shape, train_exog.shape)
 st.write("✅ Test data shape:", test_revenue.shape, test_exog.shape)
 
 # --- Fit Model ---
-model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
-results = model.fit(disp=False)
-forecast = results.get_forecast(steps=4, exog=test_exog)
-forecast_mean = forecast.predicted_mean
-forecast_ci = forecast.conf_int()
-forecast_mean.index = test_exog.index
-forecast_ci.index = test_exog.index
+if train_revenue.shape[0] >= 12:
+    model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
+    results = model.fit(disp=False)
+    forecast = results.get_forecast(steps=4, exog=test_exog)
+    forecast_mean = forecast.predicted_mean
+    forecast_ci = forecast.conf_int()
+    forecast_mean.index = test_exog.index
+    forecast_ci.index = test_exog.index
+else:
+    st.error("❌ Not enough clean training data to run the model. Please check your CPI/store_count history.")
+    st.stop()
 
 # --- Revenue per Store Check ---
 latest_store_count = df['store_count'].iloc[-4:]
