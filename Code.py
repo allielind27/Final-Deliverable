@@ -148,12 +148,6 @@ ax.legend()
 ax.grid(True)
 st.pyplot(fig)
 
-# --- Risk Flag ---
-if risk_flag:
-    st.error("⚠️ Risk: Forecasted revenue per store is unusually high.")
-else:
-    st.success("✅ Revenue per store forecast is reasonable.")
-
 # --- Revenue per Store Check ---
 latest_store_count = df['store_count'].iloc[-4:]
 rev_per_store_forecast = forecast_mean / latest_store_count.values
@@ -206,3 +200,9 @@ st.subheader("Explore Starbucks KPIs")
 selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue', 'store_count'])
 if selected_vars:
     st.line_chart(df[selected_vars])
+
+# --- Risk Flag ---
+if risk_flag:
+    st.error("⚠️ Risk: Forecasted revenue per store is unusually high.")
+else:
+    st.success("✅ Revenue per store forecast is reasonable.")
