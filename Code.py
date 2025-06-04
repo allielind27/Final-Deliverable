@@ -145,71 +145,32 @@ st.pyplot(fig)
 st.markdown("""
 ---
 ### 📊 Forecast Results
-The bar chart below compares forecasted revenue to actual revenue (where available) for the next four quarters. Percentage differences are shown above each forecast bar to highlight potential audit concerns.
+The bar chart below compares forecasted revenue to actual revenue (where available) for the next four quarters. Percentage differences are listed below to highlight potential audit concerns.
 """)
 
 # Prepare data for bar chart
 quarters = forecast_mean.index.strftime('%Y-%m')
-forecasted_revenue = forecast_mean.round(2).tolist()
-actual_revenue = test_revenue.reindex(forecast_mean.index).round(2).fillna(np.nan).tolist()
+forecasted_revenue = forecast_mean.round(2)
+actual_revenue = test_revenue.reindex(forecast_mean.index).round(2)
 differences = ((forecast_mean - test_revenue.reindex(forecast_mean.index)) / test_revenue.reindex(forecast_mean.index) * 100).round(2)
-difference_labels = [f"{diff:.1f}%" if not np.isnan(diff) else "N/A" for diff in differences]
 
-# Create bar chart
-st.markdown(
-    """
-    ```chartjs
-    {
-      "type": "bar",
-      "data": {
-        "labels": """ + str(quarters.tolist()) + """,
-        "datasets": [
-          {
-            "label": "Forecasted Revenue ($M)",
-            "data": """ + str(forecasted_revenue) + """,
-            "backgroundColor": "#36A2EB",
-            "borderColor": "#2E86C1",
-            "borderWidth": 1
-          },
-          {
-            "label": "Actual Revenue ($M)",
-            "data": """ + str(actual_revenue) + """,
-            "backgroundColor": "#FF6384",
-            "borderColor": "#E74C3C",
-            "borderWidth": 1
-          }
-        ]
-      },
-      "options": {
-        "scales": {
-          "y": {
-            "beginAtZero": true,
-            "title": { "display": true, "text": "Revenue ($M)" }
-          },
-          "x": { "title": { "display": true, "text": "Quarter" } }
-        },
-        "plugins": {
-          "legend": { "position": "top" },
-          "title": { "display": true, "text": "Starbucks Revenue: Forecasted vs. Actual" },
-          "datalabels": {
-            "display": true,
-            "anchor": "end",
-            "align": "top",
-            "formatter": (value, context) => {
-              if (context.dataset.label === "Forecasted Revenue ($M)") {
-                return """ + str(difference_labels) + """[context.dataIndex];
-              }
-              return "";
-            },
-            "color": "#2c3e50",
-            "font": { "weight": "bold" }
-          }
-        }
-      }
-    }
-    ```
-    """
-)
+# Create DataFrame for bar chart
+chart_data = pd.DataFrame({
+    'Forecasted Revenue ($M)': forecasted_revenue,
+    'Actual Revenue ($M)': actual_revenue
+}, index=quarters)
+
+# Render bar chart
+st.bar_chart(chart_data, use_container_width=True)
+
+# Display percentage differences
+st.markdown("**Percentage Differences (Forecast vs. Actual):**")
+for quarter, diff in zip(quarters, differences):
+    if not np.isnan(diff):
+        color = "red" if abs(diff) > 10 else "black"
+        st.markdown(f"- {quarter}: <span style='color:{color};'>{diff:.1f}%</span>", unsafe_allow_html=True)
+    else:
+        st.markdown(f"- {quarter}: N/A")
 
 # Highlight significant differences
 significant_diff = [abs(diff) > 10 for diff in differences if not np.isnan(diff)]
