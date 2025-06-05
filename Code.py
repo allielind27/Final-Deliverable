@@ -238,7 +238,7 @@ st.dataframe(peer_data)
 
 # Interactive KPI Plot
 st.subheader("Explore Starbucks KPIs")
-selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue')
+selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue'])
 if selected_vars:
     st.line_chart(df[selected_vars])
 
