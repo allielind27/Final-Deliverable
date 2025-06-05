@@ -206,12 +206,12 @@ st.markdown("""
 
 # Align on common dates — outer join fills gaps for display
 combined_ticket = pd.concat([
-    starbucks_df['avg_ticket'].rename("Starbucks"),
+    df['avg_ticket'].rename("Starbucks"),
     dunkin_df['avg_ticket'].rename("Dunkin")
 ], axis=1)
 
 combined_revenue = pd.concat([
-    starbucks_df['revenue'].rename("Starbucks"),
+    df['revenue'].rename("Starbucks"),
     dunkin_df['revenue'].rename("Dunkin")
 ], axis=1)
 
