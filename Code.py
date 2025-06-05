@@ -204,16 +204,16 @@ st.markdown("""
 ### 📊 KPI Insights
 """)
 
-# Align on common dates and drop missing
-combined_ticket = pd.DataFrame({
-    "Starbucks": df['avg_ticket'],
-    "Dunkin": dunkin_df['avg_ticket']
-}).dropna()
+# Align on common dates — outer join fills gaps for display
+combined_ticket = pd.concat([
+    starbucks_df['avg_ticket'].rename("Starbucks"),
+    dunkin_df['avg_ticket'].rename("Dunkin")
+], axis=1)
 
-combined_revenue = pd.DataFrame({
-    "Starbucks": df['revenue'],
-    "Dunkin": dunkin_df['revenue']
-}).dropna()
+combined_revenue = pd.concat([
+    starbucks_df['revenue'].rename("Starbucks"),
+    dunkin_df['revenue'].rename("Dunkin")
+], axis=1)
 
 col1, col2 = st.columns(2)
 
