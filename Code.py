@@ -193,24 +193,41 @@ if any(abs(pct_diff) > 5):
 else:
     st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
 
-# Average Ticket Size Insight
-st.subheader("Average Ticket Size Insight")
-avg_ticket_recent = df['avg_ticket'].iloc[-4:]
-avg_ticket_mean = df['avg_ticket'].mean()
-st.line_chart(df['avg_ticket'], use_container_width=True)
+# --- Side-by-Side Layout for KPI Plot and Ticket Price Insight ---
+st.markdown("""
+---
+### 📊 KPI Insights
+""")
 
-if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
-    st.warning("⚠️ Average ticket size is significantly above average.")
-elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
-    st.info("ℹ️ Average ticket size is below long-term average.")
+# Create two columns for side-by-side display
+col1, col2 = st.columns(2)
+
+# Average Ticket Size Insight in the first column
+with col1:
+    st.subheader("Average Ticket Size Insight")
+    avg_ticket_recent = df['avg_ticket'].iloc[-4:]
+    avg_ticket_mean = df['avg_ticket'].mean()
+    st.line_chart(df['avg_ticket'], use_container_width=True)
+
+    if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
+        st.warning("⚠️ Average ticket size is significantly above average.")
+    elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
+        st.info("ℹ️ Average ticket size is below long-term average.")
+    else:
+        st.success("✅ Ticket size is stable.")
+
+# Interactive KPI Plot in the second column
+with col2:
+    st.subheader("Explore Starbucks KPIs")
+    selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue'])
+    if selected_vars:
+        st.line_chart(df[selected_vars], use_container_width=True)
+
+# Risk flag check for revenue per loyalty member
+if risk_flag:
+    st.error("⚠️ Risk: Forecasted revenue per loyalty member is unusually high.")
 else:
-    st.success("✅ Ticket size is stable.")
-
-# Revenue per Loyalty Member Check
-latest_loyalty_members = df['loyalty_members'].iloc[-4:]
-rev_per_member_forecast = forecast_mean / latest_loyalty_members.values
-historical_ratio = (train_revenue / train_exog['loyalty_members']).mean()
-risk_flag = any(rev_per_member_forecast > 1.25 * historical_ratio)
+    st.success("✅ Revenue per loyalty member forecast is reasonable.")
 
 # Industry Peer Comparison
 st.subheader("Industry Peer Comparison")
@@ -220,12 +237,6 @@ peer_data = pd.DataFrame({
     'Avg Ticket ($)': [6.15, 5.80, 6.45]
 })
 st.dataframe(peer_data)
-
-# Interactive KPI Plot
-st.subheader("Explore Starbucks KPIs")
-selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue'])
-if selected_vars:
-    st.line_chart(df[selected_vars])
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
