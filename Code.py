@@ -295,7 +295,7 @@ with col1:
     fig1, ax1 = plt.subplots(figsize=(6, 4))
     
     # Data for plotting
-    companies = ["Starbucks", "Dunkin", "Bruegger's"]
+    companies = ["Starbucks", "Dunkin", "Dutch Bro's"]
     avg_pcts = [starbucks_avg_pct, dunkin_avg_pct, brueggers_avg_pct]
     colors = ["#006241", "#FF6F00", "#8B4513"]
     
