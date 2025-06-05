@@ -178,7 +178,7 @@ fig, ax = plt.subplots(figsize=(8, 4))
 bars = ax.bar(quarters, pct_diff, color=colors)
 ax.axhline(0, color='black', linewidth=0.8)
 ax.set_ylabel('% Difference')
-ax.set_title('Quater')
+ax.set_title('Quarter')
 ax.grid(True, axis='y', linestyle='--', alpha=0.6)
 
 st.pyplot(fig)
@@ -238,7 +238,7 @@ st.dataframe(peer_data)
 
 # Interactive KPI Plot
 st.subheader("Explore Starbucks KPIs")
-selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue', 'store_count'])
+selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue')
 if selected_vars:
     st.line_chart(df[selected_vars])
 
