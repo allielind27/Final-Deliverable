@@ -389,7 +389,7 @@ Note: This is a test. No real data is being provided.
 client = OpenAI(api_key="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")
 
 response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4-turbo",
     messages=[
         {"role": "system", "content": "You are a financial audit assistant."},
         {"role": "user", "content": summary_prompt}
