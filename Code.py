@@ -216,13 +216,6 @@ with col2:
     if selected_vars:
         st.line_chart(df[selected_vars], use_container_width=True)
 
-if avg_ticket_recent.mean() > 1.1 * avg_ticket_mean:
-        st.warning("⚠️ Average ticket size is significantly above average.")
-    elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
-        st.info("ℹ️ Average ticket size is below long-term average.")
-    else:
-        st.success("✅ Ticket size is stable.")
-
 # Industry Peer Comparison
 st.subheader("Industry Peer Comparison")
 peer_data = pd.DataFrame({
