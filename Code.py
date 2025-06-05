@@ -37,13 +37,20 @@ df = pd.read_csv("starbucks_financials_expanded.csv")
 df.columns = df.columns.str.strip()
 df['date'] = pd.to_datetime(df['date'])
 df.set_index('date', inplace=True)
-df = df.asfreq('Q')  # Resample Starbucks data
+df = df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
 
 dunkin_df = pd.read_csv("dunkin_financials_generated.csv")
-dunkin_df.columns = dunkin_df.columns.str.strip()  # Ensure column names are cleaned
+dunkin_df.columns = dunkin_df.columns.str.strip()
 dunkin_df['date'] = pd.to_datetime(dunkin_df['date'])
 dunkin_df.set_index('date', inplace=True)
-dunkin_df = dunkin_df.asfreq('Q')  # Resample Dunkin' data independently
+dunkin_df = dunkin_df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
+
+# Load Bruegger's data
+brueggers_df = pd.read_csv("brueggers_financials_generated.csv")
+brueggers_df.columns = brueggers_df.columns.str.strip()
+brueggers_df['date'] = pd.to_datetime(brueggers_df['date'])
+brueggers_df.set_index('date', inplace=True)
+brueggers_df = brueggers_df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
 
 # --- CPI Data Scraping ---
 @st.cache_data(ttl=3600)
@@ -206,14 +213,14 @@ st.markdown("""
 <h2 style='text-align: center; margin-top: 20px;'>🔍 Additional Insights</h2>
 """, unsafe_allow_html=True)
 
-# Markdown header
+# --- KPI Insights ---
 st.markdown("""
 ---
-### 📊 KPI Comparisons
+### 📊 KPI Insights
 """)
 
-# Align on shared dates
-common_dates = df.index.intersection(dunkin_df.index)
+# Align on shared dates across all three datasets
+common_dates = df.index.intersection(dunkin_df.index).intersection(brueggers_df.index)
 
 # Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
@@ -222,11 +229,12 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Average Ticket Size")
     fig1, ax1 = plt.subplots(figsize=(6, 4))
-    # Store data for debugging
     starbucks_avg = df.loc[common_dates, 'avg_ticket']
     dunkin_avg = dunkin_df.loc[common_dates, 'avg_ticket']
+    brueggers_avg = brueggers_df.loc[common_dates, 'avg_ticket']
     ax1.plot(common_dates, starbucks_avg, label="Starbucks", color="#006241", linewidth=2)
     ax1.plot(common_dates, dunkin_avg, label="Dunkin", color="#FF6F00", linewidth=2)
+    ax1.plot(common_dates, brueggers_avg, label="Bruegger's", color="#8B4513", linewidth=2)  # Brown for Bruegger's
     ax1.set_ylabel("Avg Ticket ($)")
     ax1.set_title("Average Ticket Size Over Time")
     ax1.legend()
@@ -240,11 +248,12 @@ with col1:
 with col2:
     st.subheader("Revenue Over Time")
     fig2, ax2 = plt.subplots(figsize=(6, 4))
-    # Store data for debugging
     starbucks_rev = df.loc[common_dates, 'revenue']
     dunkin_rev = dunkin_df.loc[common_dates, 'revenue']
+    brueggers_rev = brueggers_df.loc[common_dates, 'revenue']
     ax2.plot(common_dates, starbucks_rev, label="Starbucks", color="#006241", linewidth=2)
     ax2.plot(common_dates, dunkin_rev, label="Dunkin", color="#FF6F00", linewidth=2)
+    ax2.plot(common_dates, brueggers_rev, label="Bruegger's", color="#8B4513", linewidth=2)  # Brown for Bruegger's
     ax2.set_ylabel("Revenue ($M)")
     ax2.set_title("Revenue Over Time")
     ax2.legend()
