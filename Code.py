@@ -254,6 +254,11 @@ with col2:
     st.pyplot(fig2)
     plt.close(fig2)
 
+st.markdown("""
+---
+### 🗞️ Sentiment Analysis
+""")
+
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
 headlines = [
@@ -272,3 +277,8 @@ sentiments = [score_sentiment(h) for h in headlines]
 for h, s in zip(headlines, sentiments):
     sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
     st.write(f"{sentiment_type}: {h}")
+
+st.markdown("""
+<hr>
+<h2 style='text-align: center; margin-top: 20px;'>🤖 AI-Generated Summary</h2>
+""", unsafe_allow_html=True)
