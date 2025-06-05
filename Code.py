@@ -193,6 +193,12 @@ if any(abs(pct_diff) > 5):
 else:
     st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
 
+# Revenue per Loyalty Member Check
+latest_loyalty_members = df['loyalty_members'].iloc[-4:]
+rev_per_member_forecast = forecast_mean / latest_loyalty_members.values
+historical_ratio = (train_revenue / train_exog['loyalty_members']).mean()
+risk_flag = any(rev_per_member_forecast > 1.25 * historical_ratio)
+
 # --- Side-by-Side Layout for KPI Plot and Ticket Price Insight ---
 st.markdown("""
 ---
