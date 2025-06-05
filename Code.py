@@ -286,14 +286,6 @@ starbucks_rev_pct = calculate_overall_pct_diff(df.loc[common_dates, 'revenue'])
 dunkin_rev_pct = calculate_overall_pct_diff(dunkin_df.loc[common_dates, 'revenue'])
 brueggers_rev_pct = calculate_overall_pct_diff(brueggers_df.loc[common_dates, 'revenue'])
 
-# Debugging: Display overall percentage differences
-st.write("Starbucks avg_ticket overall % diff:", round(starbucks_avg_pct, 2))
-st.write("Dunkin avg_ticket overall % diff:", round(dunkin_avg_pct, 2))
-st.write("Bruegger's avg_ticket overall % diff:", round(brueggers_avg_pct, 2))
-st.write("Starbucks revenue overall % diff:", round(starbucks_rev_pct, 2))
-st.write("Dunkin revenue overall % diff:", round(dunkin_rev_pct, 2))
-st.write("Bruegger's revenue overall % diff:", round(brueggers_rev_pct, 2))
-
 # Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
 
