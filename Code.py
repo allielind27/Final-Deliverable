@@ -37,12 +37,13 @@ df = pd.read_csv("starbucks_financials_expanded.csv")
 df.columns = df.columns.str.strip()
 df['date'] = pd.to_datetime(df['date'])
 df.set_index('date', inplace=True)
-df = df.asfreq('Q')
+df = df.asfreq('Q')  # Resample Starbucks data
 
 dunkin_df = pd.read_csv("dunkin_financials_generated.csv")
+dunkin_df.columns = dunkin_df.columns.str.strip()  # Ensure column names are cleaned
 dunkin_df['date'] = pd.to_datetime(dunkin_df['date'])
 dunkin_df.set_index('date', inplace=True)
-dunkin_df = df.asfreq('Q')
+dunkin_df = dunkin_df.asfreq('Q')  # Resample Dunkin' data independently
 
 # --- CPI Data Scraping ---
 @st.cache_data(ttl=3600)
