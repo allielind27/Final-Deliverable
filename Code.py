@@ -145,48 +145,53 @@ ax.legend()
 ax.grid(True)
 st.pyplot(fig)
 
-# --- Forecast Results Bar Chart ---
+# --- Forecast Results Summary Table ---
 st.markdown("""
 ---
 ### 📊 Forecast Results
-The chart below compares forecasted revenue to actual revenue for the next four quarters, based on the model using CPI and loyalty membership data.
+The table below compares forecasted revenue to actual revenue for the next four quarters, based on the model using CPI and loyalty membership data.
 """)
 
-# Prepare data from the model
+# Prepare data
 quarters = forecast_mean.index.strftime('%Y-%m')
-forecasted_revenue = forecast_mean.round(2).values  # Ensure it's a list of values
-actual_revenue = test_revenue.reindex(forecast_mean.index).round(2).values  # Ensure it's a list of values
+forecasted = forecast_mean.round(2)
+actual = test_revenue.reindex(forecast_mean.index).round(2)
+pct_diff = ((forecasted - actual) / actual * 100).round(2)
 
-# Calculate percentage difference
-percentage_diff = [(f - a) / a * 100 if a != 0 else np.nan for f, a in zip(forecasted_revenue, actual_revenue)]
-percentage_diff = [round(diff, 2) for diff in percentage_diff]
+# Combine into one DataFrame
+results_df = pd.DataFrame({
+    'Date': quarters,
+    'Forecasted Revenue ($M)': forecasted.values,
+    'Actual Revenue ($M)': actual.values,
+    '% Difference': pct_diff.values
+})
 
-# Create DataFrame for revenue comparison
-chart_data_revenue = pd.DataFrame({
-    'Forecasted': forecasted_revenue,
-    'Actual': actual_revenue
-}, index=quarters)
+# Display the DataFrame
+st.dataframe(results_df)
 
-# Create DataFrame for percentage difference
-chart_data_diff = pd.DataFrame({
-    'Percentage Difference (%)': percentage_diff
-}, index=quarters)
+# Build color map for the bar chart
+colors = ['red' if abs(val) > 5 else 'gray' for val in pct_diff]
 
-# Render revenue comparison bar chart
-st.bar_chart(chart_data_revenue, use_container_width=True)
-
-# Render percentage difference bar chart
+# Plot bar chart for percentage difference
 st.markdown("""
 ---
-### 📊 Percentage Difference
-The chart below shows the percentage difference between forecasted and actual revenue.
+### 📉 % Difference Between Forecasted and Actual Revenue
 """)
-st.bar_chart(chart_data_diff, use_container_width=True)
 
-# Add warning for >5% difference
-significant_diff = [abs(diff) > 5 for diff in percentage_diff if not np.isnan(diff)]
-if any(significant_diff):
-    st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues related to loyalty membership or CPI assumptions.")
+fig, ax = plt.subplots(figsize=(8, 4))
+bars = ax.bar(quarters, pct_diff, color=colors)
+ax.axhline(0, color='black', linewidth=0.8)
+ax.set_ylabel('% Difference')
+ax.set_title('Quarter')
+ax.grid(True, axis='y', linestyle='--', alpha=0.6)
+
+st.pyplot(fig)
+
+# Show alert if any % difference exceeds ±5%
+if any(abs(pct_diff) > 5):
+    st.warning("⚠️ One or more forecasted revenues differ from actuals by more than 5%. This may indicate a risk of revenue overstatement or model inaccuracy related to loyalty membership or CPI assumptions.")
+else:
+    st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
