@@ -154,14 +154,8 @@ The chart below compares forecasted revenue to actual revenue for the next four 
 
 # Prepare data from the model
 quarters = forecast_mean.index.strftime('%Y-%m')
-forecasted_revenue = forecast_mean.round(2)
-actual_revenue = test_revenue.reindex(forecast_mean.index).round(2)  # No fillna(0) to handle NaN naturally
-
-# Quick diagnostic to verify data
-st.markdown("**Model Data:**")
-st.write("Quarters:", quarters.tolist())
-st.write("Forecasted Revenue ($M):", forecasted_revenue.tolist())
-st.write("Actual Revenue ($M):", actual_revenue.tolist())
+forecasted_revenue = forecast_mean.round(2).values  # Ensure it's a list of values
+actual_revenue = test_revenue.reindex(forecast_mean.index).round(2).values  # Ensure it's a list of values
 
 # Create DataFrame for bar chart
 chart_data = pd.DataFrame({
@@ -169,14 +163,12 @@ chart_data = pd.DataFrame({
     'Actual': actual_revenue
 }, index=quarters)
 
-# Render bar chart with improved validation
-if chart_data['Forecasted'].isna().all() or chart_data.empty or (chart_data['Actual'].isna().all() and not chart_data['Forecasted'].isna().any()):
-    st.error("❌ No valid data to display. Actual revenue may be missing or misaligned with the forecast period.")
-else:
-    st.bar_chart(chart_data, use_container_width=True)
+# Render bar chart
+st.bar_chart(chart_data, use_container_width=True)
 
 # Calculate percentage differences and add warning for >5%
-differences = ((forecasted_revenue - actual_revenue) / actual_revenue.replace(0, np.nan) * 100).round(2)
+differences = [(f - a) / a * 100 if a != 0 else np.nan for f, a in zip(forecasted_revenue, actual_revenue)]
+differences = [round(diff, 2) for diff in differences]
 significant_diff = [abs(diff) > 5 for diff in differences if not np.isnan(diff)]
 if any(significant_diff):
     st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues related to loyalty membership or CPI assumptions.")
