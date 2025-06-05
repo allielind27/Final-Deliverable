@@ -39,9 +39,7 @@ df['date'] = pd.to_datetime(df['date'])
 df.set_index('date', inplace=True)
 df = df.asfreq('Q')
 
-# Read Dunkin data
-dunkin_df = pd.read_excel("dunkin_financials_generated.xlsx")
-# Ensure 'date' is datetime and set it as index
+dunkin_df = pd.read_csv("dunkin_financials_generated.csv")
 dunkin_df['date'] = pd.to_datetime(dunkin_df['date'])
 dunkin_df.set_index('date', inplace=True)
 dunkin_df = df.asfreq('Q')
