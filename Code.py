@@ -236,7 +236,7 @@ with col1:
     brueggers_avg = brueggers_df.loc[common_dates, 'avg_ticket']
     ax1.plot(common_dates, starbucks_avg, label="Starbucks", color="#006241", linewidth=2)
     ax1.plot(common_dates, dunkin_avg, label="Dunkin", color="#FF6F00", linewidth=2)
-    ax1.plot(common_dates, brueggers_avg, label="Bruegger's", color="#8B4513", linewidth=2)
+    ax1.plot(common_dates, brueggers_avg, label="Dutch Bro's", color="#8B4513", linewidth=2)
     ax1.set_ylabel("Avg Ticket ($)")
     ax1.set_title("Average Ticket Size Over Time")
     ax1.legend()
@@ -255,7 +255,7 @@ with col2:
     brueggers_rev = brueggers_df.loc[common_dates, 'revenue']
     ax2.plot(common_dates, starbucks_rev, label="Starbucks", color="#006241", linewidth=2)
     ax2.plot(common_dates, dunkin_rev, label="Dunkin", color="#FF6F00", linewidth=2)
-    ax2.plot(common_dates, brueggers_rev, label="Bruegger's", color="#8B4513", linewidth=2)
+    ax2.plot(common_dates, brueggers_rev, label="Dutch Bro's", color="#8B4513", linewidth=2)
     ax2.set_ylabel("Revenue ($M)")
     ax2.set_title("Revenue Over Time")
     ax2.legend()
