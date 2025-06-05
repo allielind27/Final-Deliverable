@@ -198,38 +198,45 @@ if any(abs(pct_diff) > 5):
 else:
     st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
 
-# --- Side-by-Side Layout for KPI Plot and Ticket Price Insight ---
+# Markdown header
 st.markdown("""
 ---
 ### 📊 KPI Insights
 """)
 
-# Align on shared dates
+# Align on shared dates (assuming df and dunkin_df are defined DataFrames)
 common_dates = df.index.intersection(dunkin_df.index)
 
-# --- Plot Average Ticket Size ---
-st.subheader("Average Ticket Size")
+# Create two columns for side-by-side plots
+col1, col2 = st.columns(2)
 
-fig1, ax1 = plt.subplots(figsize=(8, 4))
-ax1.plot(common_dates, df.loc[common_dates, 'avg_ticket'], label="Starbucks", linewidth=2)
-ax1.plot(common_dates, dunkin_df.loc[common_dates, 'avg_ticket'], label="Dunkin", linewidth=2)
-ax1.set_ylabel("Avg Ticket ($)")
-ax1.set_title("Average Ticket Size Over Time")
-ax1.legend()
-ax1.grid(True)
-st.pyplot(fig1)
+# --- Plot Average Ticket Size ---
+with col1:
+    st.subheader("Average Ticket Size")
+    fig1, ax1 = plt.subplots(figsize=(6, 4))  # Reduced figsize for side-by-side fit
+    ax1.plot(common_dates, df.loc[common_dates, 'avg_ticket'], label="Starbucks", linewidth=2)
+    ax1.plot(common_dates, dunkin_df.loc[common_dates, 'avg_ticket'], label="Dunkin", linewidth=2)
+    ax1.set_ylabel("Avg Ticket ($)")
+    ax1.set_title("Average Ticket Size Over Time")
+    ax1.legend()
+    ax1.grid(True)
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+    plt.tight_layout()  # Prevent label cutoff
+    st.pyplot(fig1)
 
 # --- Plot Revenue ---
-st.subheader("Revenue Over Time")
-
-fig2, ax2 = plt.subplots(figsize=(8, 4))
-ax2.plot(common_dates, df.loc[common_dates, 'revenue'], label="Starbucks", linewidth=2)
-ax2.plot(common_dates, dunkin_df.loc[common_dates, 'revenue'], label="Dunkin", linewidth=2)
-ax2.set_ylabel("Revenue ($M)")
-ax2.set_title("Revenue Over Time")
-ax2.legend()
-ax2.grid(True)
-st.pyplot(fig2)
+with col2:
+    st.subheader("Revenue Over Time")
+    fig2, ax2 = plt.subplots(figsize=(6, 4))  # Reduced figsize for side-by-side fit
+    ax2.plot(common_dates, df.loc[common_dates, 'revenue'], label="Starbucks", linewidth=2)
+    ax2.plot(common_dates, dunkin_df.loc[common_dates, 'revenue'], label="Dunkin", linewidth=2)
+    ax2.set_ylabel("Revenue ($M)")
+    ax2.set_title("Revenue Over Time")
+    ax2.legend()
+    ax2.grid(True)
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+    plt.tight_layout()  # Prevent label cutoff
+    st.pyplot(fig2)
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
