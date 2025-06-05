@@ -157,19 +157,34 @@ quarters = forecast_mean.index.strftime('%Y-%m')
 forecasted_revenue = forecast_mean.round(2).values  # Ensure it's a list of values
 actual_revenue = test_revenue.reindex(forecast_mean.index).round(2).values  # Ensure it's a list of values
 
-# Create DataFrame for bar chart
-chart_data = pd.DataFrame({
+# Calculate percentage difference
+percentage_diff = [(f - a) / a * 100 if a != 0 else np.nan for f, a in zip(forecasted_revenue, actual_revenue)]
+percentage_diff = [round(diff, 2) for diff in percentage_diff]
+
+# Create DataFrame for revenue comparison
+chart_data_revenue = pd.DataFrame({
     'Forecasted': forecasted_revenue,
     'Actual': actual_revenue
 }, index=quarters)
 
-# Render bar chart
-st.bar_chart(chart_data, use_container_width=True)
+# Create DataFrame for percentage difference
+chart_data_diff = pd.DataFrame({
+    'Percentage Difference (%)': percentage_diff
+}, index=quarters)
 
-# Calculate percentage differences and add warning for >5%
-differences = [(f - a) / a * 100 if a != 0 else np.nan for f, a in zip(forecasted_revenue, actual_revenue)]
-differences = [round(diff, 2) for diff in differences]
-significant_diff = [abs(diff) > 5 for diff in differences if not np.isnan(diff)]
+# Render revenue comparison bar chart
+st.bar_chart(chart_data_revenue, use_container_width=True)
+
+# Render percentage difference bar chart
+st.markdown("""
+---
+### 📊 Percentage Difference
+The chart below shows the percentage difference between forecasted and actual revenue.
+""")
+st.bar_chart(chart_data_diff, use_container_width=True)
+
+# Add warning for >5% difference
+significant_diff = [abs(diff) > 5 for diff in percentage_diff if not np.isnan(diff)]
 if any(significant_diff):
     st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues related to loyalty membership or CPI assumptions.")
 
