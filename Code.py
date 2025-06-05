@@ -10,8 +10,6 @@ import warnings
 import matplotlib.dates
 import openai
 
-openai.api_key = "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"
-
 summary_prompt = """
 You are an AI financial assistant. Imagine you have reviewed a quarterly report from a retail coffee company.
 
@@ -388,8 +386,9 @@ st.markdown("""
 <h2 style='text-align: center; margin-top: 20px;'>🤖 AI-Generated Summary</h2>
 """, unsafe_allow_html=True)
 
+client = OpenAI(api_key="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")
 
-response = openai.ChatCompletion.create(
+response = client.chat.completions.create(
     model="gpt-4",
     messages=[
         {"role": "system", "content": "You are a financial audit assistant."},
@@ -398,6 +397,4 @@ response = openai.ChatCompletion.create(
     temperature=0.4
 )
 
-ai_summary = response['choices'][0]['message']['content']
-
-st.markdown(ai_summary)
+ai_summary = response.choices[0].message.content
