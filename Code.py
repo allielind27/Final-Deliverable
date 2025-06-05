@@ -7,7 +7,7 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 import warnings
-import matplotlib.dates as mdates
+import matplotlib.dates
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
