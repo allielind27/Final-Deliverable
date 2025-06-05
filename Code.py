@@ -263,6 +263,151 @@ with col2:
     st.pyplot(fig2)
     plt.close(fig2)
 
+# --- Percentage Differences in KPIs ---
+st.markdown("""
+---
+### 📊 Percentage Differences in KPIs
+This section shows the quarter-over-quarter percentage differences in Average Ticket Price and Revenue for Starbucks, Dunkin', and Bruegger's using scatter charts.
+""")
+
+# Calculate percentage differences for avg_ticket and revenue
+def calculate_pct_diff(series):
+    return series.pct_change() * 100  # Returns % change between consecutive periods
+
+# Compute percentage differences for each company
+starbucks_avg_pct = calculate_pct_diff(df.loc[common_dates, 'avg_ticket']).dropna()
+dunkin_avg_pct = calculate_pct_diff(dunkin_df.loc[common_dates, 'avg_ticket']).dropna()
+brueggers_avg_pct = calculate_pct_diff(brueggers_df.loc[common_dates, 'avg_ticket']).dropna()
+
+starbucks_rev_pct = calculate_pct_diff(df.loc[common_dates, 'revenue']).dropna()
+dunkin_rev_pct = calculate_pct_diff(dunkin_df.loc[common_dates, 'revenue']).dropna()
+brueggers_rev_pct = calculate_pct_diff(brueggers_df.loc[common_dates, 'revenue']).dropna()
+
+# Align the dates after calculating percentage differences
+pct_dates = starbucks_avg_pct.index  # Same for all since common_dates is aligned
+labels = pct_dates.strftime("%Y-%m").tolist()  # Format dates for Chart.js
+
+# Debugging: Display percentage differences
+st.write("Starbucks avg_ticket % diff:", starbucks_avg_pct.tolist())
+st.write("Dunkin avg_ticket % diff:", dunkin_avg_pct.tolist())
+st.write("Bruegger's avg_ticket % diff:", brueggers_avg_pct.tolist())
+st.write("Starbucks revenue % diff:", starbucks_rev_pct.tolist())
+st.write("Dunkin revenue % diff:", dunkin_rev_pct.tolist())
+st.write("Bruegger's revenue % diff:", brueggers_rev_pct.tolist())
+
+# Create two columns for side-by-side charts
+col1, col2 = st.columns(2)
+
+# --- Scatter Chart for % Difference in Average Ticket Price ---
+with col1:
+    st.subheader("Quarterly % Change in Avg Ticket Price")
+    st_chart(
+        type="scatter",
+        data={
+            "labels": labels,
+            "datasets": [
+                {
+                    "label": "Starbucks",
+                    "data": [{"x": i, "y": val} for i, val in enumerate(starbucks_avg_pct.tolist())],
+                    "borderColor": "#006241",
+                    "backgroundColor": "#006241",
+                    "pointRadius": 5
+                },
+                {
+                    "label": "Dunkin",
+                    "data": [{"x": i, "y": val} for i, val in enumerate(dunkin_avg_pct.tolist())],
+                    "borderColor": "#FF6F00",
+                    "backgroundColor": "#FF6F00",
+                    "pointRadius": 5
+                },
+                {
+                    "label": "Bruegger's",
+                    "data": [{"x": i, "y": val} for i, val in enumerate(brueggers_avg_pct.tolist())],
+                    "borderColor": "#8B4513",
+                    "backgroundColor": "#8B4513",
+                    "pointRadius": 5
+                }
+            ]
+        },
+        options={
+            "plugins": {
+                "title": {"display": True, "text": "Quarterly % Change in Avg Ticket Price"},
+                "legend": {"display": True},
+                "tooltip": {
+                    "callbacks": {
+                        "label": "function(context) { return context.dataset.label + ': ' + context.raw.y.toFixed(2) + '% (' + labels[context.dataIndex] + ')'; }"
+                    }
+                }
+            },
+            "scales": {
+                "y": {
+                    "title": {"display": True, "text": "% Change in Avg Ticket"},
+                    "beginAtZero": False,
+                    "grid": {"display": True}
+                },
+                "x": {
+                    "title": {"display": True, "text": "Quarter Index"},
+                    "grid": {"Application": {"labels": labels}, "display": True}
+                }
+            }
+        }
+    )
+
+# --- Scatter Chart for % Difference in Revenue ---
+with col2:
+    st.subheader("Quarterly % Change in Revenue")
+    st_chart(
+        type="scatter",
+        data={
+            "labels": labels,
+            "datasets": [
+                {
+                    "label": "Starbucks",
+                    "data": [{"x": i, "y": val} for i, val in enumerate(starbucks_rev_pct.tolist())],
+                    "borderColor": "#006241",
+                    "backgroundColor": "#006241",
+                    "pointRadius": 5
+                },
+                {
+                    "label": "Dunkin",
+                    "data": [{"x": i, "y": val} for i, val in enumerate(dunkin_rev_pct.tolist())],
+                    "borderColor": "#FF6F00",
+                    "backgroundColor": "#FF6F00",
+                    "pointRadius": 5
+                },
+                {
+                    "label": "Bruegger's",
+                    "data": [{"x": i, "y": val} for i, val in enumerate(brueggers_rev_pct.tolist())],
+                    "borderColor": "#8B4513",
+                    "backgroundColor": "#8B4513",
+                    "pointRadius": 5
+                }
+            ]
+        },
+        options={
+            "plugins": {
+                "title": {"display": True, "text": "Quarterly % Change in Revenue"},
+                "legend": {"display": True},
+                "tooltip": {
+                    "callbacks": {
+                        "label": "function(context) { return context.dataset.label + ': ' + context.raw.y.toFixed(2) + '% (' + labels[context.dataIndex] + ')'; }"
+                    }
+                }
+            },
+            "scales": {
+                "y": {
+                    "title": {"display": True, "text": "% Change in Revenue"},
+                    "beginAtZero": False,
+                    "grid": {"display": True}
+                },
+                "x": {
+                    "title": {"display": True, "text": "Quarter Index"},
+                    "grid": {"Application": {"labels": labels}, "display": True}
+                }
+            }
+        }
+    )
+
 st.markdown("""
 ---
 ### 🗞️ Sentiment Analysis
