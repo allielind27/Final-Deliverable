@@ -208,19 +208,6 @@ st.markdown("""
 # Align on shared dates
 common_dates = df.index.intersection(dunkin_df.index)
 
-# Comprehensive debugging
-st.write("Common Dates Count:", len(common_dates))
-st.write("Starbucks avg_ticket full:", df.loc[common_dates, 'avg_ticket'].tolist())
-st.write("Dunkin avg_ticket full:", dunkin_df.loc[common_dates, 'avg_ticket'].tolist())
-st.write("Starbucks revenue full:", df.loc[common_dates, 'revenue'].tolist())
-st.write("Dunkin revenue full:", dunkin_df.loc[common_dates, 'revenue'].tolist())
-st.write("Are avg_ticket values identical?", (df.loc[common_dates, 'avg_ticket'] == dunkin_df.loc[common_dates, 'avg_ticket']).all())
-st.write("Are revenue values identical?", (df.loc[common_dates, 'revenue'] == dunkin_df.loc[common_dates, 'revenue']).all())
-st.write("Starbucks avg_ticket NaN count:", df.loc[common_dates, 'avg_ticket'].isna().sum())
-st.write("Dunkin avg_ticket NaN count:", dunkin_df.loc[common_dates, 'avg_ticket'].isna().sum())
-st.write("Starbucks revenue NaN count:", df.loc[common_dates, 'revenue'].isna().sum())
-st.write("Dunkin revenue NaN count:", dunkin_df.loc[common_dates, 'revenue'].isna().sum())
-
 # Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
 
