@@ -27,8 +27,9 @@ st.markdown("""
 
 # --- App Summary ---
 st.markdown("""
-### 📘 App Summary
-This app is a tool meant to aid audit teams with assessing the risk of revenue overstatement at Starbucks.
+### 📘 App Thesis
+Starbucks’ revenue appears to be overstated because CPI, Loyalty Membership, and Average Ticket Price are not related with revenue growth.
+This application is meant to provide automatic analysis to determine the risk of overstated revenue.
 """)
 
 # --- Data Loading ---
