@@ -204,23 +204,26 @@ st.markdown("""
 ### 📊 KPI Insights
 """)
 
+# Align on common dates and drop missing
+combined_ticket = pd.DataFrame({
+    "Starbucks": df['avg_ticket'],
+    "Dunkin": dunkin_df['avg_ticket']
+}).dropna()
+
+combined_revenue = pd.DataFrame({
+    "Starbucks": starbucks_df['revenue'],
+    "Dunkin": dunkin_df['revenue']
+}).dropna()
+
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("Average Ticket Size")
-    avg_ticket_compare = pd.DataFrame({
-        'Starbucks': df['avg_ticket'],
-        'Dunkin': dunkin_df['avg_ticket']
-    })
-    st.line_chart(avg_ticket_compare)
+    st.line_chart(combined_ticket)
 
 with col2:
     st.subheader("Revenue Over Time")
-    revenue_compare = pd.DataFrame({
-        'Starbucks': df['revenue'],
-        'Dunkin': dunkin_df['revenue']
-    })
-    st.line_chart(revenue_compare)
+    st.line_chart(combined_revenue)
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
