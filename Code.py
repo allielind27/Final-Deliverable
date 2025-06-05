@@ -110,7 +110,7 @@ with col2:
         label="",
         value=int(df['loyalty_members'].iloc[-1]),
         min_value=0,
-        step=1000
+        step=100
     )
 
 # --- Data Preparation for Forecasting ---
