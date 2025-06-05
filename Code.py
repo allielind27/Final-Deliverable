@@ -211,7 +211,7 @@ combined_ticket = pd.DataFrame({
 }).dropna()
 
 combined_revenue = pd.DataFrame({
-    "Starbucks": starbucks_df['revenue'],
+    "Starbucks": df['revenue'],
     "Dunkin": dunkin_df['revenue']
 }).dropna()
 
