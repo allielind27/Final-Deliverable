@@ -204,13 +204,11 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("Average Ticket Size Insight")
-    st.write("Avg Ticket Data:", df['avg_ticket'].tail())
     avg_ticket_recent = df['avg_ticket'].iloc[-4:]
     avg_ticket_mean = df['avg_ticket'].mean()
     st.line_chart(df['avg_ticket'], use_container_width=True)
 with col2:
     st.subheader("Revenue Trend")
-    st.write("Revenue Data:", df['revenue'].tail())
     st.line_chart(df['revenue'], use_container_width=True)
 
 # Industry Peer Comparison
