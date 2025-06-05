@@ -169,14 +169,14 @@ chart_data = pd.DataFrame({
     'Actual': actual_revenue
 }, index=quarters)
 
-# Render bar chart
-if chart_data.isna().all().all() or chart_data.empty or (chart_data['Actual'].isna().all() and not chart_data['Forecasted'].isna().all()):
+# Render bar chart with improved validation
+if chart_data['Forecasted'].isna().all() or chart_data.empty or (chart_data['Actual'].isna().all() and not chart_data['Forecasted'].isna().any()):
     st.error("❌ No valid data to display. Actual revenue may be missing or misaligned with the forecast period.")
 else:
     st.bar_chart(chart_data, use_container_width=True)
 
 # Calculate percentage differences and add warning for >5%
-differences = ((forecasted_revenue - actual_revenue) / actual_revenue.replace(0, np.nan) * 100).round(2)  # Avoid division by zero
+differences = ((forecasted_revenue - actual_revenue) / actual_revenue.replace(0, np.nan) * 100).round(2)
 significant_diff = [abs(diff) > 5 for diff in differences if not np.isnan(diff)]
 if any(significant_diff):
     st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues related to loyalty membership or CPI assumptions.")
