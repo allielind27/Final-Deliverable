@@ -10,15 +10,6 @@ import warnings
 import matplotlib.dates
 from openai import OpenAI
 
-summary_prompt = """
-You are an AI financial assistant. Imagine you have reviewed a quarterly report from a retail coffee company.
-
-TASK:
-Write a short audit-focused summary (under 100 words) evaluating whether revenue appears overstated, based on forecast accuracy, average transaction size trends, and public sentiment. Use clear, professional language suitable for a boardroom setting.
-
-Note: This is a test. No real data is being provided.
-"""
-
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
 
@@ -386,10 +377,19 @@ st.markdown("""
 <h2 style='text-align: center; margin-top: 20px;'>🤖 AI-Generated Summary</h2>
 """, unsafe_allow_html=True)
 
-client = OpenAI(api_key="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")
+summary_prompt = """
+You are an AI financial assistant. Imagine you have reviewed a quarterly report from a retail coffee company.
+
+TASK:
+Write a short audit-focused summary (under 100 words) evaluating whether revenue appears overstated, based on forecast accuracy, average transaction size trends, and public sentiment. Use clear, professional language suitable for a boardroom setting.
+
+Note: This is a test. No real data is being provided.
+"""
+
+client = OpenAI(api_key="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")
 
 response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-3.5-turbo",
     messages=[
         {"role": "system", "content": "You are a financial audit assistant."},
         {"role": "user", "content": summary_prompt}
