@@ -204,8 +204,21 @@ st.markdown("""
 ### 📊 KPI Insights
 """)
 
-# Align on shared dates (assuming df and dunkin_df are defined DataFrames)
+# Debugging: Display data to verify
+st.write("Starbucks Data Sample:")
+st.write(df.head())
+st.write("Dunkin Data Sample:")
+st.write(dunkin_df.head())
+
+# Align on shared dates (should be all dates since you confirmed they're identical)
 common_dates = df.index.intersection(dunkin_df.index)
+st.write(f"Common Dates Count: {len(common_dates)}")
+
+# Verify data for plotting
+st.write("Starbucks avg_ticket sample:", df.loc[common_dates, 'avg_ticket'].head().to_list())
+st.write("Dunkin avg_ticket sample:", dunkin_df.loc[common_dates, 'avg_ticket'].head().to_list())
+st.write("Starbucks revenue sample:", df.loc[common_dates, 'revenue'].head().to_list())
+st.write("Dunkin revenue sample:", dunkin_df.loc[common_dates, 'revenue'].head().to_list())
 
 # Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
@@ -213,30 +226,34 @@ col1, col2 = st.columns(2)
 # --- Plot Average Ticket Size ---
 with col1:
     st.subheader("Average Ticket Size")
-    fig1, ax1 = plt.subplots(figsize=(6, 4))  # Reduced figsize for side-by-side fit
-    ax1.plot(common_dates, df.loc[common_dates, 'avg_ticket'], label="Starbucks", linewidth=2)
-    ax1.plot(common_dates, dunkin_df.loc[common_dates, 'avg_ticket'], label="Dunkin", linewidth=2)
+    fig1, ax1 = plt.subplots(figsize=(6, 4))
+    # Explicitly plot with different colors
+    ax1.plot(common_dates, df.loc[common_dates, 'avg_ticket'], label="Starbucks", color="#006241", linewidth=2)
+    ax1.plot(common_dates, dunkin_df.loc[common_dates, 'avg_ticket'], label="Dunkin", color="#FF6F00", linewidth=2)
     ax1.set_ylabel("Avg Ticket ($)")
     ax1.set_title("Average Ticket Size Over Time")
     ax1.legend()
     ax1.grid(True)
-    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
-    plt.tight_layout()  # Prevent label cutoff
+    plt.xticks(rotation=45)
+    plt.tight_layout()
     st.pyplot(fig1)
+    plt.close(fig1)  # Close figure to prevent memory issues
 
 # --- Plot Revenue ---
 with col2:
     st.subheader("Revenue Over Time")
-    fig2, ax2 = plt.subplots(figsize=(6, 4))  # Reduced figsize for side-by-side fit
-    ax2.plot(common_dates, df.loc[common_dates, 'revenue'], label="Starbucks", linewidth=2)
-    ax2.plot(common_dates, dunkin_df.loc[common_dates, 'revenue'], label="Dunkin", linewidth=2)
+    fig2, ax2 = plt.subplots(figsize=(6, 4))
+    # Explicitly plot with different colors
+    ax2.plot(common_dates, df.loc[common_dates, 'revenue'], label="Starbucks", color="#006241", linewidth=2)
+    ax2.plot(common_dates, dunkin_df.loc[common_dates, 'revenue'], label="Dunkin", color="#FF6F00", linewidth=2)
     ax2.set_ylabel("Revenue ($M)")
     ax2.set_title("Revenue Over Time")
     ax2.legend()
     ax2.grid(True)
-    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
-    plt.tight_layout()  # Prevent label cutoff
+    plt.xticks(rotation=45)
+    plt.tight_layout()
     st.pyplot(fig2)
+    plt.close(fig2)  # Close figure to prevent memory issues
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
