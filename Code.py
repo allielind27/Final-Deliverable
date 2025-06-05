@@ -204,25 +204,13 @@ st.markdown("""
 ### 📊 KPI Insights
 """)
 
-# Synthetic data based on the image
-dates = pd.date_range("2018-01-01", "2024-01-01", freq="YS")
-df = pd.DataFrame({
-    'avg_ticket': [5.0, 4.8, 5.2, 5.1, 5.3, 5.4, 5.5],  # Starbucks (guessed)
-    'revenue': [6000, 6200, 6500, 6800, 7200, 7800, 8500]   # Starbucks (visible)
-}, index=dates)
-
-dunkin_df = pd.DataFrame({
-    'avg_ticket': [5.8, 4.6, 5.5, 4.9, 5.7, 5.2, 4.8],    # Dunkin (visible)
-    'revenue': [6000, 6100, 6300, 6500, 6700, 7000, 7400]   # Dunkin (guessed)
-}, index=dates)
-
-# Align on shared dates
+# Align on shared dates (confirmed identical by you)
 common_dates = df.index.intersection(dunkin_df.index)
 
-# Debugging: Display data to verify
-st.write("Starbucks Data:", df)
-st.write("Dunkin Data:", dunkin_df)
-st.write("Common Dates:", common_dates)
+# Basic debugging to verify data (optional, remove if not needed)
+st.write("Common Dates Count:", len(common_dates))
+st.write("Starbucks avg_ticket sample:", df.loc[common_dates, 'avg_ticket'].head().tolist())
+st.write("Dunkin avg_ticket sample:", dunkin_df.loc[common_dates, 'avg_ticket'].head().tolist())
 
 # Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
@@ -256,7 +244,6 @@ with col2:
     plt.tight_layout()
     st.pyplot(fig2)
     plt.close(fig2)
-
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
 headlines = [
