@@ -198,35 +198,33 @@ if any(abs(pct_diff) > 5):
 else:
     st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
 
-# --- Clean merge using left join on date ---
-merged = pd.merge(
-    df[['revenue', 'avg_ticket']].reset_index().rename(columns={'revenue': 'Starbucks Revenue', 'avg_ticket': 'Starbucks Ticket'}),
-    dunkin_df[['revenue', 'avg_ticket']].reset_index().rename(columns={'revenue': 'Dunkin Revenue', 'avg_ticket': 'Dunkin Ticket'}),
-    on='date',
-    how='inner'
-)
+# --- Side-by-Side Layout for KPI Plot and Ticket Price Insight ---
+st.markdown("""
+---
+### 📊 KPI Insights
+""")
 
-# Set date back as index
-merged.set_index('date', inplace=True)
+# Align on shared dates
+common_dates = df.index.intersection(dunkin_df.index)
 
-# --- Average Ticket Size Plot ---
+# --- Plot Average Ticket Size ---
 st.subheader("Average Ticket Size")
 
 fig1, ax1 = plt.subplots(figsize=(8, 4))
-ax1.plot(merged.index, merged['Starbucks Ticket'], label="Starbucks", linewidth=2)
-ax1.plot(merged.index, merged['Dunkin Ticket'], label="Dunkin", linewidth=2)
+ax1.plot(common_dates, df.loc[common_dates, 'avg_ticket'], label="Starbucks", linewidth=2)
+ax1.plot(common_dates, dunkin_df.loc[common_dates, 'avg_ticket'], label="Dunkin", linewidth=2)
 ax1.set_ylabel("Avg Ticket ($)")
 ax1.set_title("Average Ticket Size Over Time")
 ax1.legend()
 ax1.grid(True)
 st.pyplot(fig1)
 
-# --- Revenue Plot ---
+# --- Plot Revenue ---
 st.subheader("Revenue Over Time")
 
 fig2, ax2 = plt.subplots(figsize=(8, 4))
-ax2.plot(merged.index, merged['Starbucks Revenue'], label="Starbucks", linewidth=2)
-ax2.plot(merged.index, merged['Dunkin Revenue'], label="Dunkin", linewidth=2)
+ax2.plot(common_dates, df.loc[common_dates, 'revenue'], label="Starbucks", linewidth=2)
+ax2.plot(common_dates, dunkin_df.loc[common_dates, 'revenue'], label="Dunkin", linewidth=2)
 ax2.set_ylabel("Revenue ($M)")
 ax2.set_title("Revenue Over Time")
 ax2.legend()
