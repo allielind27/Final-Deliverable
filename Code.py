@@ -386,7 +386,7 @@ Write a short audit-focused summary (under 100 words) evaluating whether revenue
 Note: This is a test. No real data is being provided.
 """
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 response = client.chat.completions.create(
     model="gpt-4-turbo",
