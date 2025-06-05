@@ -39,6 +39,13 @@ df['date'] = pd.to_datetime(df['date'])
 df.set_index('date', inplace=True)
 df = df.asfreq('Q')
 
+# Read Dunkin data
+dunkin_df = pd.read_excel("dunkin_financials_generated.xlsx")
+# Ensure 'date' is datetime and set it as index
+dunkin_df['date'] = pd.to_datetime(dunkin_df['date'])
+dunkin_df.set_index('date', inplace=True)
+dunkin_df = df.asfreq('Q')
+
 # --- CPI Data Scraping ---
 @st.cache_data(ttl=3600)
 def fetch_latest_cpi_scraper():
@@ -199,26 +206,23 @@ st.markdown("""
 ### 📊 KPI Insights
 """)
 
-# Create two columns for side-by-side display
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Average Ticket Size Insight")
-    avg_ticket_recent = df['avg_ticket'].iloc[-4:]
-    avg_ticket_mean = df['avg_ticket'].mean()
-    st.line_chart(df['avg_ticket'], use_container_width=True)
-with col2:
-    st.subheader("Revenue Trend")
-    st.line_chart(df['revenue'], use_container_width=True)
+    st.subheader("Average Ticket Size")
+    avg_ticket_compare = pd.DataFrame({
+        'Starbucks': starbucks_df['avg_ticket'],
+        'Dunkin': dunkin_df['avg_ticket']
+    })
+    st.line_chart(avg_ticket_compare)
 
-# Industry Peer Comparison
-st.subheader("Industry Peer Comparison")
-peer_data = pd.DataFrame({
-    'Company': ['Starbucks', 'Dunkin', 'Dutch Bros'],
-    'Revenue Growth (%)': [12.0, 9.5, 15.2],
-    'Avg Ticket ($)': [6.15, 5.80, 6.45]
-})
-st.dataframe(peer_data)
+with col2:
+    st.subheader("Revenue Over Time")
+    revenue_compare = pd.DataFrame({
+        'Starbucks': starbucks_df['revenue'],
+        'Dunkin': dunkin_df['revenue']
+    })
+    st.line_chart(revenue_compare)
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
