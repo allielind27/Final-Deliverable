@@ -203,14 +203,16 @@ st.markdown("""
 ---
 ### 📊 KPI Insights
 """)
-# --- Align dates ---
+
+# Align on shared dates
 common_dates = df.index.intersection(dunkin_df.index)
 
+# --- Plot Average Ticket Size ---
 st.subheader("Average Ticket Size")
 
 fig1, ax1 = plt.subplots(figsize=(8, 4))
 ax1.plot(common_dates, df.loc[common_dates, 'avg_ticket'], label="Starbucks", linewidth=2)
-ax1.plot(common_dates, df.loc[common_dates, 'avg_ticket'], label="Dunkin", linewidth=2)
+ax1.plot(common_dates, dunkin_df.loc[common_dates, 'avg_ticket'], label="Dunkin", linewidth=2)
 ax1.set_ylabel("Avg Ticket ($)")
 ax1.set_title("Average Ticket Size Over Time")
 ax1.legend()
@@ -222,7 +224,7 @@ st.subheader("Revenue Over Time")
 
 fig2, ax2 = plt.subplots(figsize=(8, 4))
 ax2.plot(common_dates, df.loc[common_dates, 'revenue'], label="Starbucks", linewidth=2)
-ax2.plot(common_dates, df.loc[common_dates, 'revenue'], label="Dunkin", linewidth=2)
+ax2.plot(common_dates, dunkin_df.loc[common_dates, 'revenue'], label="Dunkin", linewidth=2)
 ax2.set_ylabel("Revenue ($M)")
 ax2.set_title("Revenue Over Time")
 ax2.legend()
