@@ -75,36 +75,39 @@ This economic indicator serves as an exogenous input in the ARIMAX forecast to m
 **Title:** Consumer Price Index for All Urban Consumers: All Items (Not Seasonally Adjusted)  
 **Source:** U.S. Bureau of Labor Statistics  
 """)
-st.markdown(f"**CPI used for forecast:** {cpi_to_use} (fetched {datetime.now().strftime('%Y-%m-%d %H:%M')})")
+st.markdown(f"**CPI used for forecast:** {cpi_to_use} (fetched 2025-06-04 22:23)")
 
-# --- User Input for Store Count ---
+# --- User Input for Loyalty Members ---
 st.markdown("""
 ---
-### 🏪 Adjust Store Count Forecast
-Before you begin reading the analysis, input the expected store count for the upcoming quarter. This way, you can test different outcomes for future revenue based on your location expectations.
+### 🏪 Adjust Loyalty Members Forecast
+Before you begin reading the analysis, input the expected number of loyalty members for the upcoming quarter. This way, you can test different outcomes for future revenue based on your membership expectations.
 """)
 
 col1, col2 = st.columns([1, 3.4])
 with col1:
     st.markdown(
-        "<div style='padding-top: 34px; font-weight: bold;'>Expected store count for next period:</div>",
+        "<div style='padding-top: 34px; font-weight: bold;'>Expected loyalty members for next period:</div>",
         unsafe_allow_html=True
     )
 with col2:
-    user_store_count = st.number_input(
+    user_loyalty_members = st.number_input(
         label="",
-        value=int(df['store_count'].iloc[-1]),
+        value=int(df['loyalty_members'].iloc[-1]),
         min_value=0,
-        step=10
+        step=1000
     )
 
 # --- Data Preparation for Forecasting ---
 revenue = df['revenue']
-exog = df[['CPI', 'store_count']]
+exog = df[['CPI', 'loyalty_members']]  # Changed from store_count to loyalty_members
 train_revenue = revenue[:-4]
 test_revenue = revenue[-4:]
 train_exog = exog[:-4].copy()
 test_exog = exog[-4:].copy()
+
+# Update the last row of test_exog with user input for loyalty_members
+test_exog.iloc[-1, test_exog.columns.get_loc('loyalty_members')] = user_loyalty_members
 
 # Clean data: remove rows with NaNs and align
 valid_mask = train_exog.notnull().all(axis=1)
@@ -127,7 +130,7 @@ if train_revenue.shape[0] >= 12:
     forecast_mean.index = test_exog.index
     forecast_ci.index = test_exog.index
 else:
-    st.error("❌ Not enough clean training data to run the model. Please check your CPI/store_count history.")
+    st.error("❌ Not enough clean training data to run the model. Please check your CPI/loyalty_members history.")
     st.stop()
 
 # --- Forecast Visualization ---
@@ -142,53 +145,41 @@ ax.legend()
 ax.grid(True)
 st.pyplot(fig)
 
-# --- Forecast Results Summary Table ---
+# --- Forecast Results Bar Chart ---
 st.markdown("""
 ---
 ### 📊 Forecast Results
-The table below compares forecasted revenue to actual revenue for the next four quarters.
+The chart below compares forecasted revenue to actual revenue for the next four quarters.
 """)
 
-# Prepare data
+# Prepare data from the model
 quarters = forecast_mean.index.strftime('%Y-%m')
-forecasted = forecast_mean.round(2)
-actual = test_revenue.reindex(forecast_mean.index).round(2)
-pct_diff = ((forecasted - actual) / actual * 100).round(2)
+forecasted_revenue = forecast_mean.round(2)
+actual_revenue = test_revenue.reindex(forecast_mean.index).round(2).fillna(0)
 
-# Combine into one DataFrame
-results_df = pd.DataFrame({
-    'Date': quarters,
-    'Forecasted Revenue ($M)': forecasted.values,
-    'Actual Revenue ($M)': actual.values,
-    '% Difference': pct_diff.values
-})
+# Quick diagnostic to verify data
+st.markdown("**Model Data:**")
+st.write("Quarters:", quarters.tolist())
+st.write("Forecasted Revenue ($M):", forecasted_revenue.tolist())
+st.write("Actual Revenue ($M):", actual_revenue.tolist())
 
-# Display
-st.dataframe(results_df)
+# Create DataFrame for bar chart
+chart_data = pd.DataFrame({
+    'Forecasted': forecasted_revenue,
+    'Actual': actual_revenue
+}, index=quarters)
 
-# -- Build color map --
-colors = ['red' if abs(val) > 5 else 'gray' for val in pct_diff]
-
-# -- Plot bar chart --
-st.markdown("""
----
-### 📉 % Difference Between Forecasted and Actual Revenue
-""")
-
-fig, ax = plt.subplots(figsize=(8, 4))
-bars = ax.bar(quarters, pct_diff, color=colors)
-ax.axhline(0, color='black', linewidth=0.8)
-ax.set_ylabel('% Difference')
-ax.set_title('Quarter')
-ax.grid(True, axis='y', linestyle='--', alpha=0.6)
-
-st.pyplot(fig)
-
-# Show alert if any % difference exceeds ±5%
-if any(abs(pct_diff) > 5):
-    st.warning("⚠️ One or more forecasted revenues differ from actuals by more than 5%. This may indicate a risk of revenue overstatement or model inaccuracy.")
+# Render bar chart
+if chart_data.isna().all().all() or chart_data.empty:
+    st.error("❌ No valid data to display. Forecasted or actual revenue may be missing or invalid.")
 else:
-    st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
+    st.bar_chart(chart_data, use_container_width=True)
+
+# Calculate percentage differences and add warning for >5%
+differences = ((forecasted_revenue - actual_revenue) / actual_revenue * 100).round(2).replace([np.inf, -np.inf], np.nan)
+significant_diff = [abs(diff) > 5 for diff in differences if not np.isnan(diff)]
+if any(significant_diff):
+    st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues.")
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
@@ -222,11 +213,11 @@ elif avg_ticket_recent.mean() < 0.9 * avg_ticket_mean:
 else:
     st.success("✅ Ticket size is stable.")
 
-# Revenue per Store Check
-latest_store_count = df['store_count'].iloc[-4:]
-rev_per_store_forecast = forecast_mean / latest_store_count.values
-historical_ratio = (train_revenue / train_exog['store_count']).mean()
-risk_flag = any(rev_per_store_forecast > 1.25 * historical_ratio)
+# Revenue per Loyalty Member Check
+latest_loyalty_members = df['loyalty_members'].iloc[-4:]
+rev_per_member_forecast = forecast_mean / latest_loyalty_members.values
+historical_ratio = (train_revenue / train_exog['loyalty_members']).mean()
+risk_flag = any(rev_per_member_forecast > 1.25 * historical_ratio)
 
 # Industry Peer Comparison
 st.subheader("Industry Peer Comparison")
@@ -244,6 +235,6 @@ if selected_vars:
     st.line_chart(df[selected_vars])
 
 if risk_flag:
-    st.error("⚠️ Risk: Forecasted revenue per store is unusually high.")
+    st.error("⚠️ Risk: Forecasted revenue per loyalty member is unusually high.")
 else:
-    st.success("✅ Revenue per store forecast is reasonable.")
+    st.success("✅ Revenue per loyalty member forecast is reasonable.")
