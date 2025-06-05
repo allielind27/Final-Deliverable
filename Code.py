@@ -203,27 +203,31 @@ st.markdown("""
 ---
 ### 📊 KPI Insights
 """)
+# --- Align dates ---
+common_dates = starbucks_df.index.intersection(dunkin_df.index)
 
-# Align on common dates — outer join fills gaps for display
-combined_ticket = pd.concat([
-    df['avg_ticket'].rename("Starbucks"),
-    dunkin_df['avg_ticket'].rename("Dunkin")
-], axis=1)
+st.subheader("Average Ticket Size")
 
-combined_revenue = pd.concat([
-    df['revenue'].rename("Starbucks"),
-    dunkin_df['revenue'].rename("Dunkin")
-], axis=1)
+fig1, ax1 = plt.subplots(figsize=(8, 4))
+ax1.plot(common_dates, starbucks_df.loc[common_dates, 'avg_ticket'], label="Starbucks", linewidth=2)
+ax1.plot(common_dates, dunkin_df.loc[common_dates, 'avg_ticket'], label="Dunkin", linewidth=2)
+ax1.set_ylabel("Avg Ticket ($)")
+ax1.set_title("Average Ticket Size Over Time")
+ax1.legend()
+ax1.grid(True)
+st.pyplot(fig1)
 
-col1, col2 = st.columns(2)
+# --- Plot Revenue ---
+st.subheader("Revenue Over Time")
 
-with col1:
-    st.subheader("Average Ticket Size")
-    st.line_chart(combined_ticket)
-
-with col2:
-    st.subheader("Revenue Over Time")
-    st.line_chart(combined_revenue)
+fig2, ax2 = plt.subplots(figsize=(8, 4))
+ax2.plot(common_dates, starbucks_df.loc[common_dates, 'revenue'], label="Starbucks", linewidth=2)
+ax2.plot(common_dates, dunkin_df.loc[common_dates, 'revenue'], label="Dunkin", linewidth=2)
+ax2.set_ylabel("Revenue ($M)")
+ax2.set_title("Revenue Over Time")
+ax2.legend()
+ax2.grid(True)
+st.pyplot(fig2)
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
