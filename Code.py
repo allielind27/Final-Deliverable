@@ -291,7 +291,6 @@ col1, col2 = st.columns(2)
 
 # --- Bar Graph for Overall % Difference in Average Ticket Price ---
 with col1:
-    st.subheader("Overall % Change in Avg Ticket Price")
     fig1, ax1 = plt.subplots(figsize=(6, 4))
     
     # Data for plotting
@@ -322,7 +321,6 @@ with col1:
 
 # --- Bar Graph for Overall % Difference in Revenue ---
 with col2:
-    st.subheader("Overall % Change in Revenue")
     fig2, ax2 = plt.subplots(figsize=(6, 4))
     
     # Data for plotting
