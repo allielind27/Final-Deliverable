@@ -264,84 +264,79 @@ with col2:
     st.pyplot(fig2)
     plt.close(fig2)
 
-# --- Percentage Differences in KPIs ---
+# --- Overall Percentage Differences in KPIs ---
 st.markdown("""
 ---
-### 📊 Percentage Differences in KPIs
-This section shows the quarter-over-quarter percentage differences in Average Ticket Price and Revenue for Starbucks, Dunkin', and Bruegger's using scatter plots.
+### 📊 Overall Percentage Differences in KPIs
+This section shows the overall percentage differences in Average Ticket Price and Revenue for Starbucks, Dunkin', and Bruegger's across the entire time period.
 """)
 
-# Calculate percentage differences for avg_ticket and revenue
-def calculate_pct_diff(series):
-    return series.pct_change() * 100  # Returns % change between consecutive periods
+# Calculate overall percentage difference for each metric
+def calculate_overall_pct_diff(series):
+    first_value = series.iloc[0]
+    last_value = series.iloc[-1]
+    return ((last_value - first_value) / first_value) * 100  # Overall % change
 
-# Compute percentage differences for each company
-starbucks_avg_pct = calculate_pct_diff(df.loc[common_dates, 'avg_ticket']).dropna()
-dunkin_avg_pct = calculate_pct_diff(dunkin_df.loc[common_dates, 'avg_ticket']).dropna()
-brueggers_avg_pct = calculate_pct_diff(brueggers_df.loc[common_dates, 'avg_ticket']).dropna()
+# Compute overall percentage differences for each company
+starbucks_avg_pct = calculate_overall_pct_diff(df.loc[common_dates, 'avg_ticket'])
+dunkin_avg_pct = calculate_overall_pct_diff(dunkin_df.loc[common_dates, 'avg_ticket'])
+brueggers_avg_pct = calculate_overall_pct_diff(brueggers_df.loc[common_dates, 'avg_ticket'])
 
-starbucks_rev_pct = calculate_pct_diff(df.loc[common_dates, 'revenue']).dropna()
-dunkin_rev_pct = calculate_pct_diff(dunkin_df.loc[common_dates, 'revenue']).dropna()
-brueggers_rev_pct = calculate_pct_diff(brueggers_df.loc[common_dates, 'revenue']).dropna()
+starbucks_rev_pct = calculate_overall_pct_diff(df.loc[common_dates, 'revenue'])
+dunkin_rev_pct = calculate_overall_pct_diff(dunkin_df.loc[common_dates, 'revenue'])
+brueggers_rev_pct = calculate_overall_pct_diff(brueggers_df.loc[common_dates, 'revenue'])
 
-# Align the dates after calculating percentage differences
-pct_dates = starbucks_avg_pct.index  # Same for all since common_dates is aligned
-
-# Debugging: Display percentage differences
-st.write("Starbucks avg_ticket % diff:", starbucks_avg_pct.tolist())
-st.write("Dunkin avg_ticket % diff:", dunkin_avg_pct.tolist())
-st.write("Bruegger's avg_ticket % diff:", brueggers_avg_pct.tolist())
-st.write("Starbucks revenue % diff:", starbucks_rev_pct.tolist())
-st.write("Dunkin revenue % diff:", dunkin_rev_pct.tolist())
-st.write("Bruegger's revenue % diff:", brueggers_rev_pct.tolist())
+# Debugging: Display overall percentage differences
+st.write("Starbucks avg_ticket overall % diff:", round(starbucks_avg_pct, 2))
+st.write("Dunkin avg_ticket overall % diff:", round(dunkin_avg_pct, 2))
+st.write("Bruegger's avg_ticket overall % diff:", round(brueggers_avg_pct, 2))
+st.write("Starbucks revenue overall % diff:", round(starbucks_rev_pct, 2))
+st.write("Dunkin revenue overall % diff:", round(dunkin_rev_pct, 2))
+st.write("Bruegger's revenue overall % diff:", round(brueggers_rev_pct, 2))
 
 # Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
 
-# --- Scatter Plot for % Difference in Average Ticket Price ---
+# --- Scatter Plot for Overall % Difference in Average Ticket Price ---
 with col1:
-    st.subheader("Quarterly % Change in Avg Ticket Price")
-    fig1, ax1 = plt.subplots(figsize=(8, 4))
+    st.subheader("Overall % Change in Avg Ticket Price")
+    fig1, ax1 = plt.subplots(figsize=(6, 4))
     
-    # Convert dates to numerical values for plotting
-    date_nums = matplotlib.dates.date2num(pct_dates)
-    
-    # Plot scatter points
-    ax1.scatter(date_nums, starbucks_avg_pct, label="Starbucks", color="#006241", marker='o', s=50)
-    ax1.scatter(date_nums, dunkin_avg_pct, label="Dunkin", color="#FF6F00", marker='^', s=50)
-    ax1.scatter(date_nums, brueggers_avg_pct, label="Bruegger's", color="#8B4513", marker='s', s=50)
+    # Scatter points for each company
+    ax1.scatter([1], [starbucks_avg_pct], label="Starbucks", color="#006241", marker='o', s=100)
+    ax1.scatter([2], [dunkin_avg_pct], label="Dunkin", color="#FF6F00", marker='^', s=100)
+    ax1.scatter([3], [brueggers_avg_pct], label="Bruegger's", color="#8B4513", marker='s', s=100)
     
     # Customize plot
     ax1.set_ylabel("% Change in Avg Ticket")
-    ax1.set_title("Quarterly % Change in Avg Ticket Price")
+    ax1.set_title("Overall % Change in Avg Ticket Price")
+    ax1.set_xticks([1, 2, 3])
+    ax1.set_xticklabels(["Starbucks", "Dunkin", "Bruegger's"])
     ax1.legend()
-    ax1.grid(True)
-    plt.xticks(rotation=45)
-    ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y-%m'))
+    ax1.grid(True, axis='y')
+    ax1.axhline(0, color='black', linestyle='--', linewidth=0.5)
     plt.tight_layout()
     st.pyplot(fig1)
     plt.close(fig1)
 
-# --- Scatter Plot for % Difference in Revenue ---
+# --- Scatter Plot for Overall % Difference in Revenue ---
 with col2:
-    st.subheader("Quarterly % Change in Revenue")
-    fig2, ax2 = plt.subplots(figsize=(8, 4))
+    st.subheader("Overall % Change in Revenue")
+    fig2, ax2 = plt.subplots(figsize=(6, 4))
     
-    # Convert dates to numerical values for plotting
-    date_nums = matplotlib.dates.date2num(pct_dates)
-    
-    # Plot scatter points
-    ax2.scatter(date_nums, starbucks_rev_pct, label="Starbucks", color="#006241", marker='o', s=50)
-    ax2.scatter(date_nums, dunkin_rev_pct, label="Dunkin", color="#FF6F00", marker='^', s=50)
-    ax2.scatter(date_nums, brueggers_rev_pct, label="Bruegger's", color="#8B4513", marker='s', s=50)
+    # Scatter points for each company
+    ax2.scatter([1], [starbucks_rev_pct], label="Starbucks", color="#006241", marker='o', s=100)
+    ax2.scatter([2], [dunkin_rev_pct], label="Dunkin", color="#FF6F00", marker='^', s=100)
+    ax2.scatter([3], [brueggers_rev_pct], label="Bruegger's", color="#8B4513", marker='s', s=100)
     
     # Customize plot
     ax2.set_ylabel("% Change in Revenue")
-    ax2.set_title("Quarterly % Change in Revenue")
+    ax2.set_title("Overall % Change in Revenue")
+    ax2.set_xticks([1, 2, 3])
+    ax2.set_xticklabels(["Starbucks", "Dunkin", "Bruegger's"])
     ax2.legend()
-    ax2.grid(True)
-    plt.xticks(rotation=45)
-    ax2.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y-%m'))
+    ax2.grid(True, axis='y')
+    ax2.axhline(0, color='black', linestyle='--', linewidth=0.5)
     plt.tight_layout()
     st.pyplot(fig2)
     plt.close(fig2)
