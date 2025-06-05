@@ -80,14 +80,14 @@ st.markdown(f"**CPI used for forecast:** {cpi_to_use} (fetched 2025-06-04 22:23)
 # --- User Input for Loyalty Members ---
 st.markdown("""
 ---
-### 🏪 Adjust Loyalty Members Forecast
+### 👤 Adjust Loyalty Members Forecast
 Before you begin reading the analysis, input the expected number of loyalty members for the upcoming quarter. This way, you can test different outcomes for future revenue based on your membership expectations.
 """)
 
 col1, col2 = st.columns([1, 3.4])
 with col1:
     st.markdown(
-        "<div style='padding-top: 34px; font-weight: bold;'>Expected loyalty members for next period:</div>",
+        "<div style='padding-top: 34px; font-weight: bold;'>Expected loyalty members:</div>",
         unsafe_allow_html=True
     )
 with col2:
