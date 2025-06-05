@@ -202,19 +202,16 @@ st.markdown("""
 # Create two columns for side-by-side display
 col1, col2 = st.columns(2)
 
-# Average Ticket Size Insight in the first column
 with col1:
     st.subheader("Average Ticket Size Insight")
+    st.write("Avg Ticket Data:", df['avg_ticket'].tail())
     avg_ticket_recent = df['avg_ticket'].iloc[-4:]
     avg_ticket_mean = df['avg_ticket'].mean()
     st.line_chart(df['avg_ticket'], use_container_width=True)
-
-# Interactive KPI Plot in the second column
 with col2:
-    st.subheader("Explore Starbucks KPIs")
-    selected_vars = st.multiselect("Select variables to plot:", df.columns, default=['revenue'])
-    if selected_vars:
-        st.line_chart(df[selected_vars], use_container_width=True)
+    st.subheader("Revenue Trend")
+    st.write("Revenue Data:", df['revenue'].tail())
+    st.line_chart(df['revenue'], use_container_width=True)
 
 # Industry Peer Comparison
 st.subheader("Industry Peer Comparison")
