@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import warnings
 import matplotlib.dates
 from openai import OpenAI
+from dotenv import load_dotenv
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
