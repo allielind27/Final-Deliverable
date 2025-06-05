@@ -209,7 +209,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Average Ticket Size")
     avg_ticket_compare = pd.DataFrame({
-        'Starbucks': starbucks_df['avg_ticket'],
+        'Starbucks': df['avg_ticket'],
         'Dunkin': dunkin_df['avg_ticket']
     })
     st.line_chart(avg_ticket_compare)
@@ -217,7 +217,7 @@ with col1:
 with col2:
     st.subheader("Revenue Over Time")
     revenue_compare = pd.DataFrame({
-        'Starbucks': starbucks_df['revenue'],
+        'Starbucks': df['revenue'],
         'Dunkin': dunkin_df['revenue']
     })
     st.line_chart(revenue_compare)
