@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 import warnings
 import matplotlib.dates
-import openai
+from openai import OpenAI
 
 summary_prompt = """
 You are an AI financial assistant. Imagine you have reviewed a quarterly report from a retail coffee company.
