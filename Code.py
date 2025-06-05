@@ -313,7 +313,7 @@ with col1:
     
     # Customize plot
     ax1.set_ylabel("% Change in Avg Ticket")
-    ax1.set_title("Overall % Change in Avg Ticket Price")
+    ax1.set_title("Overall % Change in Avg Ticket Size")
     ax1.grid(True, axis='y')
     ax1.axhline(0, color='black', linestyle='--', linewidth=0.5)
     plt.tight_layout()
