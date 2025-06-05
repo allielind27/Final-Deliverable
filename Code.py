@@ -218,8 +218,6 @@ with col1:
     # Store data for debugging
     starbucks_avg = df.loc[common_dates, 'avg_ticket']
     dunkin_avg = dunkin_df.loc[common_dates, 'avg_ticket']
-    st.write("Starbucks avg_ticket plot data:", starbucks_avg.tolist())
-    st.write("Dunkin avg_ticket plot data:", dunkin_avg.tolist())
     ax1.plot(common_dates, starbucks_avg, label="Starbucks", color="#006241", linewidth=2)
     ax1.plot(common_dates, dunkin_avg, label="Dunkin", color="#FF6F00", linewidth=2)
     ax1.set_ylabel("Avg Ticket ($)")
@@ -238,8 +236,6 @@ with col2:
     # Store data for debugging
     starbucks_rev = df.loc[common_dates, 'revenue']
     dunkin_rev = dunkin_df.loc[common_dates, 'revenue']
-    st.write("Starbucks revenue plot data:", starbucks_rev.tolist())
-    st.write("Dunkin revenue plot data:", dunkin_rev.tolist())
     ax2.plot(common_dates, starbucks_rev, label="Starbucks", color="#006241", linewidth=2)
     ax2.plot(common_dates, dunkin_rev, label="Dunkin", color="#FF6F00", linewidth=2)
     ax2.set_ylabel("Revenue ($M)")
