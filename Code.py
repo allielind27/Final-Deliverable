@@ -139,6 +139,8 @@ else:
     st.error("❌ Not enough clean training data to run the model. Please check your CPI/loyalty_members history.")
     st.stop()
 
+st.markdown("---")
+
 # --- Forecast Visualization ---
 st.title("Forecast vs Actual")
 fig, ax = plt.subplots(figsize=(10, 5))
