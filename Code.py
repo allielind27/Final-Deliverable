@@ -267,7 +267,7 @@ with col2:
 st.markdown("""
 ---
 ### 📊 Percentage Differences in KPIs
-This section shows the quarter-over-quarter percentage differences in Average Ticket Price and Revenue for Starbucks, Dunkin', and Bruegger's using scatter charts.
+This section shows the quarter-over-quarter percentage differences in Average Ticket Price and Revenue for Starbucks, Dunkin', and Bruegger's using scatter plots.
 """)
 
 # Calculate percentage differences for avg_ticket and revenue
@@ -285,7 +285,6 @@ brueggers_rev_pct = calculate_pct_diff(brueggers_df.loc[common_dates, 'revenue']
 
 # Align the dates after calculating percentage differences
 pct_dates = starbucks_avg_pct.index  # Same for all since common_dates is aligned
-labels = pct_dates.strftime("%Y-%m").tolist()  # Format dates for Chart.js
 
 # Debugging: Display percentage differences
 st.write("Starbucks avg_ticket % diff:", starbucks_avg_pct.tolist())
@@ -295,118 +294,56 @@ st.write("Starbucks revenue % diff:", starbucks_rev_pct.tolist())
 st.write("Dunkin revenue % diff:", dunkin_rev_pct.tolist())
 st.write("Bruegger's revenue % diff:", brueggers_rev_pct.tolist())
 
-# Create two columns for side-by-side charts
+# Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
 
-# --- Scatter Chart for % Difference in Average Ticket Price ---
+# --- Scatter Plot for % Difference in Average Ticket Price ---
 with col1:
     st.subheader("Quarterly % Change in Avg Ticket Price")
-    st_chart(
-        type="scatter",
-        data={
-            "labels": labels,
-            "datasets": [
-                {
-                    "label": "Starbucks",
-                    "data": [{"x": i, "y": val} for i, val in enumerate(starbucks_avg_pct.tolist())],
-                    "borderColor": "#006241",
-                    "backgroundColor": "#006241",
-                    "pointRadius": 5
-                },
-                {
-                    "label": "Dunkin",
-                    "data": [{"x": i, "y": val} for i, val in enumerate(dunkin_avg_pct.tolist())],
-                    "borderColor": "#FF6F00",
-                    "backgroundColor": "#FF6F00",
-                    "pointRadius": 5
-                },
-                {
-                    "label": "Bruegger's",
-                    "data": [{"x": i, "y": val} for i, val in enumerate(brueggers_avg_pct.tolist())],
-                    "borderColor": "#8B4513",
-                    "backgroundColor": "#8B4513",
-                    "pointRadius": 5
-                }
-            ]
-        },
-        options={
-            "plugins": {
-                "title": {"display": True, "text": "Quarterly % Change in Avg Ticket Price"},
-                "legend": {"display": True},
-                "tooltip": {
-                    "callbacks": {
-                        "label": "function(context) { return context.dataset.label + ': ' + context.raw.y.toFixed(2) + '% (' + labels[context.dataIndex] + ')'; }"
-                    }
-                }
-            },
-            "scales": {
-                "y": {
-                    "title": {"display": True, "text": "% Change in Avg Ticket"},
-                    "beginAtZero": False,
-                    "grid": {"display": True}
-                },
-                "x": {
-                    "title": {"display": True, "text": "Quarter Index"},
-                    "grid": {"Application": {"labels": labels}, "display": True}
-                }
-            }
-        }
-    )
+    fig1, ax1 = plt.subplots(figsize=(8, 4))
+    
+    # Convert dates to numerical values for plotting
+    date_nums = matplotlib.dates.date2num(pct_dates)
+    
+    # Plot scatter points
+    ax1.scatter(date_nums, starbucks_avg_pct, label="Starbucks", color="#006241", marker='o', s=50)
+    ax1.scatter(date_nums, dunkin_avg_pct, label="Dunkin", color="#FF6F00", marker='^', s=50)
+    ax1.scatter(date_nums, brueggers_avg_pct, label="Bruegger's", color="#8B4513", marker='s', s=50)
+    
+    # Customize plot
+    ax1.set_ylabel("% Change in Avg Ticket")
+    ax1.set_title("Quarterly % Change in Avg Ticket Price")
+    ax1.legend()
+    ax1.grid(True)
+    plt.xticks(rotation=45)
+    ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y-%m'))
+    plt.tight_layout()
+    st.pyplot(fig1)
+    plt.close(fig1)
 
-# --- Scatter Chart for % Difference in Revenue ---
+# --- Scatter Plot for % Difference in Revenue ---
 with col2:
     st.subheader("Quarterly % Change in Revenue")
-    st_chart(
-        type="scatter",
-        data={
-            "labels": labels,
-            "datasets": [
-                {
-                    "label": "Starbucks",
-                    "data": [{"x": i, "y": val} for i, val in enumerate(starbucks_rev_pct.tolist())],
-                    "borderColor": "#006241",
-                    "backgroundColor": "#006241",
-                    "pointRadius": 5
-                },
-                {
-                    "label": "Dunkin",
-                    "data": [{"x": i, "y": val} for i, val in enumerate(dunkin_rev_pct.tolist())],
-                    "borderColor": "#FF6F00",
-                    "backgroundColor": "#FF6F00",
-                    "pointRadius": 5
-                },
-                {
-                    "label": "Bruegger's",
-                    "data": [{"x": i, "y": val} for i, val in enumerate(brueggers_rev_pct.tolist())],
-                    "borderColor": "#8B4513",
-                    "backgroundColor": "#8B4513",
-                    "pointRadius": 5
-                }
-            ]
-        },
-        options={
-            "plugins": {
-                "title": {"display": True, "text": "Quarterly % Change in Revenue"},
-                "legend": {"display": True},
-                "tooltip": {
-                    "callbacks": {
-                        "label": "function(context) { return context.dataset.label + ': ' + context.raw.y.toFixed(2) + '% (' + labels[context.dataIndex] + ')'; }"
-                    }
-                }
-            },
-            "scales": {
-                "y": {
-                    "title": {"display": True, "text": "% Change in Revenue"},
-                    "beginAtZero": False,
-                    "grid": {"display": True}
-                },
-                "x": {
-                    "title": {"display": True, "text": "Quarter Index"},
-                    "grid": {"Application": {"labels": labels}, "display": True}
-                }
-            }
-        }
-    )
+    fig2, ax2 = plt.subplots(figsize=(8, 4))
+    
+    # Convert dates to numerical values for plotting
+    date_nums = matplotlib.dates.date2num(pct_dates)
+    
+    # Plot scatter points
+    ax2.scatter(date_nums, starbucks_rev_pct, label="Starbucks", color="#006241", marker='o', s=50)
+    ax2.scatter(date_nums, dunkin_rev_pct, label="Dunkin", color="#FF6F00", marker='^', s=50)
+    ax2.scatter(date_nums, brueggers_rev_pct, label="Bruegger's", color="#8B4513", marker='s', s=50)
+    
+    # Customize plot
+    ax2.set_ylabel("% Change in Revenue")
+    ax2.set_title("Quarterly % Change in Revenue")
+    ax2.legend()
+    ax2.grid(True)
+    plt.xticks(rotation=45)
+    ax2.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y-%m'))
+    plt.tight_layout()
+    st.pyplot(fig2)
+    plt.close(fig2)
 
 st.markdown("""
 ---
