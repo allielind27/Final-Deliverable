@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 import warnings
 import matplotlib.dates
+import openai
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
