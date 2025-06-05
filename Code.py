@@ -204,13 +204,21 @@ st.markdown("""
 ### 📊 KPI Insights
 """)
 
-# Align on shared dates (confirmed identical by you)
+# Align on shared dates
 common_dates = df.index.intersection(dunkin_df.index)
 
-# Basic debugging to verify data (optional, remove if not needed)
+# Comprehensive debugging
 st.write("Common Dates Count:", len(common_dates))
-st.write("Starbucks avg_ticket sample:", df.loc[common_dates, 'avg_ticket'].head().tolist())
-st.write("Dunkin avg_ticket sample:", dunkin_df.loc[common_dates, 'avg_ticket'].head().tolist())
+st.write("Starbucks avg_ticket full:", df.loc[common_dates, 'avg_ticket'].tolist())
+st.write("Dunkin avg_ticket full:", dunkin_df.loc[common_dates, 'avg_ticket'].tolist())
+st.write("Starbucks revenue full:", df.loc[common_dates, 'revenue'].tolist())
+st.write("Dunkin revenue full:", dunkin_df.loc[common_dates, 'revenue'].tolist())
+st.write("Are avg_ticket values identical?", (df.loc[common_dates, 'avg_ticket'] == dunkin_df.loc[common_dates, 'avg_ticket']).all())
+st.write("Are revenue values identical?", (df.loc[common_dates, 'revenue'] == dunkin_df.loc[common_dates, 'revenue']).all())
+st.write("Starbucks avg_ticket NaN count:", df.loc[common_dates, 'avg_ticket'].isna().sum())
+st.write("Dunkin avg_ticket NaN count:", dunkin_df.loc[common_dates, 'avg_ticket'].isna().sum())
+st.write("Starbucks revenue NaN count:", df.loc[common_dates, 'revenue'].isna().sum())
+st.write("Dunkin revenue NaN count:", dunkin_df.loc[common_dates, 'revenue'].isna().sum())
 
 # Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
@@ -219,8 +227,13 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Average Ticket Size")
     fig1, ax1 = plt.subplots(figsize=(6, 4))
-    ax1.plot(common_dates, df.loc[common_dates, 'avg_ticket'], label="Starbucks", color="#006241", linewidth=2)
-    ax1.plot(common_dates, dunkin_df.loc[common_dates, 'avg_ticket'], label="Dunkin", color="#FF6F00", linewidth=2)
+    # Store data for debugging
+    starbucks_avg = df.loc[common_dates, 'avg_ticket']
+    dunkin_avg = dunkin_df.loc[common_dates, 'avg_ticket']
+    st.write("Starbucks avg_ticket plot data:", starbucks_avg.tolist())
+    st.write("Dunkin avg_ticket plot data:", dunkin_avg.tolist())
+    ax1.plot(common_dates, starbucks_avg, label="Starbucks", color="#006241", linewidth=2)
+    ax1.plot(common_dates, dunkin_avg, label="Dunkin", color="#FF6F00", linewidth=2)
     ax1.set_ylabel("Avg Ticket ($)")
     ax1.set_title("Average Ticket Size Over Time")
     ax1.legend()
@@ -234,8 +247,13 @@ with col1:
 with col2:
     st.subheader("Revenue Over Time")
     fig2, ax2 = plt.subplots(figsize=(6, 4))
-    ax2.plot(common_dates, df.loc[common_dates, 'revenue'], label="Starbucks", color="#006241", linewidth=2)
-    ax2.plot(common_dates, dunkin_df.loc[common_dates, 'revenue'], label="Dunkin", color="#FF6F00", linewidth=2)
+    # Store data for debugging
+    starbucks_rev = df.loc[common_dates, 'revenue']
+    dunkin_rev = dunkin_df.loc[common_dates, 'revenue']
+    st.write("Starbucks revenue plot data:", starbucks_rev.tolist())
+    st.write("Dunkin revenue plot data:", dunkin_rev.tolist())
+    ax2.plot(common_dates, starbucks_rev, label="Starbucks", color="#006241", linewidth=2)
+    ax2.plot(common_dates, dunkin_rev, label="Dunkin", color="#FF6F00", linewidth=2)
     ax2.set_ylabel("Revenue ($M)")
     ax2.set_title("Revenue Over Time")
     ax2.legend()
@@ -244,6 +262,7 @@ with col2:
     plt.tight_layout()
     st.pyplot(fig2)
     plt.close(fig2)
+
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
 headlines = [
