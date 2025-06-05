@@ -149,13 +149,13 @@ st.pyplot(fig)
 st.markdown("""
 ---
 ### 📊 Forecast Results
-The chart below compares forecasted revenue to actual revenue for the next four quarters.
+The chart below compares forecasted revenue to actual revenue for the next four quarters, based on the model using CPI and loyalty membership data.
 """)
 
 # Prepare data from the model
 quarters = forecast_mean.index.strftime('%Y-%m')
 forecasted_revenue = forecast_mean.round(2)
-actual_revenue = test_revenue.reindex(forecast_mean.index).round(2).fillna(0)
+actual_revenue = test_revenue.reindex(forecast_mean.index).round(2).fillna(0)  # Fill NaN with 0 for display
 
 # Quick diagnostic to verify data
 st.markdown("**Model Data:**")
@@ -179,7 +179,7 @@ else:
 differences = ((forecasted_revenue - actual_revenue) / actual_revenue * 100).round(2).replace([np.inf, -np.inf], np.nan)
 significant_diff = [abs(diff) > 5 for diff in differences if not np.isnan(diff)]
 if any(significant_diff):
-    st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues.")
+    st.warning("⚠️ Differences between forecasted and actual revenue exceed 5%. Review for potential issues related to loyalty membership or CPI assumptions.")
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
