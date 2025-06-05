@@ -199,10 +199,15 @@ if any(abs(pct_diff) > 5):
 else:
     st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
 
+st.markdown("""
+<hr>
+<h2 style='text-align: center; margin-top: 20px;'>🔍 Additional Insights</h2>
+""", unsafe_allow_html=True)
+
 # Markdown header
 st.markdown("""
 ---
-### 📊 KPI Insights
+### 📊 KPI Comparisons
 """)
 
 # Align on shared dates
