@@ -297,44 +297,60 @@ st.write("Bruegger's revenue overall % diff:", round(brueggers_rev_pct, 2))
 # Create two columns for side-by-side plots
 col1, col2 = st.columns(2)
 
-# --- Scatter Plot for Overall % Difference in Average Ticket Price ---
+# --- Bar Graph for Overall % Difference in Average Ticket Price ---
 with col1:
     st.subheader("Overall % Change in Avg Ticket Price")
     fig1, ax1 = plt.subplots(figsize=(6, 4))
     
-    # Scatter points for each company
-    ax1.scatter([1], [starbucks_avg_pct], label="Starbucks", color="#006241", marker='o', s=100)
-    ax1.scatter([2], [dunkin_avg_pct], label="Dunkin", color="#FF6F00", marker='^', s=100)
-    ax1.scatter([3], [brueggers_avg_pct], label="Bruegger's", color="#8B4513", marker='s', s=100)
+    # Data for plotting
+    companies = ["Starbucks", "Dunkin", "Bruegger's"]
+    avg_pcts = [starbucks_avg_pct, dunkin_avg_pct, brueggers_avg_pct]
+    colors = ["#006241", "#FF6F00", "#8B4513"]
+    
+    # Plot bars
+    bars = ax1.bar(companies, avg_pcts, color=colors, width=0.6)
+    
+    # Add data labels
+    for bar in bars:
+        height = bar.get_height()
+        label = f"{height:.2f}%"
+        if height >= 0:
+            ax1.text(bar.get_x() + bar.get_width()/2, height, label, ha='center', va='bottom', fontsize=10)
+        else:
+            ax1.text(bar.get_x() + bar.get_width()/2, height, label, ha='center', va='top', fontsize=10)
     
     # Customize plot
     ax1.set_ylabel("% Change in Avg Ticket")
     ax1.set_title("Overall % Change in Avg Ticket Price")
-    ax1.set_xticks([1, 2, 3])
-    ax1.set_xticklabels(["Starbucks", "Dunkin", "Bruegger's"])
-    ax1.legend()
     ax1.grid(True, axis='y')
     ax1.axhline(0, color='black', linestyle='--', linewidth=0.5)
     plt.tight_layout()
     st.pyplot(fig1)
     plt.close(fig1)
 
-# --- Scatter Plot for Overall % Difference in Revenue ---
+# --- Bar Graph for Overall % Difference in Revenue ---
 with col2:
     st.subheader("Overall % Change in Revenue")
     fig2, ax2 = plt.subplots(figsize=(6, 4))
     
-    # Scatter points for each company
-    ax2.scatter([1], [starbucks_rev_pct], label="Starbucks", color="#006241", marker='o', s=100)
-    ax2.scatter([2], [dunkin_rev_pct], label="Dunkin", color="#FF6F00", marker='^', s=100)
-    ax2.scatter([3], [brueggers_rev_pct], label="Bruegger's", color="#8B4513", marker='s', s=100)
+    # Data for plotting
+    rev_pcts = [starbucks_rev_pct, dunkin_rev_pct, brueggers_rev_pct]
+    
+    # Plot bars
+    bars = ax2.bar(companies, rev_pcts, color=colors, width=0.6)
+    
+    # Add data labels
+    for bar in bars:
+        height = bar.get_height()
+        label = f"{height:.2f}%"
+        if height >= 0:
+            ax2.text(bar.get_x() + bar.get_width()/2, height, label, ha='center', va='bottom', fontsize=10)
+        else:
+            ax2.text(bar.get_x() + bar.get_width()/2, height, label, ha='center', va='top', fontsize=10)
     
     # Customize plot
     ax2.set_ylabel("% Change in Revenue")
     ax2.set_title("Overall % Change in Revenue")
-    ax2.set_xticks([1, 2, 3])
-    ax2.set_xticklabels(["Starbucks", "Dunkin", "Bruegger's"])
-    ax2.legend()
     ax2.grid(True, axis='y')
     ax2.axhline(0, color='black', linestyle='--', linewidth=0.5)
     plt.tight_layout()
