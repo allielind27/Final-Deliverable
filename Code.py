@@ -269,7 +269,7 @@ with col2:
 st.markdown("""
 ---
 ### 📊 Overall Percentage Differences in KPIs
-This section shows the overall percentage differences in Average Ticket Price and Revenue for Starbucks, Dunkin', and Bruegger's across the entire time period.
+This section shows the overall percentage differences in Average Ticket Price and Revenue for Starbucks, Dunkin', and Dutch Bro's across the entire time period.
 """)
 
 # Calculate overall percentage difference for each metric
