@@ -386,7 +386,7 @@ st.markdown("""
 <h2 style='text-align: center; margin-top: 20px;'>🤖 AI-Generated Summary</h2>
 """, unsafe_allow_html=True)
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 response = client.chat.completions.create(
     model="gpt-4",
