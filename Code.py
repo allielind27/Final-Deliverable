@@ -193,25 +193,6 @@ if any(abs(pct_diff) > 5):
 else:
     st.success("✅ Forecasted revenue is within 5% of actuals across all quarters.")
 
-# Sentiment Analysis
-st.subheader("Earnings Headline Sentiment")
-headlines = [
-    "Starbucks beats expectations with strong Q1 sales",
-    "Concerns arise over Starbucks' China performance",
-    "Starbucks forecasts modest growth despite inflation"
-]
-positive_keywords = ["beats", "strong", "growth", "record", "positive"]
-negative_keywords = ["concerns", "misses", "slowdown", "decline", "drop"]
-
-def score_sentiment(text):
-    text = text.lower()
-    return sum(word in text for word in positive_keywords) - sum(word in text for word in negative_keywords)
-
-sentiments = [score_sentiment(h) for h in headlines]
-for h, s in zip(headlines, sentiments):
-    sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
-    st.write(f"{sentiment_type}: {h}")
-
 # Average Ticket Size Insight
 st.subheader("Average Ticket Size Insight")
 avg_ticket_recent = df['avg_ticket'].iloc[-4:]
@@ -246,7 +227,21 @@ selected_vars = st.multiselect("Select variables to plot:", df.columns, default=
 if selected_vars:
     st.line_chart(df[selected_vars])
 
-if risk_flag:
-    st.error("⚠️ Risk: Forecasted revenue per loyalty member is unusually high.")
-else:
-    st.success("✅ Revenue per loyalty member forecast is reasonable.")
+# Sentiment Analysis
+st.subheader("Earnings Headline Sentiment")
+headlines = [
+    "Starbucks beats expectations with strong Q1 sales",
+    "Concerns arise over Starbucks' China performance",
+    "Starbucks forecasts modest growth despite inflation"
+]
+positive_keywords = ["beats", "strong", "growth", "record", "positive"]
+negative_keywords = ["concerns", "misses", "slowdown", "decline", "drop"]
+
+def score_sentiment(text):
+    text = text.lower()
+    return sum(word in text for word in positive_keywords) - sum(word in text for word in negative_keywords)
+
+sentiments = [score_sentiment(h) for h in headlines]
+for h, s in zip(headlines, sentiments):
+    sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
+    st.write(f"{sentiment_type}: {h}")
