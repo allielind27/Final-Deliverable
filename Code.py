@@ -115,20 +115,32 @@ with col2:
 
 # --- Data Preparation for Forecasting ---
 revenue = df['revenue']
-exog = df[['CPI']]  # Removed loyalty_members, using only CPI
+exog = df[['CPI']]  # Using only CPI as exogenous variable
 train_revenue = revenue[:-1]  # Train on all but the last quarter
 test_revenue = revenue[-1:]  # Test on the last quarter
 train_exog = exog[:-1].copy()
 test_exog = exog[-1:].copy()
 
+# Diagnostic: Check data shapes and contents
+st.write(f"Training revenue shape: {train_revenue.shape}")
+st.write(f"Training exogenous shape: {train_exog.shape}")
+st.write(f"Test exogenous shape: {test_exog.shape}")
+st.write(f"Last few rows of train_revenue:\n{train_revenue.tail()}")
+st.write(f"Last few rows of train_exog:\n{train_exog.tail()}")
+
 # Update the last row of test_exog with user input for CPI
 test_exog.iloc[-1, test_exog.columns.get_loc('CPI')] = user_cpi
+st.write(f"Updated test_exog:\n{test_exog}")
 
 # Clean data: remove rows with NaNs and align
 valid_mask = train_exog.notnull().all(axis=1)
 train_exog = train_exog[valid_mask]
 train_revenue = train_revenue[valid_mask]
 train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
+
+# Diagnostic: Check after cleaning
+st.write(f"After cleaning - Training revenue shape: {train_revenue.shape}")
+st.write(f"After cleaning - Training exogenous shape: {train_exog.shape}")
 
 # --- SARIMAX Model and Forecasting ---
 st.markdown("""
@@ -137,30 +149,47 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 if train_revenue.shape[0] >= 12:
-    model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
-    results = model.fit(disp=False)
-    forecast = results.get_forecast(steps=1, exog=test_exog)  # Forecast only next quarter
-    forecast_mean = forecast.predicted_mean
-    forecast_ci = forecast.conf_int()
-    forecast_mean.index = test_exog.index
-    forecast_ci.index = test_exog.index
+    st.write(f"Training data points available: {train_revenue.shape[0]}")
+    try:
+        model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
+        results = model.fit(disp=False)
+        # Forecast for the next quarter
+        forecast = results.get_forecast(steps=1, exog=test_exog)
+        forecast_mean = forecast.predicted_mean
+        forecast_ci = forecast.conf_int()
+        st.write(f"Forecast mean:\n{forecast_mean}")
+        st.write(f"Forecast confidence intervals:\n{forecast_ci}")
+        # Ensure indices match
+        forecast_mean.index = test_exog.index
+        forecast_ci.index = test_exog.index
+    except Exception as e:
+        st.error(f"❌ Model fitting or forecasting failed: {e}")
+        st.stop()
 else:
-    st.error("❌ Not enough clean training data to run the model. Please check your CPI history.")
+    st.error(f"❌ Not enough clean training data to run the model. Available points: {train_revenue.shape[0]}. Please check your data.")
     st.stop()
 
 st.markdown("---")
 
 # --- Forecast Visualization ---
 st.title("Forecast vs Actual")
-fig, ax = plt.subplots(figsize=(10, 5))
-ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue')
-ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange')
-ax.fill_between(forecast_mean.index, forecast_ci.iloc[:, 0], forecast_ci.iloc[:, 1], color='orange', alpha=0.3)
-ax.set_title("Starbucks Revenue Forecast (Next Quarter)")
-ax.set_ylabel("Revenue (in millions)")
-ax.legend()
-ax.grid(True)
-st.pyplot(fig)
+if not forecast_mean.empty and not forecast_ci.empty:
+    fig, ax = plt.subplots(figsize=(10, 5))
+    # Plot actual revenue
+    ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue')
+    # Plot forecasted revenue
+    ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange', marker='o')  # Added marker for visibility
+    # Plot confidence intervals
+    ax.fill_between(forecast_ci.index, forecast_ci.iloc[:, 0], forecast_ci.iloc[:, 1], color='orange', alpha=0.3, label='Confidence Interval')
+    ax.set_title("Starbucks Revenue Forecast (Next Quarter)")
+    ax.set_ylabel("Revenue (in millions)")
+    ax.legend()
+    ax.grid(True)
+    plt.tight_layout()
+    st.pyplot(fig)
+    plt.close(fig)  # Close the figure to free memory
+else:
+    st.warning("⚠️ Forecast data is empty. Check the forecast output above for details.")
 
 # --- Forecast Results Summary Table ---
 st.markdown("""
