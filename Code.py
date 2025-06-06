@@ -35,51 +35,30 @@ Starbucks’ revenue appears to be overstated because CPI, Loyalty Membership, a
 This application is meant to provide automatic analysis to determine the risk of overstated revenue.
 """)
 
-# --- Data Loading ---
-df = pd.read_csv("starbucks_financials_expanded.csv")
-df.columns = df.columns.str.strip()
-df['date'] = pd.to_datetime(df['date'])
-df.set_index('date', inplace=True)
-df = df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
-
-dunkin_df = pd.read_csv("dunkin_financials_generated.csv")
-dunkin_df.columns = dunkin_df.columns.str.strip()
-dunkin_df['date'] = pd.to_datetime(dunkin_df['date'])
-dunkin_df.set_index('date', inplace=True)
-dunkin_df = dunkin_df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
-
-# Load Bruegger's data
-brueggers_df = pd.read_csv("brueggers_financials_generated.csv")
-brueggers_df.columns = brueggers_df.columns.str.strip()
-brueggers_df['date'] = pd.to_datetime(brueggers_df['date'])
-brueggers_df.set_index('date', inplace=True)
-brueggers_df = brueggers_df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
-
-# --- CPI Data Scraping ---
+# --- CPI Data Scraping (Historical from FRED) ---
 @st.cache_data(ttl=3600)
-def fetch_latest_cpi_scraper():
+def fetch_historical_cpi(dates):
     try:
-        url = "https://fred.stlouisfed.org/series/CPIAUCSL"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers)
+        base_url = "https://api.stlouisfed.org/fred/series/observations"
+        api_key = "5140f3a1760f911c23923852a41c82d3"  
+        params = {
+            "series_id": "CPIAUCSL",
+            "api_key": api_key,
+            "file_type": "json",
+            "observation_start": dates.min().strftime('%Y-%m-%d'),
+            "observation_end": dates.max().strftime('%Y-%m-%d')
+        }
+        response = requests.get(base_url, params=params)
         response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        cpi_elem = soup.find("span", class_="series-meta-observation-value")
-        if not cpi_elem:
-            raise ValueError("CPI value element not found.")
-        cpi_value = cpi_elem.text.strip().replace(",", "")
-        return float(cpi_value)
+        data = response.json()["observations"]
+        cpi_data = {pd.to_datetime(d["date"]): float(d["value"]) for d in data if d["value"] != "."}
+        return pd.Series(cpi_data).reindex(dates, method='ffill').fillna(method='bfill')
     except Exception as e:
-        st.error(f"❌ Failed to scrape CPI: {e}")
-        return None
+        st.error(f"❌ Failed to fetch historical CPI: {e}")
+        return pd.Series(index=dates, data=0.0)
 
 # --- CPI Integration ---
-latest_cpi = fetch_latest_cpi_scraper()
-cpi_to_use = latest_cpi if latest_cpi else 0
-if 'CPI' not in df.columns or df['CPI'].isna().all():
-    df['CPI'] = cpi_to_use
-else:
-    df['CPI'].fillna(cpi_to_use, inplace=True)
+df['CPI'] = fetch_historical_cpi(df.index)
 
 st.markdown("""
 ---
@@ -91,39 +70,38 @@ This economic indicator serves as an exogenous input in the ARIMAX forecast to m
 **Title:** Consumer Price Index for All Urban Consumers: All Items (Not Seasonally Adjusted)  
 **Source:** U.S. Bureau of Labor Statistics  
 """)
-st.markdown(f"**CPI used for forecast:** {cpi_to_use} (fetched 2025-06-04 22:23)")
 
-# --- User Input for Loyalty Members ---
+# --- User Input for CPI ---
 st.markdown("""
 ---
-### 👤 Adjust Loyalty Members Forecast
-Before you begin reading the analysis, input the expected number of loyalty members for the upcoming quarter. This way, you can test different outcomes for future revenue based on your membership expectations.
+### 👤 Adjust CPI Forecast
+Input the expected CPI value for the upcoming quarter to test different inflation scenarios for Starbucks' revenue forecast.
 """)
 
 col1, col2 = st.columns([1, 3.4])
 with col1:
     st.markdown(
-        "<div style='padding-top: 34px; font-weight: bold;'>Expected loyalty members:</div>",
+        "<div style='padding-top: 34px; font-weight: bold;'>Expected CPI:</div>",
         unsafe_allow_html=True
     )
 with col2:
-    user_loyalty_members = st.number_input(
+    user_cpi = st.number_input(
         label="",
-        value=int(df['loyalty_members'].iloc[-1]),
-        min_value=0,
-        step=100
+        value=float(df['CPI'].iloc[-1]) if not df['CPI'].iloc[-1] == 0 else 300.0,  # Default to last CPI or 300 if zero
+        min_value=0.0,
+        step=0.1
     )
 
 # --- Data Preparation for Forecasting ---
 revenue = df['revenue']
-exog = df[['CPI', 'loyalty_members']]  # Changed from store_count to loyalty_members
-train_revenue = revenue[:-4]
-test_revenue = revenue[-4:]
-train_exog = exog[:-4].copy()
-test_exog = exog[-4:].copy()
+exog = df[['CPI']]  # Removed loyalty_members, using only CPI
+train_revenue = revenue[:-1]  # Train on all but the last quarter
+test_revenue = revenue[-1:]  # Test on the last quarter
+train_exog = exog[:-1].copy()
+test_exog = exog[-1:].copy()
 
-# Update the last row of test_exog with user input for loyalty_members
-test_exog.iloc[-1, test_exog.columns.get_loc('loyalty_members')] = user_loyalty_members
+# Update the last row of test_exog with user input for CPI
+test_exog.iloc[-1, test_exog.columns.get_loc('CPI')] = user_cpi
 
 # Clean data: remove rows with NaNs and align
 valid_mask = train_exog.notnull().all(axis=1)
@@ -140,13 +118,13 @@ st.markdown("""
 if train_revenue.shape[0] >= 12:
     model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
     results = model.fit(disp=False)
-    forecast = results.get_forecast(steps=4, exog=test_exog)
+    forecast = results.get_forecast(steps=1, exog=test_exog)  # Forecast only next quarter
     forecast_mean = forecast.predicted_mean
     forecast_ci = forecast.conf_int()
     forecast_mean.index = test_exog.index
     forecast_ci.index = test_exog.index
 else:
-    st.error("❌ Not enough clean training data to run the model. Please check your CPI/loyalty_members history.")
+    st.error("❌ Not enough clean training data to run the model. Please check your CPI history.")
     st.stop()
 
 st.markdown("---")
@@ -157,7 +135,7 @@ fig, ax = plt.subplots(figsize=(10, 5))
 ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue')
 ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange')
 ax.fill_between(forecast_mean.index, forecast_ci.iloc[:, 0], forecast_ci.iloc[:, 1], color='orange', alpha=0.3)
-ax.set_title("Revenue Forecast")
+ax.set_title("Starbucks Revenue Forecast (Next Quarter)")
 ax.set_ylabel("Revenue (in millions)")
 ax.legend()
 ax.grid(True)
