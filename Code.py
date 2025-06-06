@@ -598,9 +598,11 @@ for company, rev_pct, avg_pct in zip(["Starbucks", "Dunkin", "Dutch Bro's"], [st
     if (rev_pct > 0 and avg_pct < 0) or (rev_pct < 0 and avg_pct > 0):
         risk_companies.append(company)
 
-# Last actual and forecasted values (structured as strings)
-last_actual_revenue = f"Actual: ${actual.iloc[0]:.1f}M" if not actual.empty else "Actual: $0.0M"
-last_forecasted_revenue = f"Forecasted: ${forecasted.iloc[0]:.1f}M" if not forecasted.empty else "Forecasted: $0.0M"
+# Structured data for last quarter and future forecast
+last_quarter_data = {
+    "actual_revenue": f"${actual.iloc[0]:.1f}M" if not actual.empty else "$0.0M",
+    "forecasted_revenue": f"${forecasted.iloc[0]:.1f}M" if not forecasted.empty else "$0.0M"
+}
 future_forecast_str = ", ".join([f"{date.strftime('%Y-%m')}: ${value:.1f}M" for date, value in forecast_mean[-2:].round(2).to_dict().items()])
 
 # Dynamic summary prompt with structured data
@@ -608,14 +610,14 @@ summary_prompt = f"""
 You are an AI financial assistant reviewing a quarterly report for Starbucks.
 
 TASK:
-Write a concise audit summary (50-100 words) evaluating whether revenue appears overstated. Use professional language for a boardroom setting. Format monetary values as 'Actual: $X.XM' or 'Forecasted: $X.XM'. Consider:
-- Forecast accuracy: Max deviation {max_forecast_deviation:.1f}%, average {avg_forecast_deviation:.1f}%. Flag >5% deviation as potential overstatement risk.
-- Last quarter: {last_actual_revenue}, {last_forecasted_revenue}.
+Write a concise audit summary (50-100 words) evaluating revenue overstatement risk. Use professional language for a boardroom setting. Use the following data verbatim: 
+- Forecast accuracy: Max deviation {max_forecast_deviation:.1f}%, average {avg_forecast_deviation:.1f}%. Flag >5% as risk.
+- Last quarter: {last_quarter_data['actual_revenue']} actual, {last_quarter_data['forecasted_revenue']} forecasted.
 - Future forecast: {future_forecast_str}.
 - KPI trends: Starbucks ticket {starbucks_avg_pct:.1f}%, revenue {starbucks_rev_pct:.1f}%; Dunkin ticket {dunkin_avg_pct:.1f}%, revenue {dunkin_rev_pct:.1f}%; Dutch Bros ticket {brueggers_avg_pct:.1f}%, revenue {brueggers_rev_pct:.1f}%.
 - Diverging trends: Risk in {', '.join(risk_companies) if risk_companies else 'none'}.
 - Sentiment: {positive_pct:.0f}% Positive, {negative_pct:.0f}% Negative, {neutral_pct:.0f}% Neutral.
-If deviation >5% or diverging trends exist, recommend investigation. Give final conclusion if revenue is likley overstated.
+If deviation >5% or diverging trends exist, recommend investigation.
 """
 
 # Initialize OpenAI client with API key from secrets
