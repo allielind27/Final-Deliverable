@@ -129,24 +129,11 @@ future_dates = pd.date_range(start=last_date + pd.offsets.QuarterEnd(1), periods
 future_exog = pd.DataFrame(index=future_dates, columns=['CPI'])
 future_exog['CPI'] = user_cpi  # Use user input for future CPI
 
-# Diagnostic: Check data shapes and contents
-st.write(f"Training revenue shape: {train_revenue.shape}")
-st.write(f"Training exogenous shape: {train_exog.shape}")
-st.write(f"Test revenue shape: {test_revenue.shape}")
-st.write(f"Test exogenous shape: {test_exog.shape}")
-st.write(f"Future exogenous data:\n{future_exog}")
-st.write(f"Last few rows of train_revenue:\n{train_revenue.tail()}")
-st.write(f"Last few rows of train_exog:\n{train_exog.tail()}")
-
 # Clean data: remove rows with NaNs and align
 valid_mask = train_exog.notna().all(axis=1)
 train_exog = train_exog[valid_mask]
 train_revenue = train_revenue[valid_mask]
 train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
-
-# Diagnostic: Check after cleaning
-st.write(f"After cleaning - Training revenue shape: {train_revenue.shape}")
-st.write(f"After cleaning - Training exogenous shape: {train_exog.shape}")
 
 # --- SARIMAX Model and Forecasting ---
 st.markdown("""
