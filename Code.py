@@ -73,13 +73,28 @@ def fetch_historical_cpi(date_list):
         response.raise_for_status()
         data = response.json()["observations"]
         cpi_data = {pd.to_datetime(d["date"]): float(d["value"]) for d in data if d["value"] != "."}
-        return pd.Series(cpi_data).reindex(dates, method='ffill').fillna(method='bfill')
+        cpi_series = pd.Series(cpi_data).reindex(dates, method='ffill').fillna(method='bfill')
+        fetch_time = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S %Z')
+        cpi_series.name = fetch_time  # Store fetch time as series name
+        return cpi_series
     except Exception as e:
         st.error(f"❌ Failed to fetch historical CPI: {e}")
         return pd.Series(index=dates, data=0.0)
 
 # --- CPI Integration ---
 df['CPI'] = fetch_historical_cpi(df.index.strftime('%Y-%m-%d').tolist())
+fetch_time = df['CPI'].name  # Retrieve the fetch time
+st.markdown(f"""
+---
+#### 📊 CPI Data Source
+The Consumer Price Index (CPI) data used is sourced directly from the Federal Reserve Economic Data (FRED). 
+This economic indicator serves as an exogenous input in the ARIMAX forecast to model the inflation impact on Starbucks’ revenue patterns.
+
+**Series ID:** [CPIAUCSL](https://fred.stlouisfed.org/series/CPIAUCSL)  
+**Title:** Consumer Price Index for All Urban Consumers: All Items (Not Seasonally Adjusted)  
+**Source:** U.S. Bureau of Labor Statistics  
+**Data Fetched:** {fetch_time}
+""")
 
 st.markdown("""
 ---
