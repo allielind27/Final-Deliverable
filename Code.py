@@ -602,7 +602,7 @@ Use clear, professional language suitable for a boardroom setting.
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4",
     messages=[
         {"role": "system", "content": "You are a financial audit assistant."},
         {"role": "user", "content": summary_prompt}
