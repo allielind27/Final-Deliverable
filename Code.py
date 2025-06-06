@@ -455,7 +455,7 @@ if st.session_state.headlines:
     sentiments = [score_sentiment(h) for h in st.session_state.headlines]
     for h, s in zip(st.session_state.headlines, sentiments):
         sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
-        st.write(f"{sentiment_type}: {h}")
+        st.write(f"{sentiment_type} (Score: {s}): {h}")
     
     # Visualize sentiment distribution
     sentiment_counts = pd.DataFrame({
