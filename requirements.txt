@@ -6,3 +6,4 @@ statsmodels
 requests
 beautifulsoup4
 openai
+plotly
