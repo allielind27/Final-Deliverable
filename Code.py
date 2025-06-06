@@ -400,36 +400,45 @@ negation_words = [
     "neither", "nor", "fails to", "lacks", "absence of", "fails", "incomplete", "unmet", "avoids"
 ]
 
-# Sentiment scoring function with phrase and negation handling
+# Sentiment scoring function with exact phrase matching
 def score_sentiment(text):
     text = text.lower()
     score = 0
-    matched_phrases = set()  # Track matched phrases to avoid double-counting
+    matched_phrases = set()
+    words = text.split()
+    
+    # Sort keywords by length (longest first) to prioritize multi-word phrases
+    sorted_positive_keywords = sorted(positive_keywords, key=len, reverse=True)
+    sorted_negative_keywords = sorted(negative_keywords, key=len, reverse=True)
     
     # Check for positive phrases
-    for phrase in positive_keywords:
-        if phrase in text and phrase not in matched_phrases:
-            phrase_start = text.index(phrase)
-            preceding_text = text[:phrase_start]
-            if not any(n in preceding_text for n in negation_words):
-                score += 1
-            else:
-                score -= 1
-            matched_phrases.add(phrase)
+    for phrase in sorted_positive_keywords:
+        phrase_words = phrase.split()
+        for i in range(len(words) - len(phrase_words) + 1):
+            if ' '.join(words[i:i + len(phrase_words)]) == phrase:
+                preceding_text = ' '.join(words[:i])
+                if not any(n in preceding_text for n in negation_words):
+                    score += 1
+                else:
+                    score -= 1
+                matched_phrases.add(phrase)
+                break
     
     # Check for negative phrases
-    for phrase in negative_keywords:
-        if phrase in text and phrase not in matched_phrases:
-            phrase_start = text.index(phrase)
-            preceding_text = text[:phrase_start]
-            if not any(n in preceding_text for n in negation_words):
-                score -= 1
-            else:
-                score += 1
-            matched_phrases.add(phrase)
+    for phrase in sorted_negative_keywords:
+        phrase_words = phrase.split()
+        for i in range(len(words) - len(phrase_words) + 1):
+            if ' '.join(words[i:i + len(phrase_words)]) == phrase:
+                preceding_text = ' '.join(words[:i])
+                if not any(n in preceding_text for n in negation_words):
+                    score -= 1
+                else:
+                    score += 1
+                matched_phrases.add(phrase)
+                break
     
-    # Debug: Show matched phrases
-    if score != 0:
+    # Debug output
+    if matched_phrases:
         st.write(f"Debug - Matched phrases for '{text}': {matched_phrases}, Score: {score}")
     
     return score
@@ -481,11 +490,6 @@ if st.session_state.headlines:
     st.plotly_chart(fig)
 else:
     st.write("No headlines to analyze.")
-
-st.markdown("""
-<hr>
-<h2 style='text-align: center; margin-top: 20px;'>🤖 AI-Generated Summary</h2>
-""", unsafe_allow_html=True)
 
 summary_prompt = """
 You are an AI financial assistant. Imagine you have reviewed a quarterly report from a retail coffee company.
