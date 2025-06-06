@@ -405,7 +405,7 @@ negative_keywords = [
     "fired", "lawsuit", "scrapped", "risked", "underfunded", "worsened", "triggered", "noncompliance",
     "infringed", "litigated", "flagged", "breach", "blacklisted", "subpoenaed", "dismissed",
     "weakness", "attrition", "instability", "misstated", "misclassified", "refuted", "pressured",
-    "strained", "overstated", "disqualified", "malfunction", "revoked", "restatement,
+    "strained", "overstated", "disqualified", "malfunction", "revoked", "restatement",
     "annoying", "awful", "bad", "boring", "broken", "careless", "cold", "confusing",
     "cruel", "damaged", "dirty", "disappointing", "dull", "frustrating", "gloomy",
     "gross", "hard", "horrible", "hostile", "hurtful", "ignorant", "impolite",
