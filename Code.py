@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import warnings
 import matplotlib.dates
 from openai import OpenAI
+import plotly.express as px
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -348,8 +349,6 @@ with col2:
     st.pyplot(fig2)
     plt.close(fig2)
 
-import streamlit as st
-
 st.markdown("""
 ---
 ### 🗞️ Sentiment Analysis
@@ -382,7 +381,6 @@ positive_keywords = [
     "channel strength", "supply chain recovery", "traffic gains", "demand resilience", "earnings beat",
     "dividend increase", "restructuring benefit", "product innovation", "new product success"
 ]
-
 negative_keywords = [
     "misses", "missed", "fell short", "shortfall", "decline", "drop", "slump", "loss", "cut", "underperforms",
     "underperformed", "disappointing", "weak", "volatility", "downtrend", "missed forecast", "downturn",
@@ -396,31 +394,34 @@ negative_keywords = [
     "decreased profitability", "seasonal weakness", "delayed recovery", "volume decline", "slower conversion",
     "store closures", "shrinking margins", "restructuring loss", "inventory write-down", "market saturation"
 ]
-
 negation_words = [
     "not", "no", "never", "none", "without", "rarely", "hardly", "barely", "didn't", "doesn't", "wasn't",
     "isn't", "aren't", "can't", "couldn't", "won't", "hasn't", "haven't", "shouldn't", "wouldn't",
-    "neither", "nor", "fails to", "lacks", "absence of", "fails", "incomplete", "unmet"
+    "neither", "nor", "fails to", "lacks", "absence of", "fails", "incomplete", "unmet", "avoids"
 ]
 
-# Sentiment scoring function with negation handling
+# Sentiment scoring function with phrase and negation handling
 def score_sentiment(text):
     text = text.lower()
-    words = text.split()
     score = 0
-    for i, word in enumerate(words):
-        # Check for positive keyword, not preceded by negation
-        if word in positive_keywords and (i == 0 or words[i-1] not in negation_words):
-            score += 1
-        # Negated positive keyword counts as negative
-        elif word in positive_keywords and words[i-1] in negation_words:
-            score -= 1
-        # Check for negative keyword, not preceded by negation
-        elif word in negative_keywords and (i == 0 or words[i-1] not in negation_words):
-            score -= 1
-        # Negated negative keyword counts as positive
-        elif word in negative_keywords and words[i-1] in negation_words:
-            score += 1
+    # Check for phrases (multi-word keywords)
+    for phrase in positive_keywords:
+        if phrase in text:
+            # Check if any negation word appears before the phrase
+            phrase_start = text.index(phrase)
+            preceding_text = text[:phrase_start]
+            if not any(n in preceding_text for n in negation_words):
+                score += 1
+            else:
+                score -= 1
+    for phrase in negative_keywords:
+        if phrase in text:
+            phrase_start = text.index(phrase)
+            preceding_text = text[:phrase_start]
+            if not any(n in preceding_text for n in negation_words):
+                score -= 1
+            else:
+                score += 1
     return score
 
 # Create two columns for side-by-side input
@@ -440,7 +441,7 @@ with col1:
 # Remove headline section
 with col2:
     st.write("**Remove a headline**")
-    headline_to_remove = st.selectbox("Select a headline to remove:", [""] + st.session_state.headlines, key="remove_headline")
+    headline_to_remove = st.selectbox("Select a headline to remove:", [""] + st.session_state.headlines, key="remove_headline", index=0)
     if st.button("Remove Headline"):
         if headline_to_remove:
             st.session_state.headlines.remove(headline_to_remove)
@@ -455,6 +456,19 @@ if st.session_state.headlines:
     for h, s in zip(st.session_state.headlines, sentiments):
         sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
         st.write(f"{sentiment_type}: {h}")
+    
+    # Visualize sentiment distribution
+    sentiment_counts = pd.DataFrame({
+        "Sentiment": ["Positive", "Negative", "Neutral"],
+        "Count": [
+            len([s for s in sentiments if s > 0]),
+            len([s for s in sentiments if s < 0]),
+            len([s for s in sentiments if s == 0])
+        ]
+    })
+    fig = px.bar(sentiment_counts, x="Sentiment", y="Count", title="Sentiment Analysis of Earnings Headlines",
+                 color="Sentiment", color_discrete_map={"Positive": "#00cc00", "Negative": "#ff3333", "Neutral": "#ffcc00"})
+    st.plotly_chart(fig)
 else:
     st.write("No headlines to analyze.")
 
