@@ -364,37 +364,61 @@ if 'headlines' not in st.session_state:
 
 # Keyword lists
 positive_keywords = [
-    "beats", "beat", "exceeds expectations", "strong", "strength", "growth", "record",
-    "positive", "profit", "rise", "increased", "expansion", "surged", "surge", "resilient",
-    "improved", "robust", "momentum", "uptrend", "tops", "outperforms", "success",
-    "better-than-expected", "accelerated", "recovery", "rebound", "bullish", "reinvigorated",
-    "double-digit growth", "high demand", "strategic growth", "gained", "high-margin",
-    "market share gains", "sustainable", "upside", "cash-positive", "record-setting",
-    "quarterly high", "annual growth", "customer loyalty", "loyalty expansion",
-    "operational excellence", "inventory efficiency", "margin expansion", "cost optimization",
-    "guidance raised", "in-line performance", "stability", "record revenue", "expanding footprint",
-    "returning to growth", "pricing power", "brand strength", "global momentum", "new highs",
-    "performance uplift", "operating leverage", "shareholder value", "profitability", "headwinds easing",
-    "channel strength", "supply chain recovery", "traffic gains", "demand resilience", "earnings beat",
-    "dividend increase", "restructuring benefit", "product innovation", "new product success"
+    "beats", "beat", "exceeds", "strong", "strength", "growth", "record", "positive", "profit",
+    "rise", "increased", "expansion", "surged", "surge", "resilient", "improved", "robust",
+    "momentum", "uptrend", "tops", "outperforms", "success", "accelerated", "recovery", "rebound",
+    "bullish", "gained", "sustainable", "upside", "profitable", "stable", "resumed", "expanded",
+    "improves", "optimistic", "boost", "advances", "resurgence", "rebounded", "excels", "efficient",
+    "cashflow", "innovative", "resilience", "uptick", "elevated", "surpassing", "superior",
+    "scaling", "gaining", "thriving", "leadership", "stability", "easing", "peak", "streamlined",
+    "enhanced", "consistent", "reaffirmed", "beneficial", "evolving", "rising", "maximized",
+    "favorably", "delivered", "dividend", "upgrade", "oversubscribed", "greenlighted", "licensed",
+    "compliant", "settled", "cleared", "dismissed", "acquitted", "authorized", "reinstated",
+    "accretive", "liquidity", "refinanced", "renewed", "restructured", "deleveraged", "covered",
+    "hedged", "ratified", "voted", "approved", "unanimous", "surplus", "milestone", "capitalized",
+    "strengthened", "fortified", "certified", "empowered", "revitalized", "endorsed", "appointed",
+    "nominated", "balanced", "compliant", "merged", "diversified", "aligned", "synergistic",
+    "acquired", "launched", "adopted", "standardized", "cohesive", "integrated", "optimized",
+    "amazing", "awesome", "brilliant", "cool", "delightful", "excellent", "fantastic",
+    "friendly", "fun", "great", "happy", "helpful", "inspiring", "joyful", "kind",
+    "loved", "lovely", "motivated", "nice", "outstanding", "pleasant", "satisfying",
+    "smart", "smooth", "stellar", "stronger", "super", "terrific", "thankful", "trusted",
+    "welcoming", "wonderful", "admirable", "beautiful", "cheerful", "commendable",
+    "courteous", "dedicated", "dependable", "encouraging", "energetic", "enthusiastic",
+    "fair", "favorable", "funny", "genuine", "grateful", "honest", "intelligent",
+    "loving", "neat", "nice-looking", "peaceful", "polite", "positive-minded", "quick",
+    "refreshing", "respectful", "safe", "sharp", "skillful", "supportive", "tidy",
+    "upbeat", "vibrant", "warm", "wise", "worthy"
 ]
 negative_keywords = [
-    "misses", "missed", "fell short", "shortfall", "decline", "drop", "slump", "loss", "cut", "underperforms",
-    "underperformed", "disappointing", "weak", "volatility", "downtrend", "missed forecast", "downturn",
-    "slower", "plummet", "collapse", "missed guidance", "unexpected loss", "worse-than-expected",
-    "margin pressure", "shrinking", "softness", "suffers", "reduced outlook", "cutting forecast",
-    "cost pressure", "inventory glut", "underwhelming", "headwinds", "profit decline", "operating loss",
-    "negative cash flow", "demand weakness", "uncertain environment", "macro uncertainty", "inflation impact",
-    "fx headwinds", "revenue contraction", "customer attrition", "cautious outlook", "missed earnings",
-    "guidance cut", "downgrade", "pressured margins", "supply chain issues", "staff shortage",
-    "regulatory pressure", "audit concerns", "slow traffic", "competitive pressure", "spending pullback",
-    "decreased profitability", "seasonal weakness", "delayed recovery", "volume decline", "slower conversion",
-    "store closures", "shrinking margins", "restructuring loss", "inventory write-down", "market saturation"
+    "misses", "missed", "shortfall", "decline", "drop", "slump", "loss", "cut", "downgrade",
+    "underperforms", "underperformed", "disappointing", "weak", "volatility", "downtrend", "slowdown",
+    "plummet", "collapse", "unexpected", "shrinking", "softness", "suffers", "reduced", "cutting",
+    "glut", "headwinds", "deficit", "attrition", "cautious", "delay", "weaker", "slower",
+    "constrained", "challenging", "stagnant", "squeezed", "pullback", "impacted", "shortage",
+    "inefficiency", "ineffective", "unfavorable", "inefficient", "overexposed", "problematic",
+    "unmet", "unresolved", "noncompliant", "penalized", "fined", "recalled", "delisted", "downgraded",
+    "warned", "delayed", "withdrawn", "cancelled", "diluted", "sued", "suspension", "restated",
+    "investigated", "charged", "violated", "exposed", "bankrupt", "insolvent", "declined", "fraud",
+    "default", "divestment", "writeoff", "writeoff", "abandoned", "resigned", "terminated",
+    "fired", "lawsuit", "scrapped", "risked", "underfunded", "worsened", "triggered", "noncompliance",
+    "infringed", "litigated", "flagged", "breach", "blacklisted", "subpoenaed", "dismissed",
+    "weakness", "attrition", "instability", "misstated", "misclassified", "refuted", "pressured",
+    "strained", "overstated", "disqualified", "malfunction", "revoked", "restatement,
+    "annoying", "awful", "bad", "boring", "broken", "careless", "cold", "confusing",
+    "cruel", "damaged", "dirty", "disappointing", "dull", "frustrating", "gloomy",
+    "gross", "hard", "horrible", "hostile", "hurtful", "ignorant", "impolite",
+    "inaccurate", "inconsiderate", "inept", "lazy", "loud", "mean", "messy",
+    "nasty", "negative", "noisy", "painful", "poor", "rude", "sad", "scary",
+    "selfish", "shameful", "shocking", "slow", "smelly", "stale", "stressful",
+    "stupid", "tense", "terrible", "thoughtless", "toxic", "ugly", "unbearable",
+    "unclear", "unfair", "unfriendly", "unhappy", "unpleasant", "unreliable",
+    "upset", "useless", "vague", "weak", "worthless", "wrong"
 ]
 negation_words = [
-    "not", "no", "never", "none", "without", "rarely", "hardly", "barely", "didn't", "doesn't", "wasn't",
-    "isn't", "aren't", "can't", "couldn't", "won't", "hasn't", "haven't", "shouldn't", "wouldn't",
-    "neither", "nor", "fails to", "lacks", "absence of", "fails", "incomplete", "unmet", "avoids"
+    "not", "no", "never", "none", "without", "rarely", "hardly", "barely", "didn't", "doesn't",
+    "wasn't", "isn't", "aren't", "can't", "couldn't", "won't", "hasn't", "haven't", "shouldn't",
+    "wouldn't", "neither", "nor", "fails", "lacks", "unmet", "avoids", "excludes", "incomplete"
 ]
 
 # Sentiment scoring function with exact phrase matching
