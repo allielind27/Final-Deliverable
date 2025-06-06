@@ -186,7 +186,7 @@ else:
 st.markdown("""
 ---
 ### 📊 Forecast Results
-The table below compares forecasted revenue to actual revenue for the next four quarters, based on the model using CPI and loyalty membership data.
+The table below compares forecasted revenue to actual revenue for the next four quarters, based on the model using CPI.
 """)
 
 # Prepare data
