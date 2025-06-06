@@ -74,7 +74,7 @@ This economic indicator serves as an exogenous input in the ARIMAX forecast to m
 # --- User Input for CPI ---
 st.markdown("""
 ---
-### 👤 Adjust CPI Forecast
+### 💰 Adjust CPI Forecast
 Input the expected CPI value for the upcoming quarter to test different inflation scenarios for Starbucks' revenue forecast.
 """)
 
