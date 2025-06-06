@@ -531,15 +531,36 @@ if st.session_state.headlines:
 else:
     st.write("No headlines to analyze.")
 
-summary_prompt = """
-You are an AI financial assistant. Imagine you have reviewed a quarterly report from a retail coffee company.
+# Calculate summary inputs dynamically
+# Forecast accuracy (% difference)
+pct_diff = ((forecasted - actual) / actual * 100).round(2)
+max_forecast_deviation = abs(pct_diff).max()
+
+# Average ticket price trends
+starbucks_avg_pct = calculate_overall_pct_diff(df.loc[common_dates, 'avg_ticket'])
+dunkin_avg_pct = calculate_overall_pct_diff(dunkin_df.loc[common_dates, 'avg_ticket'])
+brueggers_avg_pct = calculate_overall_pct_diff(brueggers_df.loc[common_dates, 'avg_ticket'])
+
+# Sentiment analysis
+sentiment_counts_dict = sentiment_counts.set_index("Sentiment")["Count"].to_dict()
+total_headlines = sum(sentiment_counts_dict.values())
+positive_pct = (sentiment_counts_dict.get("Positive", 0) / total_headlines * 100) if total_headlines > 0 else 0
+negative_pct = (sentiment_counts_dict.get("Negative", 0) / total_headlines * 100) if total_headlines > 0 else 0
+neutral_pct = (sentiment_counts_dict.get("Neutral", 0) / total_headlines * 100) if total_headlines > 0 else 0
+
+# Dynamic summary prompt
+summary_prompt = f"""
+You are an AI financial assistant reviewing a quarterly report for Starbucks.
 
 TASK:
-Write a short audit-focused summary (under 100 words) evaluating whether revenue appears overstated, based on forecast accuracy, average transaction size trends, and public sentiment. Use clear, professional language suitable for a boardroom setting.
-
-Note: This is a test. No real data is being provided.
+Write a short audit-focused summary (under 100 words) evaluating whether revenue appears overstated, based on:
+- Forecast accuracy: Forecasted revenues deviated by up to {max_forecast_deviation:.1f}% from actuals.
+- Average transaction size trends: Starbucks' average ticket price changed by {starbucks_avg_pct:.1f}%, compared to Dunkin ({dunkin_avg_pct:.1f}%) and Dutch Bros ({brueggers_avg_pct:.1f}%).
+- Public sentiment: Sentiment analysis shows {positive_pct:.0f}% Positive, {negative_pct:.0f}% Negative, {neutral_pct:.0f}% Neutral.
+Use clear, professional language suitable for a boardroom setting.
 """
 
+# OpenAI API call
 client = OpenAI(api_key="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")
 
 response = client.chat.completions.create(
@@ -552,3 +573,10 @@ response = client.chat.completions.create(
 )
 
 ai_summary = response.choices[0].message.content
+
+# Display the AI-generated summary
+st.markdown("""
+---
+### 📝 AI-Generated Audit Summary
+""")
+st.write(ai_summary)
