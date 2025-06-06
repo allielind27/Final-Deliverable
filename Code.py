@@ -365,61 +365,74 @@ if 'headlines' not in st.session_state:
 
 # Keyword lists
 positive_keywords = [
-    "beats", "beat", "exceeds", "strong", "strength", "growth", "record", "positive", "profit",
-    "rise", "increased", "expansion", "surged", "surge", "resilient", "improved", "robust",
-    "momentum", "uptrend", "tops", "outperforms", "success", "accelerated", "recovery", "rebound",
-    "bullish", "gained", "sustainable", "upside", "profitable", "stable", "resumed", "expanded",
-    "improves", "optimistic", "boost", "advances", "resurgence", "rebounded", "excels", "efficient",
-    "cashflow", "innovative", "resilience", "uptick", "elevated", "surpassing", "superior",
-    "scaling", "gaining", "thriving", "leadership", "stability", "easing", "peak", "streamlined",
-    "enhanced", "consistent", "reaffirmed", "beneficial", "evolving", "rising", "maximized",
-    "favorably", "delivered", "dividend", "upgrade", "oversubscribed", "greenlighted", "licensed",
-    "compliant", "settled", "cleared", "dismissed", "acquitted", "authorized", "reinstated",
-    "accretive", "liquidity", "refinanced", "renewed", "restructured", "deleveraged", "covered",
-    "hedged", "ratified", "voted", "approved", "unanimous", "surplus", "milestone", "capitalized",
-    "strengthened", "fortified", "certified", "empowered", "revitalized", "endorsed", "appointed",
-    "nominated", "balanced", "compliant", "merged", "diversified", "aligned", "synergistic",
-    "acquired", "launched", "adopted", "standardized", "cohesive", "integrated", "optimized",
-    "amazing", "awesome", "brilliant", "cool", "delightful", "excellent", "fantastic",
-    "friendly", "fun", "great", "happy", "helpful", "inspiring", "joyful", "kind",
-    "loved", "lovely", "motivated", "nice", "outstanding", "pleasant", "satisfying",
-    "smart", "smooth", "stellar", "stronger", "super", "terrific", "thankful", "trusted",
-    "welcoming", "wonderful", "admirable", "beautiful", "cheerful", "commendable",
-    "courteous", "dedicated", "dependable", "encouraging", "energetic", "enthusiastic",
-    "fair", "favorable", "funny", "genuine", "grateful", "honest", "intelligent",
-    "loving", "neat", "nice-looking", "peaceful", "polite", "positive-minded", "quick",
-    "refreshing", "respectful", "safe", "sharp", "skillful", "supportive", "tidy",
+    # Financial and Performance
+    "beats expectations", "exceeds expectations", "exceeds forecasts", "exceeds guidance", "strong",
+    "strength", "growth", "record", "positive", "profit", "increased", "expansion", "surged", "surge",
+    "resilient", "improved", "robust", "momentum", "uptrend", "tops", "outperforms", "success",
+    "accelerated", "recovery", "rebound", "bullish", "gained", "sustainable", "upside", "profitable",
+    "stable", "expanded", "improves", "boost", "advances", "resurgence", "rebounded", "excels",
+    "cashflow", "resilience", "uptick", "elevated", "surpassing", "superior", "scaling", "gaining",
+    "thriving", "leadership", "stability", "peak", "streamlined", "enhanced", "consistent",
+    "reaffirmed", "beneficial", "rising", "maximized", "favorably", "delivered", "dividend", "upgrade",
+    "oversubscribed", "greenlighted", "licensed", "compliant", "settled", "cleared", "dismissed",
+    "acquitted", "authorized", "reinstated", "accretive", "liquidity", "refinanced", "renewed",
+    "restructured", "deleveraged", "covered", "hedged", "ratified", "voted", "approved", "unanimous",
+    "surplus", "milestone", "capitalized", "strengthened", "fortified", "certified", "empowered",
+    "revitalized", "endorsed", "appointed", "nominated", "balanced", "compliant", "merged",
+    "diversified", "aligned", "synergistic", "acquired", "launched", "adopted", "standardized",
+    "cohesive", "integrated", "optimized", "raises guidance", "raises outlook", "record sales",
+    "market leader", "breakthrough", "innovation", "patent granted", "expansion plans", "new markets",
+    # Operational
+    "efficient", "evolving", "streamlined", "optimized", "operational excellence", "inventory efficiency",
+    "cost optimization", "supply chain recovery", "traffic gains", "demand resilience",
+    # Emotional and General
+    "amazing", "awesome", "brilliant", "cool", "delightful", "excellent", "fantastic", "friendly",
+    "fun", "great", "happy", "helpful", "inspiring", "joyful", "kind", "loved", "lovely",
+    "motivated", "nice", "outstanding", "pleasant", "satisfying", "smart", "smooth", "stellar",
+    "stronger", "super", "terrific", "thankful", "trusted", "welcoming", "wonderful", "admirable",
+    "beautiful", "cheerful", "commendable", "courteous", "dedicated", "dependable", "encouraging",
+    "energetic", "enthusiastic", "fair", "favorable", "funny", "genuine", "grateful", "honest",
+    "intelligent", "loving", "neat", "nice-looking", "peaceful", "polite", "positive-minded",
+    "quick", "refreshing", "respectful", "safe", "sharp", "skillful", "supportive", "tidy",
     "upbeat", "vibrant", "warm", "wise", "worthy"
 ]
+
 negative_keywords = [
-    "misses", "missed", "shortfall", "decline", "drop", "slump", "loss", "cut", "downgrade",
-    "underperforms", "underperformed", "disappointing", "weak", "volatility", "downtrend", "slowdown",
-    "plummet", "collapse", "unexpected", "shrinking", "softness", "suffers", "reduced", "cutting",
-    "glut", "headwinds", "deficit", "attrition", "cautious", "delay", "weaker", "slower",
-    "constrained", "challenging", "stagnant", "squeezed", "pullback", "impacted", "shortage",
-    "inefficiency", "ineffective", "unfavorable", "inefficient", "overexposed", "problematic",
+    # Financial and Performance
+    "misses expectations", "below expectations", "earnings miss", "revenue miss", "shortfall", "decline",
+    "drop", "slump", "loss", "cut", "downgrade", "underperforms", "underperformed", "disappointing",
+    "weak", "volatility", "downtrend", "slowdown", "plummet", "collapse", "unexpected", "shrinking",
+    "softness", "suffers", "reduced", "cutting", "glut", "headwinds", "deficit", "attrition",
+    "cautious", "delay", "weaker", "slower", "constrained", "challenging", "stagnant", "squeezed",
+    "pullback", "impacted", "shortage", "ineffective", "unfavorable", "overexposed", "problematic",
     "unmet", "unresolved", "noncompliant", "penalized", "fined", "recalled", "delisted", "downgraded",
     "warned", "delayed", "withdrawn", "cancelled", "diluted", "sued", "suspension", "restated",
     "investigated", "charged", "violated", "exposed", "bankrupt", "insolvent", "declined", "fraud",
-    "default", "divestment", "writeoff", "writeoff", "abandoned", "resigned", "terminated",
-    "fired", "lawsuit", "scrapped", "risked", "underfunded", "worsened", "triggered", "noncompliance",
-    "infringed", "litigated", "flagged", "breach", "blacklisted", "subpoenaed", "dismissed",
-    "weakness", "attrition", "instability", "misstated", "misclassified", "refuted", "pressured",
-    "strained", "overstated", "disqualified", "malfunction", "revoked", "restatement",
-    "annoying", "awful", "bad", "boring", "broken", "careless", "cold", "confusing",
-    "cruel", "damaged", "dirty", "disappointing", "dull", "frustrating", "gloomy",
-    "gross", "hard", "horrible", "hostile", "hurtful", "ignorant", "impolite",
-    "inaccurate", "inconsiderate", "inept", "lazy", "loud", "mean", "messy",
-    "nasty", "negative", "noisy", "painful", "poor", "rude", "sad", "scary",
-    "selfish", "shameful", "shocking", "slow", "smelly", "stale", "stressful",
-    "stupid", "tense", "terrible", "thoughtless", "toxic", "ugly", "unbearable",
-    "unclear", "unfair", "unfriendly", "unhappy", "unpleasant", "unreliable",
-    "upset", "useless", "vague", "weak", "worthless", "wrong"
+    "default", "divestment", "writeoff", "abandoned", "resigned", "terminated", "fired", "lawsuit",
+    "scrapped", "risked", "underfunded", "worsened", "triggered", "noncompliance", "infringed",
+    "litigated", "flagged", "breach", "blacklisted", "subpoenaed", "dismissed", "weakness",
+    "instability", "misstated", "misclassified", "refuted", "pressured", "strained", "overstated",
+    "disqualified", "malfunction", "revoked", "restatement", "uncertain", "risky", "speculative",
+    "margin squeeze", "revenue decline", "profit warning", "cost overrun", "budget overrun",
+    # Operational
+    "inefficiency", "inefficient", "supply chain issues", "staff shortage", "store closures",
+    "inventory glut", "slower conversion", "operational challenges", "system failure",
+    # Emotional and General
+    "annoying", "awful", "bad", "boring", "broken", "careless", "cold", "confusing", "cruel",
+    "damaged", "dirty", "disappointing", "dull", "frustrating", "gloomy", "gross", "hard",
+    "horrible", "hostile", "hurtful", "ignorant", "impolite", "inaccurate", "inconsiderate",
+    "inept", "lazy", "loud", "mean", "messy", "nasty", "negative", "noisy", "painful",
+    "poor", "rude", "sad", "scary", "selfish", "shameful", "shocking", "slow", "smelly",
+    "stale", "stressful", "stupid", "tense", "terrible", "thoughtless", "toxic", "ugly",
+    "unbearable", "unclear", "unfair", "unfriendly", "unhappy", "unpleasant", "unreliable",
+    "upset", "useless", "vague", "worthless", "wrong"
 ]
+
 negation_words = [
     "not", "no", "never", "none", "without", "rarely", "hardly", "barely", "didn't", "doesn't",
     "wasn't", "isn't", "aren't", "can't", "couldn't", "won't", "hasn't", "haven't", "shouldn't",
-    "wouldn't", "neither", "nor", "fails", "lacks", "unmet", "avoids", "excludes", "incomplete"
+    "wouldn't", "neither", "nor", "fails to", "fail to", "lacks", "unmet", "avoids", "excludes",
+    "incomplete", "short of", "absence of", "devoid of", "ain’t", "refuses", "stops", "prevents"
 ]
 
 # Sentiment scoring function with exact phrase matching
