@@ -361,8 +361,8 @@ st.subheader("Earnings Headline Sentiment")
 if 'headlines' not in st.session_state:
     st.session_state.headlines = [
         "Starbucks beats expectations with strong Q1 sales",
-        "Concerns arise over Starbucks' China performance",
-        "Starbucks fails to meet earnings expectations"
+        "Starbucks reports weak earnings",
+        "Starbucks releases new drink"
     ]
 
 # Keyword lists
