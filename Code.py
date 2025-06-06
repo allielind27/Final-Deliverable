@@ -116,24 +116,30 @@ with col2:
 # --- Data Preparation for Forecasting ---
 revenue = df['revenue']
 exog = df[['CPI']]  # Using only CPI as exogenous variable
-train_revenue = revenue[:-1]  # Train on all but the last quarter
-test_revenue = revenue[-1:]  # Test on the last quarter
-train_exog = exog[:-1].copy()
-test_exog = exog[-1:].copy()
+
+# Split data: train on all but the last 4 quarters, test on last 4, forecast future 2
+train_revenue = revenue[:-4]  # Train on all but the last 4 quarters
+test_revenue = revenue[-4:]   # Last 4 quarters for backtesting
+train_exog = exog[:-4].copy()
+test_exog = exog[-4:].copy()
+
+# Create future exogenous data for the next 2 quarters
+last_date = df.index[-1]
+future_dates = pd.date_range(start=last_date + pd.offsets.QuarterEnd(1), periods=2, freq='Q')
+future_exog = pd.DataFrame(index=future_dates, columns=['CPI'])
+future_exog['CPI'] = user_cpi  # Use user input for future CPI
 
 # Diagnostic: Check data shapes and contents
 st.write(f"Training revenue shape: {train_revenue.shape}")
 st.write(f"Training exogenous shape: {train_exog.shape}")
+st.write(f"Test revenue shape: {test_revenue.shape}")
 st.write(f"Test exogenous shape: {test_exog.shape}")
+st.write(f"Future exogenous data:\n{future_exog}")
 st.write(f"Last few rows of train_revenue:\n{train_revenue.tail()}")
 st.write(f"Last few rows of train_exog:\n{train_exog.tail()}")
 
-# Update the last row of test_exog with user input for CPI
-test_exog.iloc[-1, test_exog.columns.get_loc('CPI')] = user_cpi
-st.write(f"Updated test_exog:\n{test_exog}")
-
 # Clean data: remove rows with NaNs and align
-valid_mask = train_exog.notnull().all(axis=1)
+valid_mask = train_exog.notna().all(axis=1)
 train_exog = train_exog[valid_mask]
 train_revenue = train_revenue[valid_mask]
 train_revenue, train_exog = train_revenue.align(train_exog, join='inner', axis=0)
@@ -148,25 +154,27 @@ st.markdown("""
 <h2 style='text-align: center; margin-top: 20px;'>📈 Revenue Forecast Model</h2>
 """, unsafe_allow_html=True)
 
-if train_revenue.shape[0] >= 12:
+if train_revenue.shape[0] >= 12:  # Ensure enough data for training
     st.write(f"Training data points available: {train_revenue.shape[0]}")
     try:
-        model = SARIMAX(train_revenue, exog=train_exog, order=(1,1,1), seasonal_order=(1,1,1,4))
+        model = SARIMAX(train_revenue, exog=train_exog, order=(1,0,1), seasonal_order=(0,1,0,4))
         results = model.fit(disp=False)
-        # Forecast for the next quarter
-        forecast = results.get_forecast(steps=1, exog=test_exog)
+        # Forecast for past 4 quarters (backtest) and next 2 quarters (future)
+        total_steps = 4 + 2  # 4 for backtest, 2 for future
+        forecast_exog = pd.concat([test_exog, future_exog])  # Combine test and future exogenous data
+        forecast = results.get_forecast(steps=total_steps, exog=forecast_exog)
         forecast_mean = forecast.predicted_mean
         forecast_ci = forecast.conf_int()
         st.write(f"Forecast mean:\n{forecast_mean}")
         st.write(f"Forecast confidence intervals:\n{forecast_ci}")
-        # Ensure indices match
-        forecast_mean.index = test_exog.index
-        forecast_ci.index = test_exog.index
+        # Set indices to match the test and future periods
+        forecast_mean.index = forecast_exog.index
+        forecast_ci.index = forecast_exog.index
     except Exception as e:
         st.error(f"❌ Model fitting or forecasting failed: {e}")
         st.stop()
 else:
-    st.error(f"❌ Not enough clean training data to run the model. Available points: {train_revenue.shape[0]}. Please check your data.")
+    st.error(f"❌ Not enough clean training data to run the model. Available points: {train_revenue.shape[0]}.")
     st.stop()
 
 st.markdown("---")
@@ -174,23 +182,22 @@ st.markdown("---")
 # --- Forecast Visualization ---
 st.title("Forecast vs Actual")
 if not forecast_mean.empty and not forecast_ci.empty:
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(12, 6))
     # Plot actual revenue
     ax.plot(revenue.index, revenue, label='Actual Revenue', color='blue')
-    # Plot forecasted revenue
-    ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange', marker='o')  # Added marker for visibility
+    # Plot forecasted revenue (backtest for last 4 quarters and future 2 quarters)
+    ax.plot(forecast_mean.index, forecast_mean, label='Forecasted Revenue', color='orange', linestyle='--', marker='o')
     # Plot confidence intervals
     ax.fill_between(forecast_ci.index, forecast_ci.iloc[:, 0], forecast_ci.iloc[:, 1], color='orange', alpha=0.3, label='Confidence Interval')
-    ax.set_title("Starbucks Revenue Forecast (Next Quarter)")
+    ax.set_title("Starbucks Revenue Forecast (Past 4 and Next 2 Quarters)")
     ax.set_ylabel("Revenue (in millions)")
     ax.legend()
     ax.grid(True)
     plt.tight_layout()
     st.pyplot(fig)
-    plt.close(fig)  # Close the figure to free memory
+    plt.close(fig)
 else:
     st.warning("⚠️ Forecast data is empty. Check the forecast output above for details.")
-
 # --- Forecast Results Summary Table ---
 st.markdown("""
 ---
