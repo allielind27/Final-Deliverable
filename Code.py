@@ -57,10 +57,11 @@ This application is meant to provide automatic analysis to determine the risk of
 
 # --- CPI Data Scraping (Historical from FRED) ---
 @st.cache_data(ttl=3600)
-def fetch_historical_cpi(dates):
+def fetch_historical_cpi(date_list):
     try:
         base_url = "https://api.stlouisfed.org/fred/series/observations"
         api_key = st.secrets["FRED_API_KEY"]
+        dates = pd.to_datetime(date_list)  # Convert list of strings back to DatetimeIndex
         params = {
             "series_id": "CPIAUCSL",
             "api_key": api_key,
@@ -78,7 +79,7 @@ def fetch_historical_cpi(dates):
         return pd.Series(index=dates, data=0.0)
 
 # --- CPI Integration ---
-df['CPI'] = fetch_historical_cpi(df.index)
+df['CPI'] = fetch_historical_cpi(df.index.strftime('%Y-%m-%d').tolist())
 
 st.markdown("""
 ---
