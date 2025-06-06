@@ -354,9 +354,6 @@ st.markdown("""
 ### 🗞️ Sentiment Analysis
 """)
 
-# Sentiment Analysis
-st.subheader("Earnings Headline Sentiment")
-
 # Initialize session state for headlines
 if 'headlines' not in st.session_state:
     st.session_state.headlines = [
@@ -435,12 +432,7 @@ def score_sentiment(text):
                 else:
                     score += 1
                 matched_phrases.add(phrase)
-                break
-    
-    # Debug output
-    if matched_phrases:
-        st.write(f"Debug - Matched phrases for '{text}': {matched_phrases}, Score: {score}")
-    
+                break   
     return score
 
 # Create two columns for side-by-side input
