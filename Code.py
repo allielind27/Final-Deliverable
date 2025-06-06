@@ -391,25 +391,30 @@ def score_sentiment(text):
             score += 1
     return score
 
-# User input to add a headline
-st.write("**Add a new headline**")
-new_headline = st.text_input("Enter a headline:")
-if st.button("Add Headline"):
-    if new_headline.strip():
-        st.session_state.headlines.append(new_headline)
-        st.success(f"Added: {new_headline}")
-    else:
-        st.warning("Please enter a valid headline.")
+# Create two columns for side-by-side input
+col1, col2 = st.columns(2)
 
-# User input to remove a headline
-st.write("**Remove a headline**")
-headline_to_remove = st.selectbox("Select a headline to remove:", [""] + st.session_state.headlines)
-if st.button("Remove Headline"):
-    if headline_to_remove:
-        st.session_state.headlines.remove(headline_to_remove)
-        st.success(f"Removed: {headline_to_remove}")
-    else:
-        st.warning("Please select a headline to remove.")
+# Add headline section
+with col1:
+    st.write("**Add a new headline**")
+    new_headline = st.text_input("Enter a headline:", key="add_headline")
+    if st.button("Add Headline"):
+        if new_headline.strip():
+            st.session_state.headlines.append(new_headline)
+            st.success(f"Added: {new_headline}")
+        else:
+            st.warning("Please enter a valid headline.")
+
+# Remove headline section
+with col2:
+    st.write("**Remove a headline**")
+    headline_to_remove = st.selectbox("Select a headline to remove:", [""] + st.session_state.headlines, key="remove_headline")
+    if st.button("Remove Headline"):
+        if headline_to_remove:
+            st.session_state.headlines.remove(headline_to_remove)
+            st.success(f"Removed: {headline_to_remove}")
+        else:
+            st.warning("Please select a headline to remove.")
 
 # Display sentiment results
 st.write("**Sentiment Results**")
