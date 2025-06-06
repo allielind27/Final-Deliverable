@@ -40,7 +40,7 @@ This application is meant to provide automatic analysis to determine the risk of
 def fetch_historical_cpi(dates):
     try:
         base_url = "https://api.stlouisfed.org/fred/series/observations"
-        api_key = "5140f3a1760f911c23923852a41c82d3"  
+        api_key = st.secrets["FRED_API_KEY"]
         params = {
             "series_id": "CPIAUCSL",
             "api_key": api_key,
