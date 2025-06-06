@@ -350,6 +350,21 @@ with col2:
     st.pyplot(fig2)
     plt.close(fig2)
 
+# --- Risk Pop-Up for Diverging Revenue and Ticket Price ---
+# Check if revenue and avg ticket price are moving in opposite directions
+risk_companies = []
+for company, rev_pct, avg_pct in zip(companies, rev_pcts, avg_pcts):
+    # Opposite directions: one is positive, the other is negative
+    if (rev_pct > 0 and avg_pct < 0) or (rev_pct < 0 and avg_pct > 0):
+        risk_companies.append(company)
+
+# Display warning if any companies are at risk
+if risk_companies:
+    st.warning(
+        f"⚠️ **Risk Alert**: Revenue and Average Ticket Price are moving in opposite directions for {', '.join(risk_companies)}. "
+        "This may indicate potential pricing or demand inconsistencies affecting revenue trends."
+    )
+
 st.markdown("""
 ---
 ### 🗞️ Sentiment Analysis
