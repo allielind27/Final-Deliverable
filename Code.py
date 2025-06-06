@@ -11,6 +11,26 @@ import matplotlib.dates
 from openai import OpenAI
 import plotly.express as px
 
+# --- Data Loading ---
+df = pd.read_csv("starbucks_financials_expanded.csv")
+df.columns = df.columns.str.strip()
+df['date'] = pd.to_datetime(df['date'])
+df.set_index('date', inplace=True)
+df = df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
+
+dunkin_df = pd.read_csv("dunkin_financials_generated.csv")
+dunkin_df.columns = dunkin_df.columns.str.strip()
+dunkin_df['date'] = pd.to_datetime(dunkin_df['date'])
+dunkin_df.set_index('date', inplace=True)
+dunkin_df = dunkin_df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
+
+# Load Bruegger's data
+brueggers_df = pd.read_csv("brueggers_financials_generated.csv")
+brueggers_df.columns = brueggers_df.columns.str.strip()
+brueggers_df['date'] = pd.to_datetime(brueggers_df['date'])
+brueggers_df.set_index('date', inplace=True)
+brueggers_df = brueggers_df.asfreq('Q').fillna(method='ffill').fillna(method='bfill')  # Resample and fill NaNs
+
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
 
