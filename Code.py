@@ -573,11 +573,17 @@ else:
 # Forecast accuracy (% difference)
 pct_diff = ((forecasted - actual) / actual * 100).round(2)
 max_forecast_deviation = abs(pct_diff).max()
+avg_forecast_deviation = abs(pct_diff).mean()
 
 # Average ticket price trends
 starbucks_avg_pct = calculate_overall_pct_diff(df.loc[common_dates, 'avg_ticket'])
 dunkin_avg_pct = calculate_overall_pct_diff(dunkin_df.loc[common_dates, 'avg_ticket'])
 brueggers_avg_pct = calculate_overall_pct_diff(brueggers_df.loc[common_dates, 'avg_ticket'])
+
+# Revenue trends
+starbucks_rev_pct = calculate_overall_pct_diff(df.loc[common_dates, 'revenue'])
+dunkin_rev_pct = calculate_overall_pct_diff(dunkin_df.loc[common_dates, 'revenue'])
+brueggers_rev_pct = calculate_overall_pct_diff(brueggers_df.loc[common_dates, 'revenue'])
 
 # Sentiment analysis
 sentiment_counts_dict = sentiment_counts.set_index("Sentiment")["Count"].to_dict()
@@ -586,16 +592,30 @@ positive_pct = (sentiment_counts_dict.get("Positive", 0) / total_headlines * 100
 negative_pct = (sentiment_counts_dict.get("Negative", 0) / total_headlines * 100) if total_headlines > 0 else 0
 neutral_pct = (sentiment_counts_dict.get("Neutral", 0) / total_headlines * 100) if total_headlines > 0 else 0
 
-# Dynamic summary prompt
+# Risk assessment for diverging trends
+risk_companies = []
+for company, rev_pct, avg_pct in zip(["Starbucks", "Dunkin", "Dutch Bro's"], [starbucks_rev_pct, dunkin_rev_pct, brueggers_rev_pct], [starbucks_avg_pct, dunkin_avg_pct, brueggers_avg_pct]):
+    if (rev_pct > 0 and avg_pct < 0) or (rev_pct < 0 and avg_pct > 0):
+        risk_companies.append(company)
+
+# Last actual and forecasted values
+last_actual_revenue = actual.iloc[0] if not actual.empty else 0
+last_forecasted_revenue = forecasted.iloc[0] if not forecasted.empty else 0
+future_forecast = forecast_mean[-2:].round(2).to_dict()  # Next 2 quarters forecast
+
+# Dynamic summary prompt with all available data
 summary_prompt = f"""
 You are an AI financial assistant reviewing a quarterly report for Starbucks.
 
 TASK:
-Write a short audit-focused summary (under 100 words) evaluating whether revenue appears overstated, based on:
-- Forecast accuracy: Forecasted revenues deviated by up to {max_forecast_deviation:.1f}% from actuals.
-- Average transaction size trends: Starbucks' average ticket price changed by {starbucks_avg_pct:.1f}%, compared to Dunkin ({dunkin_avg_pct:.1f}%) and Dutch Bros ({brueggers_avg_pct:.1f}%).
-- Public sentiment: Sentiment analysis shows {positive_pct:.0f}% Positive, {negative_pct:.0f}% Negative, {neutral_pct:.0f}% Neutral.
-Use clear, professional language suitable for a boardroom setting.
+Write a concise audit summary (50-100 words) evaluating whether revenue appears overstated, based on:
+- Forecast accuracy: Max deviation {max_forecast_deviation:.1f}%, average deviation {avg_forecast_deviation:.1f}% between forecasted and actual revenues.
+- Last quarter comparison: Actual revenue ${last_actual_revenue:.1f}M, forecasted ${last_forecasted_revenue:.1f}M.
+- Future forecast: {future_forecast}.
+- KPI trends: Starbucks' ticket price changed by {starbucks_avg_pct:.1f}%, revenue by {starbucks_rev_pct:.1f}%; Dunkin ticket {dunkin_avg_pct:.1f}%, revenue {dunkin_rev_pct:.1f}%; Dutch Bros ticket {brueggers_avg_pct:.1f}%, revenue {brueggers_rev_pct:.1f}%.
+- Diverging trends: Risk in {', '.join(risk_companies) if risk_companies else 'none'}.
+- Sentiment: {positive_pct:.0f}% Positive, {negative_pct:.0f}% Negative, {neutral_pct:.0f}% Neutral.
+Use professional language for a boardroom setting.
 """
 
 # Initialize OpenAI client with API key from secrets
