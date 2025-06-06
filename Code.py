@@ -152,8 +152,6 @@ if train_revenue.shape[0] >= 12:  # Ensure enough data for training
         forecast = results.get_forecast(steps=total_steps, exog=forecast_exog)
         forecast_mean = forecast.predicted_mean
         forecast_ci = forecast.conf_int()
-        st.write(f"Forecast mean:\n{forecast_mean}")
-        st.write(f"Forecast confidence intervals:\n{forecast_ci}")
         # Set indices to match the test and future periods
         forecast_mean.index = forecast_exog.index
         forecast_ci.index = forecast_exog.index
