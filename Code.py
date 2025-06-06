@@ -142,7 +142,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 if train_revenue.shape[0] >= 12:  # Ensure enough data for training
-    st.write(f"Training data points available: {train_revenue.shape[0]}")
     try:
         model = SARIMAX(train_revenue, exog=train_exog, order=(1,0,1), seasonal_order=(0,1,0,4))
         results = model.fit(disp=False)
