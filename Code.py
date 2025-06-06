@@ -348,6 +348,8 @@ with col2:
     st.pyplot(fig2)
     plt.close(fig2)
 
+import streamlit as st
+
 st.markdown("""
 ---
 ### 🗞️ Sentiment Analysis
@@ -355,22 +357,69 @@ st.markdown("""
 
 # Sentiment Analysis
 st.subheader("Earnings Headline Sentiment")
-headlines = [
-    "Starbucks beats expectations with strong Q1 sales",
-    "Concerns arise over Starbucks' China performance",
-    "Starbucks forecasts modest growth despite inflation"
-]
+
+# Initialize session state for headlines
+if 'headlines' not in st.session_state:
+    st.session_state.headlines = [
+        "Starbucks beats expectations with strong Q1 sales",
+        "Concerns arise over Starbucks' China performance",
+        "Starbucks forecasts modest growth despite inflation"
+    ]
+
+# Keyword lists
 positive_keywords = ["beats", "strong", "growth", "record", "positive"]
 negative_keywords = ["concerns", "misses", "slowdown", "decline", "drop"]
+negation_words = ["not", "never", "no"]
 
+# Sentiment scoring function with negation handling
 def score_sentiment(text):
     text = text.lower()
-    return sum(word in text for word in positive_keywords) - sum(word in text for word in negative_keywords)
+    words = text.split()
+    score = 0
+    for i, word in enumerate(words):
+        # Check for positive keyword, not preceded by negation
+        if word in positive_keywords and (i == 0 or words[i-1] not in negation_words):
+            score += 1
+        # Negated positive keyword counts as negative
+        elif word in positive_keywords and words[i-1] in negation_words:
+            score -= 1
+        # Check for negative keyword, not preceded by negation
+        elif word in negative_keywords and (i == 0 or words[i-1] not in negation_words):
+            score -= 1
+        # Negated negative keyword counts as positive
+        elif word in negative_keywords and words[i-1] in negation_words:
+            score += 1
+    return score
 
-sentiments = [score_sentiment(h) for h in headlines]
-for h, s in zip(headlines, sentiments):
-    sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
-    st.write(f"{sentiment_type}: {h}")
+# User input to add a headline
+st.write("**Add a new headline**")
+new_headline = st.text_input("Enter a headline:")
+if st.button("Add Headline"):
+    if new_headline.strip():
+        st.session_state.headlines.append(new_headline)
+        st.success(f"Added: {new_headline}")
+    else:
+        st.warning("Please enter a valid headline.")
+
+# User input to remove a headline
+st.write("**Remove a headline**")
+headline_to_remove = st.selectbox("Select a headline to remove:", [""] + st.session_state.headlines)
+if st.button("Remove Headline"):
+    if headline_to_remove:
+        st.session_state.headlines.remove(headline_to_remove)
+        st.success(f"Removed: {headline_to_remove}")
+    else:
+        st.warning("Please select a headline to remove.")
+
+# Display sentiment results
+st.write("**Sentiment Results**")
+if st.session_state.headlines:
+    sentiments = [score_sentiment(h) for h in st.session_state.headlines]
+    for h, s in zip(st.session_state.headlines, sentiments):
+        sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
+        st.write(f"{sentiment_type}: {h}")
+else:
+    st.write("No headlines to analyze.")
 
 st.markdown("""
 <hr>
