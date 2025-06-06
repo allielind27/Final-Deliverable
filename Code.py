@@ -404,24 +404,34 @@ negation_words = [
 def score_sentiment(text):
     text = text.lower()
     score = 0
-    # Check for phrases (multi-word keywords)
+    matched_phrases = set()  # Track matched phrases to avoid double-counting
+    
+    # Check for positive phrases
     for phrase in positive_keywords:
-        if phrase in text:
-            # Check if any negation word appears before the phrase
+        if phrase in text and phrase not in matched_phrases:
             phrase_start = text.index(phrase)
             preceding_text = text[:phrase_start]
             if not any(n in preceding_text for n in negation_words):
                 score += 1
             else:
                 score -= 1
+            matched_phrases.add(phrase)
+    
+    # Check for negative phrases
     for phrase in negative_keywords:
-        if phrase in text:
+        if phrase in text and phrase not in matched_phrases:
             phrase_start = text.index(phrase)
             preceding_text = text[:phrase_start]
             if not any(n in preceding_text for n in negation_words):
                 score -= 1
             else:
                 score += 1
+            matched_phrases.add(phrase)
+    
+    # Debug: Show matched phrases
+    if score != 0:
+        st.write(f"Debug - Matched phrases for '{text}': {matched_phrases}, Score: {score}")
+    
     return score
 
 # Create two columns for side-by-side input
