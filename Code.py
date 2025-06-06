@@ -355,9 +355,6 @@ st.markdown("""
 ### 🗞️ Sentiment Analysis
 """)
 
-# Sentiment Analysis
-st.subheader("Earnings Headline Sentiment")
-
 # Initialize session state for headlines
 if 'headlines' not in st.session_state:
     st.session_state.headlines = [
