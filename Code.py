@@ -220,6 +220,7 @@ st.markdown("""
 st.markdown("""
 ---
 ### 📊 KPI Insights
+This section provides visualizations of average ticket size, and revenue over time for Starbucks and it's main competitors.
 """)
 
 # Align on shared dates across all three datasets
