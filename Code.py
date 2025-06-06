@@ -75,15 +75,15 @@ def fetch_historical_cpi(date_list):
         cpi_data = {pd.to_datetime(d["date"]): float(d["value"]) for d in data if d["value"] != "."}
         cpi_series = pd.Series(cpi_data).reindex(dates, method='ffill').fillna(method='bfill')
         fetch_time = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S %Z')
-        cpi_series.name = fetch_time  # Store fetch time as series name
-        return cpi_series
+        return cpi_series, fetch_time  # Return both CPI series and fetch time
     except Exception as e:
         st.error(f"❌ Failed to fetch historical CPI: {e}")
-        return pd.Series(index=dates, data=0.0)
+        return pd.Series(index=dates, data=0.0), pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S %Z')
 
 # --- CPI Integration ---
-df['CPI'] = fetch_historical_cpi(df.index.strftime('%Y-%m-%d').tolist())
-fetch_time = df['CPI'].name  # Retrieve the fetch time
+cpi_data, fetch_time = fetch_historical_cpi(df.index.strftime('%Y-%m-%d').tolist())
+df['CPI'] = cpi_data  # Assign only the CPI series to the DataFrame
+
 st.markdown(f"""
 ---
 #### 📊 CPI Data Source
@@ -93,7 +93,7 @@ This economic indicator serves as an exogenous input in the ARIMAX forecast to m
 **Series ID:** [CPIAUCSL](https://fred.stlouisfed.org/series/CPIAUCSL)  
 **Title:** Consumer Price Index for All Urban Consumers: All Items (Not Seasonally Adjusted)  
 **Source:** U.S. Bureau of Labor Statistics  
-**Date Fetched:** {fetch_time}
+**Data Fetched:** {fetch_time}
 """)
 
 # --- User Input for CPI ---
