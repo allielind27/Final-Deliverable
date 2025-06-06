@@ -355,6 +355,9 @@ st.markdown("""
 ### 🗞️ Sentiment Analysis
 """)
 
+# Sentiment Analysis
+st.subheader("Earnings Headline Sentiment")
+
 # Initialize session state for headlines
 if 'headlines' not in st.session_state:
     st.session_state.headlines = [
@@ -365,7 +368,6 @@ if 'headlines' not in st.session_state:
 
 # Keyword lists
 positive_keywords = [
-    # Financial and Performance
     "beats expectations", "exceeds expectations", "exceeds forecasts", "exceeds guidance", "strong",
     "strength", "growth", "record", "positive", "profit", "increased", "expansion", "surged", "surge",
     "resilient", "improved", "robust", "momentum", "uptrend", "tops", "outperforms", "success",
@@ -378,27 +380,22 @@ positive_keywords = [
     "acquitted", "authorized", "reinstated", "accretive", "liquidity", "refinanced", "renewed",
     "restructured", "deleveraged", "covered", "hedged", "ratified", "voted", "approved", "unanimous",
     "surplus", "milestone", "capitalized", "strengthened", "fortified", "certified", "empowered",
-    "revitalized", "endorsed", "appointed", "nominated", "balanced", "compliant", "merged",
-    "diversified", "aligned", "synergistic", "acquired", "launched", "adopted", "standardized",
-    "cohesive", "integrated", "optimized", "raises guidance", "raises outlook", "record sales",
-    "market leader", "breakthrough", "innovation", "patent granted", "expansion plans", "new markets",
-    # Operational
-    "efficient", "evolving", "streamlined", "optimized", "operational excellence", "inventory efficiency",
-    "cost optimization", "supply chain recovery", "traffic gains", "demand resilience",
-    # Emotional and General
-    "amazing", "awesome", "brilliant", "cool", "delightful", "excellent", "fantastic", "friendly",
-    "fun", "great", "happy", "helpful", "inspiring", "joyful", "kind", "loved", "lovely",
-    "motivated", "nice", "outstanding", "pleasant", "satisfying", "smart", "smooth", "stellar",
-    "stronger", "super", "terrific", "thankful", "trusted", "welcoming", "wonderful", "admirable",
-    "beautiful", "cheerful", "commendable", "courteous", "dedicated", "dependable", "encouraging",
-    "energetic", "enthusiastic", "fair", "favorable", "funny", "genuine", "grateful", "honest",
-    "intelligent", "loving", "neat", "nice-looking", "peaceful", "polite", "positive-minded",
-    "quick", "refreshing", "respectful", "safe", "sharp", "skillful", "supportive", "tidy",
-    "upbeat", "vibrant", "warm", "wise", "worthy"
+    "revitalized", "endorsed", "appointed", "nominated", "balanced", "merged", "diversified",
+    "aligned", "synergistic", "acquired", "launched", "adopted", "standardized", "cohesive",
+    "integrated", "optimized", "raises guidance", "raises outlook", "record sales", "market leader",
+    "breakthrough", "innovation", "patent granted", "expansion plans", "new markets", "efficient",
+    "evolving", "operational excellence", "inventory efficiency", "cost optimization",
+    "supply chain recovery", "traffic gains", "demand resilience", "amazing", "awesome", "brilliant",
+    "cool", "delightful", "excellent", "fantastic", "friendly", "fun", "great", "happy", "helpful",
+    "inspiring", "joyful", "kind", "loved", "lovely", "motivated", "nice", "outstanding", "pleasant",
+    "satisfying", "smart", "smooth", "stellar", "stronger", "super", "terrific", "thankful",
+    "trusted", "welcoming", "wonderful", "admirable", "beautiful", "cheerful", "commendable",
+    "courteous", "dedicated", "dependable", "encouraging", "energetic", "enthusiastic", "fair",
+    "favorable", "funny", "genuine", "grateful", "honest", "intelligent", "loving", "neat",
+    "nice-looking", "peaceful", "polite", "positive-minded", "quick", "refreshing", "respectful",
+    "safe", "sharp", "skillful", "supportive", "tidy", "upbeat", "vibrant", "warm", "wise", "worthy"
 ]
-
 negative_keywords = [
-    # Financial and Performance
     "misses expectations", "below expectations", "earnings miss", "revenue miss", "shortfall", "decline",
     "drop", "slump", "loss", "cut", "downgrade", "underperforms", "underperformed", "disappointing",
     "weak", "volatility", "downtrend", "slowdown", "plummet", "collapse", "unexpected", "shrinking",
@@ -414,20 +411,17 @@ negative_keywords = [
     "instability", "misstated", "misclassified", "refuted", "pressured", "strained", "overstated",
     "disqualified", "malfunction", "revoked", "restatement", "uncertain", "risky", "speculative",
     "margin squeeze", "revenue decline", "profit warning", "cost overrun", "budget overrun",
-    # Operational
-    "inefficiency", "inefficient", "supply chain issues", "staff shortage", "store closures",
-    "inventory glut", "slower conversion", "operational challenges", "system failure",
-    # Emotional and General
-    "annoying", "awful", "bad", "boring", "broken", "careless", "cold", "confusing", "cruel",
-    "damaged", "dirty", "disappointing", "dull", "frustrating", "gloomy", "gross", "hard",
-    "horrible", "hostile", "hurtful", "ignorant", "impolite", "inaccurate", "inconsiderate",
-    "inept", "lazy", "loud", "mean", "messy", "nasty", "negative", "noisy", "painful",
-    "poor", "rude", "sad", "scary", "selfish", "shameful", "shocking", "slow", "smelly",
-    "stale", "stressful", "stupid", "tense", "terrible", "thoughtless", "toxic", "ugly",
-    "unbearable", "unclear", "unfair", "unfriendly", "unhappy", "unpleasant", "unreliable",
+    "inefficiency", "supply chain issues", "staff shortage", "store closures", "inventory glut",
+    "slower conversion", "operational challenges", "system failure", "legal battles", "lawsuit",
+    "litigation", "struggling", "facing charges", "regulatory issues", "annoying", "awful", "bad",
+    "boring", "broken", "careless", "cold", "confusing", "cruel", "damaged", "dirty", "disappointing",
+    "dull", "frustrating", "gloomy", "gross", "hard", "horrible", "hostile", "hurtful", "ignorant",
+    "impolite", "inaccurate", "inconsiderate", "inept", "lazy", "loud", "mean", "messy", "nasty",
+    "negative", "noisy", "painful", "poor", "rude", "sad", "scary", "selfish", "shameful", "shocking",
+    "slow", "smelly", "stale", "stressful", "stupid", "tense", "terrible", "thoughtless", "toxic",
+    "ugly", "unbearable", "unclear", "unfair", "unfriendly", "unhappy", "unpleasant", "unreliable",
     "upset", "useless", "vague", "worthless", "wrong"
 ]
-
 negation_words = [
     "not", "no", "never", "none", "without", "rarely", "hardly", "barely", "didn't", "doesn't",
     "wasn't", "isn't", "aren't", "can't", "couldn't", "won't", "hasn't", "haven't", "shouldn't",
@@ -435,7 +429,7 @@ negation_words = [
     "incomplete", "short of", "absence of", "devoid of", "ain’t", "refuses", "stops", "prevents"
 ]
 
-# Sentiment scoring function with exact phrase matching
+# Sentiment scoring function with exact phrase matching and single-word fallback
 def score_sentiment(text):
     text = text.lower()
     score = 0
@@ -470,7 +464,30 @@ def score_sentiment(text):
                 else:
                     score += 1
                 matched_phrases.add(phrase)
-                break   
+                break
+    
+    # Fallback: Check single words in keywords (if no phrases matched)
+    if score == 0:  # Only check single words if no phrases matched
+        for word in words:
+            if word in [kw for kw in positive_keywords if ' ' not in kw] and word not in matched_phrases:
+                preceding_text = ' '.join(words[:words.index(word)])
+                if not any(n in preceding_text for n in negation_words):
+                    score += 1
+                else:
+                    score -= 1
+                matched_phrases.add(word)
+            elif word in [kw for kw in negative_keywords if ' ' not in kw] and word not in matched_phrases:
+                preceding_text = ' '.join(words[:words.index(word)])
+                if not any(n in preceding_text for n in negation_words):
+                    score -= 1
+                else:
+                    score += 1
+                matched_phrases.add(word)
+    
+    # Debug output
+    if matched_phrases:
+        st.write(f"Debug - Matched phrases for '{text}': {matched_phrases}, Score: {score}")
+    
     return score
 
 # Create two columns for side-by-side input
