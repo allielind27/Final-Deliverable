@@ -484,10 +484,6 @@ def score_sentiment(text):
                     score += 1
                 matched_phrases.add(word)
     
-    # Debug output
-    if matched_phrases:
-        st.write(f"Debug - Matched phrases for '{text}': {matched_phrases}, Score: {score}")
-    
     return score
 
 # Create two columns for side-by-side input
