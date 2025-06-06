@@ -362,7 +362,7 @@ if 'headlines' not in st.session_state:
     st.session_state.headlines = [
         "Starbucks beats expectations with strong Q1 sales",
         "Concerns arise over Starbucks' China performance",
-        "Starbucks releases new drink"
+        "Starbucks is facing strong headwinds in urban markets"
     ]
 
 # Keyword lists
