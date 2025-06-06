@@ -220,7 +220,7 @@ st.markdown("""
 st.markdown("""
 ---
 ### 📊 KPI Insights
-This section provides visualizations of average ticket size, and revenue over time for Starbucks and it's main competitors.
+This section provides visualizations of Average Ticket Price, and Revenue over time for Starbucks and it's main competitors.
 """)
 
 # Align on shared dates across all three datasets
@@ -231,7 +231,7 @@ col1, col2 = st.columns(2)
 
 # --- Plot Average Ticket Size ---
 with col1:
-    st.subheader("Average Ticket Size")
+    st.subheader("Average Ticket Price")
     fig1, ax1 = plt.subplots(figsize=(6, 4))
     starbucks_avg = df.loc[common_dates, 'avg_ticket']
     dunkin_avg = dunkin_df.loc[common_dates, 'avg_ticket']
@@ -240,7 +240,7 @@ with col1:
     ax1.plot(common_dates, dunkin_avg, label="Dunkin", color="#FF6F00", linewidth=2)
     ax1.plot(common_dates, brueggers_avg, label="Dutch Bro's", color="#8B4513", linewidth=2)
     ax1.set_ylabel("Avg Ticket ($)")
-    ax1.set_title("Average Ticket Size Over Time")
+    ax1.set_title("Average Ticket Price Over Time")
     ax1.legend()
     ax1.grid(True)
     plt.xticks(rotation=45)
@@ -271,7 +271,7 @@ with col2:
 st.markdown("""
 ---
 ### 📊 Overall Percentage Differences in KPIs
-This section shows the overall percentage differences in Average Ticket Size and Revenue for Starbucks, Dunkin', and Dutch Bro's across the entire time period.
+This section shows the overall percentage differences in Average Ticket Price and Revenue for Starbucks, Dunkin', and Dutch Bro's across the entire time period.
 """)
 
 # Calculate overall percentage difference for each metric
@@ -315,7 +315,7 @@ with col1:
     
     # Customize plot
     ax1.set_ylabel("% Change in Avg Ticket")
-    ax1.set_title("Overall % Change in Avg Ticket Size")
+    ax1.set_title("Overall % Change in Avg Ticket Price")
     ax1.grid(True, axis='y')
     ax1.axhline(0, color='black', linestyle='--', linewidth=0.5)
     plt.tight_layout()
