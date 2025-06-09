@@ -52,7 +52,7 @@ st.markdown("""
 # --- App Summary ---
 st.markdown("""
 ### 📘 App Thesis
-Starbucks’ revenue appears to be overstated because CPI, Loyalty Membership, and Average Ticket Price are not related with revenue growth.
+Starbucks’ revenue appears to be overstated because CPI and Average Ticket Price are not related with revenue growth.
 This application is meant to provide automatic analysis to determine the risk of overstated revenue.
 """)
 
