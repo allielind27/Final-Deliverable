@@ -10,6 +10,7 @@ import warnings
 import matplotlib.dates
 from openai import OpenAI
 import plotly.express as px
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 # --- Data Loading ---
 df = pd.read_csv("starbucks_financials_expanded.csv")
@@ -464,62 +465,11 @@ negation_words = [
     "incomplete", "short of", "absence of", "devoid of", "ain’t", "refuses", "stops", "prevents"
 ]
 
-# Sentiment scoring function with exact phrase matching and single-word fallback
-def score_sentiment(text):
-    text = text.lower()
-    score = 0
-    matched_phrases = set()
-    words = text.split()
-    
-    # Sort keywords by length (longest first) to prioritize multi-word phrases
-    sorted_positive_keywords = sorted(positive_keywords, key=len, reverse=True)
-    sorted_negative_keywords = sorted(negative_keywords, key=len, reverse=True)
-    
-    # Check for positive phrases
-    for phrase in sorted_positive_keywords:
-        phrase_words = phrase.split()
-        for i in range(len(words) - len(phrase_words) + 1):
-            if ' '.join(words[i:i + len(phrase_words)]) == phrase:
-                preceding_text = ' '.join(words[:i])
-                if not any(n in preceding_text for n in negation_words):
-                    score += 1
-                else:
-                    score -= 1
-                matched_phrases.add(phrase)
-                break
-    
-    # Check for negative phrases
-    for phrase in sorted_negative_keywords:
-        phrase_words = phrase.split()
-        for i in range(len(words) - len(phrase_words) + 1):
-            if ' '.join(words[i:i + len(phrase_words)]) == phrase:
-                preceding_text = ' '.join(words[:i])
-                if not any(n in preceding_text for n in negation_words):
-                    score -= 1
-                else:
-                    score += 1
-                matched_phrases.add(phrase)
-                break
-    
-    # Fallback: Check single words in keywords (if no phrases matched)
-    if score == 0:  # Only check single words if no phrases matched
-        for word in words:
-            if word in [kw for kw in positive_keywords if ' ' not in kw] and word not in matched_phrases:
-                preceding_text = ' '.join(words[:words.index(word)])
-                if not any(n in preceding_text for n in negation_words):
-                    score += 1
-                else:
-                    score -= 1
-                matched_phrases.add(word)
-            elif word in [kw for kw in negative_keywords if ' ' not in kw] and word not in matched_phrases:
-                preceding_text = ' '.join(words[:words.index(word)])
-                if not any(n in preceding_text for n in negation_words):
-                    score -= 1
-                else:
-                    score += 1
-                matched_phrases.add(word)
-    
-    return score
+analyzer = SentimentIntensityAnalyzer()
+def score_sentiment_vader(text):
+    scores = analyzer.polarity_scores(text)
+    compound = scores['compound']
+    return 1 if compound > 0.05 else -1 if compound < -0.05 else 0
 
 # Create two columns for side-by-side input
 col1, col2 = st.columns(2)
