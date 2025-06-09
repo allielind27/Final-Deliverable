@@ -612,7 +612,6 @@ You are an AI financial assistant reviewing a quarterly report for Starbucks.
 TASK:
 Write a concise audit summary (90-100 words) evaluating revenue overstatement risk. Use professional language for a boardroom setting. Use the following data verbatim: 
 - Forecast accuracy: Max deviation {max_forecast_deviation:.1f}%, average {avg_forecast_deviation:.1f}%. Flag >5% as risk.
-- Last quarter: {last_quarter_data['actual_revenue']} actual, {last_quarter_data['forecasted_revenue']} forecasted.
 - Future forecast: {future_forecast_str}.
 - KPI trends: Starbucks ticket {starbucks_avg_pct:.1f}%, revenue {starbucks_rev_pct:.1f}%; Dunkin ticket {dunkin_avg_pct:.1f}%, revenue {dunkin_rev_pct:.1f}%; Dutch Bros ticket {brueggers_avg_pct:.1f}%, revenue {brueggers_rev_pct:.1f}%.
 - Diverging trends: Risk in {', '.join(risk_companies) if risk_companies else 'none'}.
