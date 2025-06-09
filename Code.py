@@ -389,82 +389,6 @@ if risk_companies:
         "This may indicate potential pricing or demand inconsistencies affecting revenue trends."
     )
 
-st.markdown("""
----
-### 🗞️ Sentiment Analysis
-""")
-
-# Initialize session state for headlines
-if 'headlines' not in st.session_state:
-    st.session_state.headlines = [
-        "Starbucks beats expectations with strong Q1 sales",
-        "Starbucks reports weak earnings",
-        "Starbucks releases new drink"
-    ]
-
-# Keyword lists
-positive_keywords = [
-    "beats expectations", "exceeds expectations", "exceeds forecasts", "exceeds guidance", "strong",
-    "strength", "growth", "record", "positive", "profit", "increased", "expansion", "surged", "surge",
-    "resilient", "improved", "robust", "momentum", "uptrend", "tops", "outperforms", "success",
-    "accelerated", "recovery", "rebound", "bullish", "gained", "sustainable", "upside", "profitable",
-    "stable", "expanded", "improves", "boost", "advances", "resurgence", "rebounded", "excels",
-    "cashflow", "resilience", "uptick", "elevated", "surpassing", "superior", "scaling", "gaining",
-    "thriving", "leadership", "stability", "peak", "streamlined", "enhanced", "consistent",
-    "reaffirmed", "beneficial", "rising", "maximized", "favorably", "delivered", "dividend", "upgrade",
-    "oversubscribed", "greenlighted", "licensed", "compliant", "settled", "cleared", "dismissed",
-    "acquitted", "authorized", "reinstated", "accretive", "liquidity", "refinanced", "renewed",
-    "restructured", "deleveraged", "covered", "hedged", "ratified", "voted", "approved", "unanimous",
-    "surplus", "milestone", "capitalized", "strengthened", "fortified", "certified", "empowered",
-    "revitalized", "endorsed", "appointed", "nominated", "balanced", "merged", "diversified",
-    "aligned", "synergistic", "acquired", "launched", "adopted", "standardized", "cohesive",
-    "integrated", "optimized", "raises guidance", "raises outlook", "record sales", "market leader",
-    "breakthrough", "innovation", "patent granted", "expansion plans", "new markets", "efficient",
-    "evolving", "operational excellence", "inventory efficiency", "cost optimization",
-    "supply chain recovery", "traffic gains", "demand resilience", "amazing", "awesome", "brilliant",
-    "cool", "delightful", "excellent", "fantastic", "friendly", "fun", "great", "happy", "helpful",
-    "inspiring", "joyful", "kind", "loved", "lovely", "motivated", "nice", "outstanding", "pleasant",
-    "satisfying", "smart", "smooth", "stellar", "stronger", "super", "terrific", "thankful",
-    "trusted", "welcoming", "wonderful", "admirable", "beautiful", "cheerful", "commendable",
-    "courteous", "dedicated", "dependable", "encouraging", "energetic", "enthusiastic", "fair",
-    "favorable", "funny", "genuine", "grateful", "honest", "intelligent", "loving", "neat",
-    "nice-looking", "peaceful", "polite", "positive-minded", "quick", "refreshing", "respectful",
-    "safe", "sharp", "skillful", "supportive", "tidy", "upbeat", "vibrant", "warm", "wise", "worthy"
-]
-negative_keywords = [
-    "misses expectations", "below expectations", "earnings miss", "revenue miss", "shortfall", "decline",
-    "drop", "slump", "loss", "cut", "downgrade", "underperforms", "underperformed", "disappointing",
-    "weak", "volatility", "downtrend", "slowdown", "plummet", "collapse", "unexpected", "shrinking",
-    "softness", "suffers", "reduced", "cutting", "glut", "headwinds", "deficit", "attrition",
-    "cautious", "delay", "weaker", "slower", "constrained", "challenging", "stagnant", "squeezed",
-    "pullback", "impacted", "shortage", "ineffective", "unfavorable", "overexposed", "problematic",
-    "unmet", "unresolved", "noncompliant", "penalized", "fined", "recalled", "delisted", "downgraded",
-    "warned", "delayed", "withdrawn", "cancelled", "diluted", "sued", "suspension", "restated",
-    "investigated", "charged", "violated", "exposed", "bankrupt", "insolvent", "declined", "fraud",
-    "default", "divestment", "writeoff", "abandoned", "resigned", "terminated", "fired", "lawsuit",
-    "scrapped", "risked", "underfunded", "worsened", "triggered", "noncompliance", "infringed",
-    "litigated", "flagged", "breach", "blacklisted", "subpoenaed", "dismissed", "weakness",
-    "instability", "misstated", "misclassified", "refuted", "pressured", "strained", "overstated",
-    "disqualified", "malfunction", "revoked", "restatement", "uncertain", "risky", "speculative",
-    "margin squeeze", "revenue decline", "profit warning", "cost overrun", "budget overrun",
-    "inefficiency", "supply chain issues", "staff shortage", "store closures", "inventory glut",
-    "slower conversion", "operational challenges", "system failure", "legal battles", "lawsuit",
-    "litigation", "struggling", "facing charges", "regulatory issues", "annoying", "awful", "bad",
-    "boring", "broken", "careless", "cold", "confusing", "cruel", "damaged", "dirty", "disappointing",
-    "dull", "frustrating", "gloomy", "gross", "hard", "horrible", "hostile", "hurtful", "ignorant",
-    "impolite", "inaccurate", "inconsiderate", "inept", "lazy", "loud", "mean", "messy", "nasty",
-    "negative", "noisy", "painful", "poor", "rude", "sad", "scary", "selfish", "shameful", "shocking",
-    "slow", "smelly", "stale", "stressful", "stupid", "tense", "terrible", "thoughtless", "toxic",
-    "ugly", "unbearable", "unclear", "unfair", "unfriendly", "unhappy", "unpleasant", "unreliable",
-    "upset", "useless", "vague", "worthless", "wrong"
-]
-negation_words = [
-    "not", "no", "never", "none", "without", "rarely", "hardly", "barely", "didn't", "doesn't",
-    "wasn't", "isn't", "aren't", "can't", "couldn't", "won't", "hasn't", "haven't", "shouldn't",
-    "wouldn't", "neither", "nor", "fails to", "fail to", "lacks", "unmet", "avoids", "excludes",
-    "incomplete", "short of", "absence of", "devoid of", "ain’t", "refuses", "stops", "prevents"
-]
-
 # Initialize VADER analyzer
 analyzer = SentimentIntensityAnalyzer()
 
@@ -479,12 +403,26 @@ def score_sentiment_vader(text):
         st.error(f"Sentiment analysis failed for '{text}': {e}")
         return 0  # Default to neutral on error
 
-# Create two columns for side-by-side input
+# Sentiment analysis section
+st.markdown("""
+---
+### 🗞️ Sentiment Analysis
+Analyze the sentiment of financial headlines to gauge public and market perceptions impacting Starbucks' revenue.
+""")
+
+# Initialize session state for headlines if not present
+if 'headlines' not in st.session_state:
+    st.session_state.headlines = [
+        "Starbucks beats expectations with strong Q1 sales",
+        "Starbucks reports weak earnings",
+        "Starbucks releases new drink"
+    ]
+
+# Create two columns for headline input/removal
 col1, col2 = st.columns(2)
 
-# Add headline section
 with col1:
-    st.write("**Add a new headline**")
+    st.write("**Add a New Headline**")
     new_headline = st.text_input("Enter a headline:", key="add_headline")
     if st.button("Add Headline"):
         if new_headline.strip():
@@ -493,9 +431,8 @@ with col1:
         else:
             st.warning("Please enter a valid headline.")
 
-# Remove headline section
 with col2:
-    st.write("**Remove a headline**")
+    st.write("**Remove a Headline**")
     headline_to_remove = st.selectbox("Select a headline to remove:", [""] + st.session_state.headlines, key="remove_headline", index=0)
     if st.button("Remove Headline"):
         if headline_to_remove:
@@ -507,11 +444,11 @@ with col2:
 # Display sentiment results
 st.write("**Sentiment Results**")
 if st.session_state.headlines:
-    sentiments = [score_sentiment(h) for h in st.session_state.headlines]
+    sentiments = [score_sentiment_vader(h) for h in st.session_state.headlines]
     for h, s in zip(st.session_state.headlines, sentiments):
         sentiment_type = "🟢 Positive" if s > 0 else "🔴 Negative" if s < 0 else "🟡 Neutral"
         st.write(f"{sentiment_type} (Score: {s}): {h}")
-    
+
     # Visualize sentiment distribution
     sentiment_counts = pd.DataFrame({
         "Sentiment": ["Positive", "Negative", "Neutral"],
@@ -526,7 +463,6 @@ if st.session_state.headlines:
     st.plotly_chart(fig)
 else:
     st.write("No headlines to analyze.")
-
 # Calculate summary inputs dynamically
 # Forecast accuracy (% difference)
 pct_diff = ((forecasted - actual) / actual * 100).round(2)
