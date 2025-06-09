@@ -465,11 +465,19 @@ negation_words = [
     "incomplete", "short of", "absence of", "devoid of", "ain’t", "refuses", "stops", "prevents"
 ]
 
+# Initialize VADER analyzer
 analyzer = SentimentIntensityAnalyzer()
+
+# VADER-based sentiment scoring function
 def score_sentiment_vader(text):
-    scores = analyzer.polarity_scores(text)
-    compound = scores['compound']
-    return 1 if compound > 0.05 else -1 if compound < -0.05 else 0
+    try:
+        scores = analyzer.polarity_scores(text)
+        compound = scores['compound']
+        # Adjusted thresholds for financial headlines
+        return 1 if compound >= 0.1 else -1 if compound <= -0.1 else 0
+    except Exception as e:
+        st.error(f"Sentiment analysis failed for '{text}': {e}")
+        return 0  # Default to neutral on error
 
 # Create two columns for side-by-side input
 col1, col2 = st.columns(2)
